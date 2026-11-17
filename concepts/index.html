@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHEEP · שלושה קונספטים</title>
+<style>
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductRegular.otf); font-weight: 400; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductBold.otf); font-weight: 700; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductHeavy.otf); font-weight: 900; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Leon, system-ui, sans-serif; background: #05061A; color: #F2F4FF; padding: 32px 28px 40px; -webkit-font-smoothing: antialiased; }
+h1 { font-size: 28px; font-weight: 900; }
+.lead { margin-top: 6px; font-size: 16px; color: #C9D0F5; max-width: 70ch; line-height: 1.5; }
+.row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 28px; }
+.c { display: flex; flex-direction: column; align-items: center; }
+.frame { width: 312px; height: 675px; border-radius: 40px; overflow: hidden; box-shadow: inset 0 0 0 2px #34374F, 0 20px 50px rgba(0, 0, 0, .5); background: #000; flex: none; }
+.frame iframe { width: 390px; height: 844px; border: 0; transform: scale(.8); transform-origin: top right; }
+.c h2 { margin-top: 18px; font-size: 20px; font-weight: 700; align-self: stretch; }
+.c p { margin-top: 6px; font-size: 15px; color: #C9D0F5; line-height: 1.5; align-self: stretch; }
+.c ul { list-style: none; margin-top: 10px; align-self: stretch; display: grid; gap: 6px; font-size: 14px; line-height: 1.45; }
+.c li { padding-inline-start: 18px; position: relative; color: #C9D0F5; }
+.c li::before { position: absolute; inset-inline-start: 0; font-weight: 700; }
+.plus::before { content: '+'; color: #6CF4FF; }
+.minus::before { content: '−'; color: #FF9A4A; }
+.c a { margin-top: 10px; align-self: stretch; color: #6CF4FF; font-size: 14px; font-weight: 700; text-underline-offset: 4px; }
+@media (max-width: 1100px) { .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <h1>WHEEP · שלושה קונספטים</h1>
+  <p class="lead">אותם נתונים (12 ימים יבשים, לחץ 1031, בכי ב-3.12, דמעה לא מאומתת ב-9.12), שלוש שפות חזותיות. כל מסך אינטראקטיבי.</p>
+  <div class="row">
+    <section class="c">
+      <div class="frame"><iframe src="topo/index.html#map" title="קונספט 1: מפה טופוגרפית"></iframe></div>
+      <h2>1 · מפה טופוגרפית</h2>
+      <p>הרגשות הם שטח: הדחקה וכעס הם הרים, בכי הוא נחל. גוללים בין הימים ורואים את ההרים גדלים והנחל מתייבש.</p>
+      <ul><li class="plus">הכי מרהיב, ה"וואו" של ההצגה</li><li class="plus">זמן וגובה מורגשים פיזית</li><li class="minus">מטאפורה שלישית לצד מזג אוויר וצורות</li><li class="minus">רחוק מ-WHOOP, פחות "אפליקציית מדידה"</li></ul>
+      <a href="topo/index.html#map" target="_blank" rel="noopener">פתח במסך מלא</a>
+    </section>
+    <section class="c">
+      <div class="frame"><iframe src="boubakiki.html" title="קונספט 2: Bouba/Kiki"></iframe></div>
+      <h2>2 · Bouba/Kiki</h2>
+      <p>כל הממשק הוא צורה אחת. הלחץ מחדד אותה ורועד בה, השחרור מעגל אותה. 16 הימים מוצגים כרצף של צורות.</p>
+      <ul><li class="plus">מטאפורה אחת שהיא הקונספט עצמו</li><li class="plus">יורש ישיר של טבעת המאמץ של WHOOP</li><li class="plus">נקרא בשנייה, גם בלי מקרא</li><li class="minus">פחות שכבות מידע, פחות "עומק"</li></ul>
+      <a href="boubakiki.html" target="_blank" rel="noopener">פתח במסך מלא</a>
+    </section>
+    <section class="c">
+      <div class="frame"><iframe src="lupi.html" title="קונספט 3: Lupi"></iframe></div>
+      <h2>3 · יומן מצויר (Lupi)</h2>
+      <p>השבוע מצויר ביד על נייר משבצות: כל סימן הוא אירוע, הגודל הוא העוצמה, והקווקוו הוא ספק. בהשראת Dear Data.</p>
+      <ul><li class="plus">הכי אישי, היד שלך בעבודה</li><li class="plus">הקשר וספק בכל נקודה</li><li class="minus">נראה כמו מחברת, לא כמו מוצר</li><li class="minus">הגשר ל-WHOOP נחלש, והאירוניה הממסדית נעלמת</li></ul>
+      <a href="lupi.html" target="_blank" rel="noopener">פתח במסך מלא</a>
+    </section>
+  </div>
+</body>
+</html>

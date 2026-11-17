@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHEEP · סרט הדגמה</title>
+<!-- Demo film: drives the real WHEEP app (index.html) in an iframe, beside lines from the manifesto.
+     Built for 1920×1080 recording; scales to any window. ?pace=1.4 slows everything. Space restarts. -->
+<style>
+@font-face { font-family: Leon; src: url(fonts/Leon-ProductThin.otf); font-weight: 200; }
+@font-face { font-family: Leon; src: url(fonts/Leon-ProductRegular.otf); font-weight: 400; }
+@font-face { font-family: Leon; src: url(fonts/Leon-ProductBold.otf); font-weight: 700; }
+@font-face { font-family: Leon; src: url(fonts/Leon-ProductHeavy.otf); font-weight: 900; }
+:root { --desk: #FFD23F; --ink: #121212; --ink-2: #2B2B33; --ground: #E4DBFF; --pink: #FF7AC6; --cyan: #3FC8F5; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; background: var(--desk); }
+body { font-family: Leon, system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.num { font-variant-numeric: tabular-nums; }
+
+.stage { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; translate: -50% -50%; }
+#app { position: absolute; left: 250px; top: 90px; width: 450px; height: 900px; border: 0; scale: 1.08; transform-origin: center; background: var(--desk); }
+
+/* the manifesto, beside the phone */
+.say { position: absolute; right: 170px; top: 50%; translate: 0 -50%; width: 820px; transition: opacity .45s ease, translate .45s cubic-bezier(.16, 1, .3, 1); }
+.say.is-out { opacity: 0; translate: 0 calc(-50% + 18px); }
+.say-n { display: inline-block; min-width: 72px; padding: 6px 14px; font-size: 26px; font-weight: 900; text-align: center; background: var(--ink); color: var(--desk); border-radius: 10px; box-shadow: 5px 5px 0 var(--pink); }
+.say-n:empty { display: none; }
+.say-big { margin-top: 26px; font-size: 66px; line-height: 1.12; font-weight: 900; text-wrap: balance; }
+.say-sub { margin-top: 24px; font-size: 34px; line-height: 1.35; font-weight: 400; color: var(--ink-2); text-wrap: pretty; max-width: 760px; }
+.say-sub:empty { display: none; }
+.brand { position: absolute; right: 170px; bottom: 64px; font-size: 20px; font-weight: 700; letter-spacing: .02em; color: var(--ink-2); }
+.brand b { font-weight: 900; letter-spacing: .14em; color: var(--ink); }
+
+/* title cards */
+.card { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; padding: 0 240px; transition: opacity .8s ease; }
+.card[hidden] { display: grid; opacity: 0; pointer-events: none; }
+.card-dark { background: var(--ink); color: #F2F4FF; }
+.card-light { background: var(--ground); }
+.card p { transition: opacity .8s ease, translate .8s cubic-bezier(.16, 1, .3, 1); }
+.card p.is-wait { opacity: 0; translate: 0 16px; }
+.c-time { font-size: 30px; font-weight: 700; letter-spacing: .06em; color: #FFB06E; direction: ltr; }
+.c-big { margin-top: 30px; font-size: 76px; line-height: 1.12; font-weight: 900; text-wrap: balance; }
+.c-sub { margin-top: 34px; font-size: 40px; line-height: 1.35; font-weight: 200; text-wrap: balance; }
+.card-light .c-big { font-size: 84px; }
+.card-light .c-n { display: inline-block; justify-self: center; padding: 6px 16px; font-size: 28px; font-weight: 900; background: var(--ink); color: var(--desk); border-radius: 10px; box-shadow: 5px 5px 0 var(--pink); }
+.c-sign { margin-top: 70px; font-size: 26px; font-weight: 400; color: var(--ink-2); }
+.c-sign b { font-weight: 900; letter-spacing: .14em; color: var(--ink); }
+.c-fine { margin-top: 10px; font-size: 20px; color: var(--ink-2); }
+
+/* a visible finger, so viewers see what is pressed */
+.tap { position: fixed; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; background: rgba(18, 18, 18, .22); border: 3px solid var(--ink); pointer-events: none; opacity: 0; z-index: 9; }
+.tap.is-on { animation: tap .7s ease-out; }
+@keyframes tap { 0% { opacity: 0; scale: .5; } 25% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1.5; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <iframe id="app" title="WHEEP" tabindex="-1"></iframe>
+
+  <section class="say is-out" id="say" aria-live="polite">
+    <span class="say-n num" id="say-n"></span>
+    <p class="say-big" id="say-big"></p>
+    <p class="say-sub" id="say-sub"></p>
+  </section>
+  <p class="brand"><b>WHEEP</b> · אבטיפוס ספקולטיבי · דצמבר 2026</p>
+
+  <section class="card card-dark" id="open">
+    <p class="c-time num">1.12.2026 · 00:00</p>
+    <p class="c-big">בלילה של 1 בדצמבר 2026, הצורך הגברי להוכיח את עצמו נמחק.</p>
+    <p class="c-sub">שבועיים אחרי, מסתבר שהוא לא נמחק. הוא עבר דירה.</p>
+  </section>
+
+  <section class="card card-light" id="close" hidden>
+    <p class="c-n num">08</p>
+    <p class="c-big">זה שחרור, או קופסה חדשה עם יותר משתנים?</p>
+    <p class="c-sign"><b>WHEEP</b> · אבטיפוס ספקולטיבי · שפכטל · תרגיל 2</p>
+    <p class="c-fine">הנתונים, האנשים וקופת רווחה בדיוניים.</p>
+  </section>
+</div>
+<span class="tap" id="tap" aria-hidden="true"></span>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const PACE = Math.max(.2, +new URLSearchParams(location.search).get('pace') || 1);
+  const stage = $('#stage'), frame = $('#app'), say = $('#say'), tapEl = $('#tap');
+  const fit = () => { stage.style.scale = Math.min(innerWidth / 1920, innerHeight / 1080); };
+  addEventListener('resize', fit); fit();
+
+  let run = 0;                                   // bumping it cancels the running film
+  const wait = (ms, id) => new Promise((ok, no) => setTimeout(() => (id === run ? ok() : no('stop')), ms * PACE));
+  const D = () => frame.contentDocument;
+  const el = (s) => D().querySelector(s);
+  const read = (t) => 1400 + t.length * 62;      // reading time for a line of Hebrew
+
+  // a line of the manifesto beside the phone; holds long enough to read it
+  const line = async (id, n, big, sub = '', extra = 0) => {
+    say.classList.add('is-out');
+    await wait(450, id);
+    $('#say-n').textContent = n; $('#say-big').textContent = big; $('#say-sub').textContent = sub;
+    say.classList.remove('is-out');
+    await wait(read(big + sub) + extra, id);
+  };
+  // press something inside WHEEP, with a visible finger
+  const press = async (id, sel) => {
+    const t = el(sel); if (!t) throw new Error(`missing ${sel}`);
+    t.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    await wait(500, id);
+    const f = frame.getBoundingClientRect(), r = t.getBoundingClientRect(), k = f.width / frame.offsetWidth;
+    tapEl.style.left = `${f.left + (r.left + r.width / 2) * k}px`;
+    tapEl.style.top = `${f.top + (r.top + r.height / 2) * k}px`;
+    tapEl.classList.remove('is-on'); void tapEl.offsetWidth; tapEl.classList.add('is-on');
+    await wait(220, id);
+    t.click();
+    await wait(500, id);
+  };
+  const scrollTo = async (id, sel, block = 'center') => { el(sel).scrollIntoView({ block, behavior: 'smooth' }); await wait(900, id); };
+  const load = (hash) => new Promise((ok) => { frame.onload = () => D().fonts.ready.then(ok); frame.src = `index.html?pace=${2 * PACE}&r=${run}${hash}`; });
+  const reveal = async (id, card) => { for (const p of card.querySelectorAll('p')) { p.classList.remove('is-wait'); await wait(read(p.textContent) * .8, id); } };
+
+  const film = async () => {
+    const id = ++run;
+    const open = $('#open'), close = $('#close');
+    close.hidden = true; open.hidden = false; say.classList.add('is-out');
+    open.querySelectorAll('p').forEach((p) => p.classList.add('is-wait'));
+    close.querySelectorAll('p').forEach((p) => p.classList.add('is-wait'));
+    await document.fonts.ready;
+    await wait(800, id);
+    await reveal(id, open);
+    await wait(1200, id);
+
+    // 1 · the opening: a performance tracker at 23:59, WHEEP at midnight
+    await load('#intro');
+    open.hidden = true;
+    line(id, '05', 'אני לא מציע למחוק את האגו.', 'ניסו. הוא תמיד חוזר, בדרך כלל חזק יותר.');
+    await wait(2800, id);                        // the morph starts at 1.5 s × the opening pace (2)
+    await line(id, '06', 'אני מציע להפנות אותו.', 'אותו מכשיר, אותו רצף, אותו שיא אישי. רק מה שנמדד משתנה.', 1600);
+    await wait(1500, id);
+    await press(id, '#ab-go');
+
+    // 2 · today: the score of the day
+    await line(id, '01', 'גבריות היא לא תכונה. היא ציון.', 'הציון של היום: חד. 1031 hPa, 12 ימים בלי דמעה.');
+    await scrollTo(id, '.metrics');
+    await line(id, '07', 'אם גבר מוכן לבכות רק כשזה נספר,', 'אז שזה ייספר. בכי, כעס שנאמר, הדחקות, שיחות עומק.');
+
+    // 3 · EgoCheck stops the plaster before it is sent
+    await scrollTo(id, '#ego-note');
+    await line(id, '03', 'את הסדקים לא מתקנים. מכסים אותם.', 'בבדיחה, באקסל, ב״הכל דבש״. המקלדת עוצרת את השפכטל לפני שהוא נשלח.');
+    await press(id, '[data-ego="fixed"]');
+    await wait(2600, id);
+
+    // 4 · the quick fix is a conversation, and WHEEP still counts it
+    await scrollTo(id, '.talk');
+    line(id, '', 'התיקון המהיר הוא שיחה.', 'אבא. לא דיברתם 9 ימים. WHEEP עדיין סופר.');
+    await wait(2200, id);
+    await press(id, '.person[data-id="dad"]');
+    await wait(900, id);
+    await press(id, '#ts-lines button[data-i="2"]');
+    await wait(700, id);
+    await press(id, '#ts-go');
+    await wait(1400 * 1 + 4600, id);              // ringing, then ~23 demo minutes
+    await press(id, '#call-end');
+    await wait(3600, id);
+
+    // 5 · the hand stays in: "not sure" is data too
+    await scrollTo(id, '.journal');
+    line(id, '10', 'היד נשארת בפנים.', '״לא בטוח״, דמעה שלא אומתה, יום בלי תיוג. מה שאנושי לא נמדד עד הסוף.');
+    await wait(2400, id);
+    await press(id, '.choices [data-answer="unsure"]');
+    await wait(read('היד נשארת בפנים. ״לא בטוח״, דמעה שלא אומתה, יום בלי תיוג. מה שאנושי לא נמדד עד הסוף.') - 2000, id);
+
+    // 6 · the shape over the days: a record, or a shame?
+    await press(id, '#tab-shape');
+    line(id, '', '12 ימים ללא משקעים.', 'זה נקרא כמו שיא. זו בושה, או גביע?');
+    await wait(1600, id);
+    el('#day').value = 0; el('#day').dispatchEvent(new Event('input'));
+    await press(id, '#play');
+    await wait(7600, id);
+
+    // 7 · the league stays
+    await press(id, '#tab-trends');
+    await scrollTo(id, '#month-shapes');
+    await line(id, '02', 'רוב הגברים לא מאמינים בחוקים. כמעט כולם מצייתים להם.', 'החוקים התחלפו. הטבלה נשארה.');
+    await scrollTo(id, '.stats', 'end');
+    await line(id, '', 'אחוזון 8 בקבוצת הגיל.', 'עכשיו מתחרים על מי בכה יותר.');
+
+    // 8 · who profits
+    await press(id, '#tab-profile');
+    line(id, '', 'ומי מרוויח?', 'קופת רווחה. 12% הנחה בפרמיה, תמורת הדמעות שלך.');
+    await wait(2400, id);
+    await scrollTo(id, '.privacy');
+    await press(id, '#share');
+    await wait(read('ומי מרוויח? קופת רווחה. 12% הנחה בפרמיה, תמורת הדמעות שלך.') - 1500, id);
+
+    // 9 · the question goes back to the viewer
+    say.classList.add('is-out');
+    close.hidden = false;
+    await wait(700, id);
+    await reveal(id, close);
+    document.body.dataset.done = '1';
+  };
+
+  const start = () => { delete document.body.dataset.done; film().catch((e) => { if (e !== 'stop') console.error(e); }); };
+  addEventListener('keydown', (e) => { if (e.key === ' ') { e.preventDefault(); start(); } });
+  start();
+})();
+</script>
+</body>
+</html>
