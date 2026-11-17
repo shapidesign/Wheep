@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHEEP · אטלס הרגשות</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+.map { position: relative; margin-top: 18px; height: 330px; background: var(--panel); border: var(--bw) solid var(--ink); border-radius: 22px; box-shadow: var(--sh); overflow: hidden; }
+.cont { position: absolute; display: grid; justify-items: center; gap: 4px; translate: -50% -50%; transition: transform .2s; }
+.cont .kshape { display: block; width: 100%; height: 100%; }
+.c-shape { display: block; }
+.cont .c-name { font-size: 13px; font-weight: 900; padding: 1px 8px; background: var(--panel); border: 2px solid var(--ink); border-radius: 8px; white-space: nowrap; }
+.cont[aria-pressed="true"] .c-name { background: var(--yellow); }
+.cont:hover { transform: scale(1.04); }
+.legend { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--ink-2); font-weight: 700; }
+.det h2 { display: flex; align-items: center; gap: 10px; }
+.det h2 .kshape { width: 34px; height: 34px; }
+.states { list-style: none; display: grid; gap: 10px; padding-top: 12px; }
+.state { display: grid; grid-template-columns: 90px 1fr 26px; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; }
+.bar { height: 14px; border: 2px solid var(--ink); border-radius: 8px; background: var(--panel); overflow: hidden; }
+.bar i { display: block; height: 100%; border-inline-end: 2px solid var(--ink); }
+.state .num { text-align: end; font-weight: 900; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.fact { padding: 10px 12px; border: 2px solid var(--ink); border-radius: 12px; background: var(--panel); box-shadow: var(--sh-sm); }
+.fact small { display: block; font-size: 12px; font-weight: 700; color: var(--ink-2); }
+.fact b { font-size: 15px; }
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="head"><h1 class="title">אטלס הרגשות</h1><p class="sub">השבוע · <span class="num">9–15.12</span></p></header>
+
+  <div class="map" id="map" role="group" aria-label="חמש יבשות הרגש. גודל היבשה הוא העוצמה, החדות היא כמה נשאר בפנים"></div>
+  <p class="legend"><span>גודל = עוצמה</span><span>חד = נשאר בפנים · עגול = יצא</span></p>
+
+  <section class="card det" aria-live="polite" id="det"></section>
+</main>
+
+<script src="kit.js"></script>
+<script>
+// Atlas of Emotions (after Paul Ekman's five continents), each one a Bouba/Kiki shape.
+const C = [
+  { id: 'fear', name: 'פחד', base: 'box', n: 8, fill: '#9B6BFF', size: .9, round: .18, x: 34, y: 34,
+    states: [['דאגה', 8], ['חרדה', 5], ['בהלה', 1]], trigger: 'הכסף לחתונה', did: 'אמרת "הכל טוב"' },
+  { id: 'anger', name: 'כעס', base: 'burst', n: 9, fill: '#FF5A36', size: .72, round: .3, x: 72, y: 30,
+    states: [['עצבנות', 6], ['תסכול', 4], ['זעם', 1]], trigger: 'פקק באיילון', did: 'שתקת 40 דקות' },
+  { id: 'sad', name: 'עצב', base: 'drop', n: 7, fill: '#3FC8F5', size: .55, round: .12, x: 24, y: 74,
+    states: [['בדידות', 4], ['אכזבה', 3], ['אבל', 0]], trigger: 'אבא שאל מה נשמע', did: 'לא תויג' },
+  { id: 'disgust', name: 'גועל', base: 'bubble', n: 6, fill: '#3DDC97', size: .38, round: .45, x: 56, y: 72,
+    states: [['בוז עצמי', 3], ['סלידה', 2]], trigger: 'המראה בחדר הכושר', did: 'יצאת מוקדם' },
+  { id: 'joy', name: 'הנאה', base: 'blob', n: 7, fill: '#FFD23F', size: .48, round: .85, x: 82, y: 72,
+    states: [['הקלה', 3], ['שמחה', 2], ['גאווה', 1]], trigger: 'שיחה עם עידו', did: 'צחקת' },
+];
+const $ = (s) => document.querySelector(s);
+let sel = 'fear';
+const render = () => {
+  $('#map').innerHTML = C.map((c) => {
+    const px = 52 + c.size * 64;
+    return `<button type="button" class="cont" data-id="${c.id}" aria-pressed="${c.id === sel}" style="left:${100 - c.x}%;top:${c.y}%">
+      <span class="c-shape" style="width:${px}px;height:${px}px">${K.shape(c.round, { base: c.base, n: c.n, fill: c.fill, shadow: true })}</span>
+      <span class="c-name">${c.name}</span></button>`;
+  }).join('');
+  const c = C.find((x) => x.id === sel);
+  const max = 10;
+  $('#det').innerHTML = `<h2>${K.shape(c.round, { base: c.base, n: c.n, fill: c.fill })}${c.name}</h2>
+    <ul class="states">${c.states.map(([n, v]) => `<li class="state"><span>${n}</span><span class="bar"><i style="width:${v / max * 100}%;background:${c.fill}"></i></span><span class="num">${v}</span></li>`).join('')}</ul>
+    <div class="facts"><p class="fact"><small>מה הדליק</small><b>${c.trigger}</b></p><p class="fact"><small>מה עשית עם זה</small><b>${c.did}</b></p></div>`;
+};
+$('#map').addEventListener('click', (e) => { const b = e.target.closest('.cont'); if (b) { sel = b.dataset.id; render(); } });
+render();
+</script>
+</body>
+</html>

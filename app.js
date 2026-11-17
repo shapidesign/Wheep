@@ -27,16 +27,26 @@
      One polar outline for every size and every morph, so the language never changes. */
   const lerp = (a, b, t) => a + (b - a) * t;
   // base outlines: every measure has its own silhouette, the spikes (kiki) or smoothness (bouba) ride on top
+  const DROP_L = 1.75, DROP_A = Math.acos(1 / DROP_L);            // a real drop: a circle with two tangents meeting in a tip
   const BASE = {
     burst: () => 1,                                                       // anger: a star burst
-    drop: (a) => .7 + .44 * Math.max(0, Math.cos(a + Math.PI / 2)) ** 5,  // crying: a drop, point up
+    drop: (a) => {                                                        // crying: a drop, tip up
+      const f = Math.abs(Math.atan2(Math.sin(a + Math.PI / 2), Math.cos(a + Math.PI / 2)));
+      return .68 * (f < DROP_A ? 1 / Math.cos(f - DROP_A) : 1);
+    },
     box: (a) => .8 / ((Math.abs(Math.cos(a)) ** 7 + Math.abs(Math.sin(a)) ** 7) ** (1 / 7)), // suppression: boxed in
-    bubble: (a) => .78 + .5 * Math.max(0, Math.cos(a - Math.PI * .7)) ** 22,              // talk: a speech bubble
+    bubble: (a) => .9 / ((Math.abs(Math.cos(a)) ** 3 + Math.abs(Math.sin(a) / .74) ** 3) ** (1 / 3))
+      + .44 * Math.max(0, Math.cos(a - Math.PI * .72)) ** 34,             // talk: a speech bubble with a tail
+    blob: (a) => .86 + .07 * Math.cos(4 * a + .5),                        // joy: a soft four-lobed bouba
+    bean: (a) => .82 + .13 * Math.cos(3 * a + 1),                         // disgust: a squashed bean, also bouba
   };
   // how much the spikes may cut into each silhouette: the burst is all spikes, the others keep their outline readable
-  const SHARP = { burst: 1, drop: .42, box: .3, bubble: .36 };
+  const SHARP = { burst: 1, drop: .14, box: .3, bubble: .06, blob: .12, bean: .14 };
+  // silhouettes that are not centred on their own origin (the drop's tip, the bubble's tail)
+  const OFF = { drop: .26, bubble: -.07 };
   const polar = ({ round = 0, R = 20, cx = 24, cy = 24, n = 9, amp, k, tremble = 0, phase = 0, N = 180, base = 'burst' }) => {
     const B = BASE[base], S = SHARP[base];
+    cy += (OFF[base] || 0) * R;
     const A = (amp ?? lerp(.5, .07, round)) * S, K = k ?? lerp(2.6, 1, round);
     let d = '';
     for (let j = 0; j < N; j++) {
@@ -170,7 +180,8 @@
   let introTimers = [], morphRaf = 0;
   const PACE = Math.max(.2, +new URLSearchParams(location.search).get('pace') || 1);   // ?pace=2 slows the opening for film.html
   const setShape = (t) => {
-    shapeEl.setAttribute('d', polar({ R: lerp(78, 88, t), cx: 100, cy: 100, n: 11, amp: .5 * t, k: 2.6, N: 264 }));
+    const d = polar({ R: lerp(78, 88, t), cx: 100, cy: 100, n: 11, amp: .5 * t, k: 2.6, N: 264 });
+    shapeEl.setAttribute('d', d); $('#iw-sh').setAttribute('d', d);
     shapeEl.style.strokeDasharray = `${88 + 12 * t} 100`;   // the strain ring at 88% closes into a whole shape
   };
   const clearIntro = () => { introTimers.forEach(clearTimeout); introTimers = []; cancelAnimationFrame(morphRaf); };
@@ -227,6 +238,17 @@
   // the info button steps aside once a screen scrolls, so it never sits on top of content
   $$('.screen').forEach((sc) => sc.addEventListener('scroll', () => $('.phone').classList.toggle('is-scrolled', sc.scrollTop > 24), { passive: true }));
 
+  /* ── what the man inside needs (said in the third person on purpose: the app keeps him like a pet) ── */
+  const NEEDS = [
+    { id: 'talk', name: 'שיחה', base: 'bubble', n: 6, fill: '#FF7AC6', v: 20 },
+    { id: 'move', name: 'תנועה', base: 'blob', n: 7, fill: '#FFD23F', v: 45 },
+    { id: 'sleep', name: 'שינה', base: 'bean', n: 6, fill: '#9B6BFF', v: 35 },
+    { id: 'release', name: 'שחרור', base: 'drop', n: 7, fill: '#3FC8F5', v: 10 },
+  ];
+  const needsAvg = () => NEEDS.reduce((n, x) => n + x.v, 0) / NEEDS.length / 100;
+  const NEEDS0 = needsAvg();
+  const care = () => Math.max(0, needsAvg() - NEEDS0) * .6;
+
   /* ── four measures, each its own Bouba/Kiki shape; the hero is their average ── */
   const state = { press: 9, talks: 4 };
   const METRICS = [
@@ -241,6 +263,12 @@
       <li class="metric">${mini(m.round(), 'mini metric-shape', false, '', m.fill, m.base, m.n, true)}
         <b class="num">${m.val()}</b><span class="m-name">${m.name}</span><small>${m.sub}</small></li>`).join('');
     $('#hero-state').textContent = stateWord(heroTarget());
+    // the frame is the variable: as the shape softens, the ink thins, the shadows drop and the corners round
+    const k = Math.max(0, Math.min(1, (heroTarget() - .3) / .6)), ph = $('.phone').style;
+    ph.setProperty('--sh', `${(4 * (1 - k)).toFixed(1)}px ${(4 * (1 - k)).toFixed(1)}px 0 var(--ink)`);
+    ph.setProperty('--sh-sm', `${(3 * (1 - k)).toFixed(1)}px ${(3 * (1 - k)).toFixed(1)}px 0 var(--ink)`);
+    ph.setProperty('--bw', `${(2.5 - 1.2 * k).toFixed(2)}px`);
+    ph.setProperty('--r', `${Math.round(14 + 12 * k)}px`);
     $('#hero-shape').setAttribute('aria-label', `הצורה של היום: ${stateWord(heroTarget())}`);
   };
 
@@ -250,9 +278,9 @@
     hero: { cur: .3, sh: $('#hero-shape .sh'), fg: $('#hero-shape .fg'), R: 140 },
     big: { cur: .3, sh: $('#shape-big .sh'), fg: $('#shape-big .fg'), R: 140 },
   };
-  const heroTarget = () => Math.min(1, composite() + egoBonus);
+  const heroTarget = () => Math.min(1, composite() + egoBonus + care());
   const frame = (t) => {
-    [['hero', heroTarget(), '#screen-today'], ['big', roundAt(shapeDay), '#screen-shape']].forEach(([key, target, scr]) => {
+    [['hero', heroTarget(), '#screen-today'], ['big', Math.min(1, roundAt(shapeDay) + (Math.round(shapeDay) === TODAY ? care() : 0)), '#screen-shape']].forEach(([key, target, scr]) => {
       const L = live[key];
       if ($(scr).hidden) { L.cur = target; return; }
       L.cur += (target - L.cur) * .08;
@@ -362,12 +390,15 @@
   $('#talk-people').innerHTML = PEOPLE.map((p) => `
     <button type="button" class="person" data-id="${p.id}"><span class="avatar" style="background:${p.fill}">${p.init}</span><b>${p.name}</b><small>${p.rel}</small></button>`).join('');
   const sheet = $('#talk-sheet');
-  const openSheet = (id) => {
-    who = PEOPLE.find((p) => p.id === id); opener = 0;
+  const MSGS = ['חשבתי עליך היום.', 'מה איתך באמת?', 'בא לך לקפוץ הערב?'];
+  let sheetMode = 'call';
+  const openSheet = (id, mode = 'call') => {
+    who = [...PEOPLE, ...CREW].find((p) => p.id === id); opener = 0; sheetMode = mode;
     $('#ts-who').innerHTML = `<span class="avatar" style="background:${who.fill}">${who.init}</span>${who.name} · ${who.rel}`;
-    const lines = who.group ? GROUP_OPENERS : OPENERS;
+    const lines = mode === 'msg' ? MSGS : who.group ? GROUP_OPENERS : OPENERS;
     $('#ts-lines').innerHTML = lines.map((l, i) => `<button type="button" role="radio" aria-checked="${i === 0}" data-i="${i}">${l}</button>`).join('');
-    $('#ts-go').textContent = who.group ? 'פתח שיחה קבוצתית' : `התקשר ל${who.name}`;
+    $('#ts-h').textContent = mode === 'msg' ? 'מה לכתוב?' : 'איך לפתוח?';
+    $('#ts-go').textContent = mode === 'msg' ? `שלח ל${who.name}` : who.group ? 'פתח שיחה קבוצתית' : `התקשר ל${who.name}`;
     sheet.hidden = false;
     $('#ts-lines button').focus();
   };
@@ -385,6 +416,11 @@
   const call = $('#call');
   const mmss = (sec) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
   $('#ts-go').addEventListener('click', () => {
+    if (sheetMode === 'msg') {
+      closeSheet();
+      $('#crew-out').textContent = `נשלח ל${who.name}: "${MSGS[opener]}" הודעה לא נחשבת שיחת עומק.`;
+      return;
+    }
     const line = (who.group ? GROUP_OPENERS : OPENERS)[opener];
     closeSheet();
     call.hidden = false; call.classList.remove('is-live', 'is-done');
@@ -409,14 +445,115 @@
     if (mins >= 20) {
       state.talks += 1; state.press = Math.max(0, state.press - 1);
       $('#call-out').textContent = `שיחה של ${mins} דק׳ נרשמה. שיחות עומק +1 · הדחקות −1.`;
-      renderMetrics();
+      NEEDS[0].v = Math.min(100, NEEDS[0].v + 30);
+      // a long talk rounds the people on it too: the friend, or the whole crew
+      (who.group ? CREW : CREW.filter((f) => f.id === who.id)).forEach((f) => { f.r = Math.min(1, f.r + .15); });
+      renderMetrics(); renderNeeds(); renderCrew();
     } else {
       $('#call-out').textContent = callSecs ? `שיחה של ${mins} דק׳. קצרה מדי כדי להיחשב כשיחת עומק.` : 'השיחה לא נענתה. לא נרשם דבר.';
     }
     $('#call-state').textContent = 'השיחה הסתיימה';
-    setTimeout(() => { call.hidden = true; $('#screen-today').focus({ preventScroll: true }); }, 2600);
+    setTimeout(() => { call.hidden = true; $('.screen:not([hidden])').focus({ preventScroll: true }); }, 2600);
   };
   $('#call-end').addEventListener('click', endCall);
+
+  /* ── shape tab: what he needs, and four small ways to give it ── */
+  const ACTS = [
+    ['talk', 'להתקשר לעידו', '20 דק׳ · +30 שיחה', 30],
+    ['move', 'הליכה בלי אוזניות', '20 דק׳ · +25 תנועה', 25],
+    ['sleep', 'לישון ב-23:00', 'הלילה · +30 שינה', 30],
+    ['release', 'סרט שמבכה', '"השיר שלנו" · +35 שחרור', 35],
+  ];
+  const renderNeeds = () => {
+    $('#needs').innerHTML = NEEDS.map((x) => `<li class="need">${mini(x.v / 100, 'mini need-shape', false, '', x.fill, x.base, x.n)}<span>${x.name}</span><span class="bar"><i style="width:${x.v}%;background:${x.fill}"></i></span><b class="num">${x.v}</b></li>`).join('');
+  };
+  $('#acts').innerHTML = ACTS.map(([id, t, sub], i) => `<button type="button" class="act" data-i="${i}"><b>${t}</b><small>${sub}</small></button>`).join('');
+  $('#acts').addEventListener('click', (e) => {
+    const b = e.target.closest('.act'); if (!b) return;
+    const [id, t, , add] = ACTS[+b.dataset.i];
+    if (id === 'talk') return openSheet('ido');               // the talk is a real call, counted only if it is long
+    const need = NEEDS.find((x) => x.id === id);
+    need.v = Math.min(100, need.v + add);
+    renderNeeds(); renderMetrics();
+    const low = NEEDS.slice().sort((a, c) => a.v - c.v)[0];
+    $('#acts-out').textContent = `${t} · נרשם. הוא התעגל קצת. הכי חסר לו עכשיו: ${low.name}.`;
+  });
+  renderNeeds();
+
+  /* ── emotions: the patch maps Ekman's five continents; a radar like a player card, without a score ── */
+  const EMO = [
+    { id: 'fear', name: 'פחד', base: 'box', n: 8, fill: '#9B6BFF', v: 82, prev: 70, out: .18,
+      states: [['דאגה', 8], ['חרדה', 5], ['בהלה', 1]], trigger: 'הכסף לחתונה', did: 'אמרת "הכל טוב"' },
+    { id: 'anger', name: 'כעס', base: 'burst', n: 9, fill: '#FF5A36', v: 64, prev: 71, out: .3,
+      states: [['עצבנות', 6], ['תסכול', 4], ['זעם', 1]], trigger: 'פקק באיילון', did: 'שתקת 40 דקות' },
+    { id: 'sad', name: 'עצב', base: 'drop', n: 7, fill: '#3FC8F5', v: 48, prev: 35, out: .12,
+      states: [['בדידות', 4], ['אכזבה', 3], ['אבל', 0]], trigger: 'אבא שאל מה נשמע', did: 'לא תויג' },
+    { id: 'disgust', name: 'גועל', base: 'bean', n: 6, fill: '#3DDC97', v: 30, prev: 26, out: .62,
+      states: [['בוז עצמי', 3], ['סלידה', 2]], trigger: 'המראה בחדר הכושר', did: 'יצאת מוקדם' },
+    { id: 'joy', name: 'הנאה', base: 'blob', n: 7, fill: '#FFD23F', v: 41, prev: 52, out: .85,
+      states: [['הקלה', 3], ['שמחה', 2], ['גאווה', 1]], trigger: 'שיחה עם עידו', did: 'צחקת' },
+  ];
+  let emoSel = 'fear';
+  const RC = { x: 170, y: 162, R: 110 };
+  const rPt = (i, v) => {
+    const a = -Math.PI / 2 + i * (2 * Math.PI / EMO.length);
+    return [RC.x + Math.cos(a) * RC.R * v / 99, RC.y + Math.sin(a) * RC.R * v / 99];
+  };
+  const pts = (vals) => vals.map((v, i) => rPt(i, v).map((n) => n.toFixed(1)).join(',')).join(' ');
+  const renderEmo = () => {
+    let g = '';
+    [20, 40, 60, 80, 99].forEach((v) => { g += `<polygon points="${pts(EMO.map(() => v))}" fill="none" stroke="#121212" stroke-opacity=".16" stroke-width="1.2"/>`; });
+    EMO.forEach((_, i) => { const [x, y] = rPt(i, 99); g += `<line x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}" stroke="#121212" stroke-opacity=".16" stroke-width="1.2"/>`; });
+    [20, 40, 60, 80].forEach((v) => { const [, y] = rPt(0, v); g += `<text x="${RC.x - 4}" y="${y + 3.5}" text-anchor="end" class="r-tick num">${v}</text>`; });
+    const now = pts(EMO.map((e) => e.v));
+    g += `<polygon points="${now}" transform="translate(3 3)" fill="#121212"/>`;
+    g += `<polygon points="${now}" fill="#FFD23F" stroke="#121212" stroke-width="2.6" stroke-linejoin="round"/>`;
+    g += `<polygon points="${pts(EMO.map((e) => e.prev))}" fill="none" stroke="#121212" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`;
+    EMO.forEach((e, i) => {
+      const [x, y] = rPt(i, e.v), on = e.id === emoSel;
+      g += `<circle cx="${x}" cy="${y}" r="${on ? 7.5 : 5.5}" fill="${e.fill}" stroke="#121212" stroke-width="2"/>`;
+      const [lx, ly] = rPt(i, 99 * 1.3);
+      g += `<g class="r-label${on ? ' is-on' : ''}" data-emo="${e.id}" transform="translate(${lx.toFixed(1)} ${(ly - 8).toFixed(1)})">
+        <path d="${polar({ round: e.out, R: 11, cx: 0, cy: -6, base: e.base, n: e.n })}" fill="${e.fill}" stroke="#121212" stroke-width="2" stroke-linejoin="round"/>
+        <text y="21" text-anchor="middle" class="r-name">${e.name} <tspan class="num">${e.v}</tspan></text></g>`;
+    });
+    const R = $('#radar');
+    R.innerHTML = g;
+    R.setAttribute('aria-label', `עוצמת הרגשות השבוע: ${EMO.map((e) => `${e.name} ${e.v}`).join(', ')}`);
+    $('#emo-pick').innerHTML = EMO.map((e) => `<button type="button" role="radio" aria-checked="${e.id === emoSel}" data-emo="${e.id}">${mini(e.out, 'mini', false, '', e.fill, e.base, e.n)}<span>${e.name}</span></button>`).join('');
+    const e = EMO.find((x) => x.id === emoSel), d = e.v - e.prev;
+    $('#emo-det').innerHTML = `<div class="panel-row"><h2 class="panel-h emo-h">${mini(e.out, 'mini', false, '', e.fill, e.base, e.n, true)}${e.name}</h2>
+      <span class="panel-val"><b class="num">${e.v}</b> · ${d > 0 ? '+' : ''}<span class="num">${d}</span> מהשבוע שעבר</span></div>
+      <p class="emo-out">יצא החוצה <b class="num">${Math.round(e.out * 100)}%</b> · השאר נשאר בפנים</p>
+      <ul class="emo-states">${e.states.map(([n, v]) => `<li><span>${n}</span><span class="bar"><i style="width:${v * 10}%;background:${e.fill}"></i></span><b class="num">${v}</b></li>`).join('')}</ul>
+      <div class="emo-facts"><p><small>מה הדליק</small><b>${e.trigger}</b></p><p><small>מה עשית עם זה</small><b>${e.did}</b></p></div>`;
+  };
+  $('#screen-emo').addEventListener('click', (e) => { const b = e.target.closest('[data-emo]'); if (b) { emoSel = b.dataset.emo; renderEmo(); } });
+  renderEmo();
+
+  /* ── the crew: a shared shape, no ranks; you can see who is sharp and reach him ── */
+  const CREW = [
+    { id: 'ido', name: 'עידו', init: 'ע', fill: '#3FC8F5', r: .22, last: 'שקט 4 ימים. הצורה שלו חדה כמו שלך.' },
+    { id: 'doron', name: 'דורון', init: 'ד', fill: '#3DDC97', r: .7, last: 'דיבר עם אבא שלו אתמול, 40 דק׳.' },
+    { id: 'alon', name: 'אלון', init: 'א', fill: '#FF7AC6', r: .5, last: 'שלח "בוא נדבר" בקבוצה. אף אחד לא ענה.' },
+    { id: 'yoni', name: 'יוני', init: 'י', fill: '#FFD23F', r: .38, last: 'במילואים. החיישן לא מסונכרן.', off: true },
+  ];
+  const renderCrew = () => {
+    const g = (CREW.reduce((n, f) => n + f.r, 0) + heroTarget()) / (CREW.length + 1);
+    $('#crew-shape').innerHTML = mini(g, 'mini', false, `הצורה של הקבוצה: ${stateWord(g)}`, undefined, 'burst', 9, true);
+    $('#crew-state').textContent = `הקבוצה · ${g > .5 ? 'מתעגלת' : 'מתוחה'}`;
+    $('#crew-list').innerHTML = CREW.map((f) => `<li class="mate">
+      ${mini(f.r, 'mini mate-shape', !!f.off, '', undefined, 'burst', 9, true)}
+      <div class="mate-body"><p class="mate-name"><b>${f.name}</b><span class="mate-state">${f.off ? 'לא ידוע' : stateWord(f.r)}</span></p><p class="mate-last">${f.last}</p></div>
+      <div class="mate-acts"><button type="button" class="crew-btn" data-crew-call="${f.id}">להתקשר</button><button type="button" class="crew-btn" data-crew-msg="${f.id}">הודעה</button></div></li>`).join('');
+  };
+  $('#screen-crew').addEventListener('click', (e) => {
+    const c = e.target.closest('[data-crew-call]'); if (c) return openSheet(c.dataset.crewCall);
+    const m = e.target.closest('[data-crew-msg]'); if (m) return openSheet(m.dataset.crewMsg, 'msg');
+    if (e.target.closest('[data-crew-group]')) return openSheet('guys');
+  });
+  $('#crew-invite').addEventListener('click', () => { $('#crew-out').textContent = 'קוד הזמנה: WHP-4417. בתוקף 24 שעות. מי שמצטרף רואה את הצורה שלך.'; });
+  renderCrew();
 
   /* ── trends ── */
   // 16.11 → 15.12 (i = 0…29). Dry since a cry on 14.11, one cry on 3.12 (i = 17), rising every day since.
@@ -432,45 +569,55 @@
   const monthRound = month.map((_, i) => Math.min(1, Math.exp(-(i < 17 ? i + 2 : i - 17) / 3.2) * 1.05));
   const RANGES = {
     week: { press: month.slice(-7), round: monthRound.slice(-7), unverified: 0, gap: null, mark: null,
-      labels: ['ד׳ 9.12', 'ש׳ 12.12', 'היום'], unit: 'שבוע' },
+      labels: [[0, 'ד׳ 9.12'], [3, 'ש׳ 12.12'], [6, 'היום']], since: 'בשבוע' },
     month: { press: month, round: monthRound, unverified: 23, gap: 20, mark: 17,
-      labels: ['16.11', '1.12', 'היום'], unit: 'חודש' },
+      labels: [[0, '16.11'], [15, '1.12'], [29, 'היום']], since: 'ב-30 יום' },
   };
   let range = 'month';
   let tearState = 'pending';                              // pending | confirmed | rejected
 
   const W = 340;
+  // one line, one fill: MPL over time (right = oldest, as Hebrew reads); events sit in their own lane under the axis
   const drawTrends = () => {
     const r = RANGES[range];
-    // MPL columns, time runs right → left; each column is filled with the colour of that day's shape
-    const P = r.press, n = P.length, H = 170, top = 22, base = H;
-    const bw = W / n, pad = Math.max(1.5, bw * .14);
+    const P = r.press, n = P.length;
+    const L = 30, R = W - 6, top = 14, base = 150, lane = 172;
+    const x = (i) => R - (i / (n - 1)) * (R - L);
     const y = (v) => top + (1 - v / 1000) * (base - top);
-    const xAt = (i) => W - (i + 1) * bw + pad;
+    const step = (R - L) / (n - 1);
     let g = '';
-    [250, 500, 750].forEach((v) => {
-      g += `<line x1="0" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="#121212" stroke-opacity=".14" stroke-dasharray="3 4"/><text x="${W}" y="${y(v) - 4}" text-anchor="start" class="num">${v}</text>`;
+    [250, 500, 750, 1000].forEach((v) => {
+      g += `<line x1="${L}" x2="${R}" y1="${y(v)}" y2="${y(v)}" class="c-grid"/><text x="0" y="${y(v) + 4}" class="c-y num" direction="ltr" text-anchor="start">${v}</text>`;
     });
-    P.forEach((v, i) => {
-      const x = xAt(i), w = bw - pad * 2;
-      if (v == null) {
-        g += `<rect x="${x}" y="${top}" width="${w}" height="${base - top}" rx="2" fill="url(#g-hatch)" stroke="#121212" stroke-width="1.5" stroke-dasharray="3 3"/>`;
-        return;
-      }
-      const today = i === n - 1;
-      g += `<rect x="${x}" y="${y(v)}" width="${w}" height="${base - y(v)}" rx="${Math.min(4, w / 3)}" fill="${kbColor(r.round[i])}" stroke="#121212" stroke-width="${today ? 2.6 : 1.8}"/>`;
+    if (r.gap != null) g += `<rect x="${x(r.gap) - step / 2}" y="${top}" width="${step}" height="${base - top}" fill="url(#g-hatch)" class="c-gap"/>`;
+    // contiguous runs (the sensor gap breaks the line)
+    const runs = []; let cur = [];
+    P.forEach((v, i) => { if (v == null) { if (cur.length) runs.push(cur); cur = []; } else cur.push(i); });
+    if (cur.length) runs.push(cur);
+    runs.forEach((run) => {
+      const line = run.map((i, k) => `${k ? 'L' : 'M'}${x(i).toFixed(1)} ${y(P[i]).toFixed(1)}`).join('');
+      g += `<path d="${line}L${x(run[run.length - 1]).toFixed(1)} ${base}L${x(run[0]).toFixed(1)} ${base}Z" class="c-area"/>`;
+      g += `<path d="${line}" class="c-line"/>`;
     });
-    if (r.mark != null) g += `<text x="${xAt(r.mark) + (bw - pad * 2) / 2}" y="${y(P[r.mark]) - 8}" text-anchor="middle" class="tag">בכי</text>`;
-    if (r.gap != null) g += `<text x="${xAt(r.gap) + (bw - pad * 2) / 2}" y="${top - 8}" text-anchor="middle" class="tag-soft">חיישן</text>`;
-    if (r.unverified != null && tearState !== 'rejected') {
-      const ux = xAt(r.unverified) + (bw - pad * 2) / 2;
-      g += `<circle cx="${ux}" cy="${y(P[r.unverified]) - 12}" r="8" fill="#fff" stroke="#121212" stroke-width="1.8" stroke-dasharray="${tearState === 'confirmed' ? '0' : '3 2'}"/><text x="${ux}" y="${y(P[r.unverified]) - 8}" text-anchor="middle" class="tag">${tearState === 'confirmed' ? '…' : '?'}</text>`;
-    }
-    g += r.labels.map((l, i) => `<text x="${W - (i / (r.labels.length - 1)) * W}" y="${H + 20}" text-anchor="${i === 0 ? 'end' : i === r.labels.length - 1 ? 'start' : 'middle'}">${l}</text>`).join('');
-    $('#chart-press').innerHTML = `<defs><pattern id="g-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(18,18,18,.4)" stroke-width="1.5"/></pattern></defs>${g}`;
+    g += `<line x1="${L}" x2="${R}" y1="${base}" y2="${base}" class="c-base"/>`;
+    // the event lane: what happened, under the day it happened
+    const ev = [];
+    if (r.mark != null) ev.push([r.mark, 'בכי', `<path d="${polar({ round: .9, R: 7, cx: x(r.mark), cy: lane, base: 'drop', n: 7 })}" fill="#3FC8F5" class="c-ev"/>`]);
+    if (r.gap != null) ev.push([r.gap, 'חיישן', `<rect x="${x(r.gap) - 6}" y="${lane - 6}" width="12" height="12" rx="3" fill="url(#g-hatch)" class="c-ev"/>`]);
+    if (r.unverified != null && tearState !== 'rejected') ev.push([r.unverified, tearState === 'confirmed' ? 'בבדיקה' : 'דמעה?', `<circle cx="${x(r.unverified)}" cy="${lane}" r="6.5" fill="#fff" class="c-ev" stroke-dasharray="${tearState === 'confirmed' ? '0' : '3 2'}"/>`]);
+    ev.forEach(([i, label, mark], k) => {
+      g += `<line x1="${x(i)}" x2="${x(i)}" y1="${P[i] == null ? top : y(P[i])}" y2="${lane - 8}" class="c-drop"/>${mark}<text x="${x(i)}" y="${lane + 20 + (k % 2) * 15}" text-anchor="middle" class="c-ev-t">${label}</text>`;
+    });
+    // today: the one point that is called out
+    g += `<circle cx="${x(n - 1)}" cy="${y(P[n - 1])}" r="6" class="c-now"/>`;
+    g += r.labels.map(([i, l]) => `<text x="${x(i)}" y="${ev.length ? lane + 56 : lane + 4}" direction="ltr" text-anchor="${i === 0 ? 'end' : i === n - 1 ? 'start' : 'middle'}" class="c-x">${l}</text>`).join('');
+    const svg = $('#chart-press');
+    svg.setAttribute('viewBox', `0 0 340 ${ev.length ? 234 : 182}`);
+    svg.innerHTML = `<defs><pattern id="g-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(18,18,18,.45)" stroke-width="1.5"/></pattern></defs>${g}`;
     $('#press-now').textContent = P[n - 1];
     const first = P.find((v) => v != null), delta = P[n - 1] - first;
-    $('#press-delta').innerHTML = `<span dir="ltr" class="num">${delta >= 0 ? '+' : '−'}${Math.abs(delta)}</span> ב${r.unit}`;
+    $('#press-delta').innerHTML = `<span dir="ltr" class="num">${delta >= 0 ? '+' : '−'}${Math.abs(delta)}</span> ${r.since}`;
+    $$('#screen-trends [data-only]').forEach((el) => { el.hidden = el.dataset.only !== range; });
   };
   $$('#range button').forEach((b) => b.addEventListener('click', () => {
     range = b.dataset.range;
@@ -478,14 +625,20 @@
     drawTrends();
   }));
 
-  // four measures across the last four weeks, each in its own silhouette (oldest week on the right)
-  const WEEKS = { cry: [.35, .2, .92, .08], anger: [.45, .42, .36, .3], press: [.55, .46, .33, .22], talk: [.5, .55, .6, .67] };
+  // four measures across the last four weeks: one row per measure, one tile per week, coloured by how round it was
+  const WEEK_LABELS = ['16.11', '23.11', '30.11', '7.12'];
+  const WEEKS = {
+    cry: { r: [.35, .2, .92, .08], v: ['1', '0', '2', '0'] },
+    anger: { r: [.45, .42, .36, .3], v: ['2/4', '2/5', '1/4', '1/3'] },
+    press: { r: [.55, .46, .33, .22], v: ['4', '5', '7', '9'] },
+    talk: { r: [.5, .55, .6, .67], v: ['2', '3', '3', '4'] },
+  };
   const trendWord = (a2) => { const d = a2[a2.length - 1] - a2[0]; return d > .08 ? 'מתעגל' : d < -.08 ? 'מתחדד' : 'יציב'; };
-  $('#measures-weeks').innerHTML = METRICS.map((m) => `
-    <li class="mw"><span class="mw-name">${m.name}</span>
-      <span class="mw-row">${WEEKS[m.id].map((v, i) => mini(v, 'mini mw-shape', false, '', m.fill, m.base, m.n)).join('')}</span>
-      <span class="mw-trend">${trendWord(WEEKS[m.id])}</span></li>`).join('');
-
+  $('#measures-weeks').innerHTML = `<thead><tr><th scope="col"><span class="sr">מדד</span></th>${WEEK_LABELS.map((w, i) => `<th scope="col" class="num">${i === WEEK_LABELS.length - 1 ? 'השבוע' : w}</th>`).join('')}<th scope="col"><span class="sr">מגמה</span></th></tr></thead><tbody>`
+    + METRICS.map((m) => {
+      const w = WEEKS[m.id], t = trendWord(w.r);
+      return `<tr><th scope="row">${mini(.5, 'mini mw-icon', false, '', m.fill, m.base, m.n)}<span>${m.name}</span></th>${w.v.map((v, i) => `<td><span class="mw-tile num" style="background:${w.r[i] < .34 ? "#FF5A36" : w.r[i] < .6 ? "#FFD23F" : "#3FC8F5"}">${v}</span></td>`).join('')}<td><span class="mw-trend is-${t === 'מתעגל' ? 'up' : t === 'מתחדד' ? 'down' : 'flat'}">${t}</span></td></tr>`;
+    }).join('') + '</tbody>';
 
   // December 2026 calendar (1.12 is a Tuesday; columns run Sunday → Saturday, right to left).
   // Every marked day carries a hand glyph and one line of context; one day is left untagged.
@@ -518,11 +671,10 @@
           day === 3 ? 'rain' : '', day === 15 ? 'today' : '', day > 15 ? (log?.fc ? 'fc' : 'future') : '',
           log?.gap ? 'gap' : '', log?.unverified && !hideTear ? 'unverified' : '', calSel === day ? 'is-sel' : '',
         ].join(' ');
-        const mark = log?.g && !hideTear ? glyph(log.g, 'glyph glyph-cal') : '';
         const r0 = day <= 15 ? monthRound[day + 14] : day === 18 ? .66 : null;
         const shape = r0 != null && !log?.gap ? mini(r0, 'mini cal-shape', day > 15 || (day === 9 && !hideTear), '') : '';
         const label = `${day} בדצמבר${log?.unverified && !hideTear ? ', דמעה לא מאומתת' : log?.text ? `, ${log.text}` : ''}`;
-        return `<button type="button" class="c ${cls}" data-day="${day}" aria-pressed="${calSel === day}" aria-label="${label}">${shape}<span class="num">${day}</span>${mark}</button>`;
+        return `<button type="button" class="c ${cls}" data-day="${day}" aria-pressed="${calSel === day}" aria-label="${label}">${shape}<span class="num">${day}</span></button>`;
       }).join('');
   };
   const renderDetail = () => {
@@ -558,8 +710,8 @@
     $('#pending-badge').hidden = true;
     renderCal(); renderDetail(); drawTrends();
   });
-  $('#cal-key').innerHTML = ['cry', 'anger', 'press'].map((k) => `<li>${glyph(k)}${GLYPH[k].name}</li>`).join('')
-    + '<li><i class="ck-gap"></i>חיישן מנותק</li><li><i class="ck-fc"></i>תחזית</li>';
+  $('#cal-key').innerHTML = `<li>${mini(.08, 'mini ck-shape')}חד</li><li>${mini(.95, 'mini ck-shape')}עגול</li>`
+    + '<li><i class="ck-unv"></i>לא מאומת</li><li><i class="ck-gap"></i>חיישן מנותק</li>';
   renderCal();
 
   // small data: the week as the man tagged it himself

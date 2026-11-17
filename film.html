@@ -18,7 +18,7 @@ body { font-family: Leon, system-ui, sans-serif; color: var(--ink); -webkit-font
 .num { font-variant-numeric: tabular-nums; }
 
 .stage { position: absolute; top: 50%; left: 50%; width: 1920px; height: 1080px; translate: -50% -50%; }
-#app { position: absolute; left: 250px; top: 90px; width: 450px; height: 900px; border: 0; scale: 1.08; transform-origin: center; background: var(--desk); }
+#app { position: absolute; left: 200px; top: 40px; width: 600px; height: 1000px; border: 0; scale: 1.04; transform-origin: center; background: var(--desk); }
 
 /* the manifesto, beside the phone */
 .say { position: absolute; right: 170px; top: 50%; translate: 0 -50%; width: 820px; transition: opacity .45s ease, translate .45s cubic-bezier(.16, 1, .3, 1); }
@@ -132,19 +132,20 @@ body { font-family: Leon, system-ui, sans-serif; color: var(--ink); -webkit-font
     // 1 · the opening: a performance tracker at 23:59, WHEEP at midnight
     await load('#intro');
     open.hidden = true;
+    await wait(900, id);
     line(id, '05', 'אני לא מציע למחוק את האגו.', 'ניסו. הוא תמיד חוזר, בדרך כלל חזק יותר.');
-    await wait(2800, id);                        // the morph starts at 1.5 s × the opening pace (2)
+    await wait(1900, id);                        // the morph starts at 1.5 s × the opening pace (2)
     await line(id, '06', 'אני מציע להפנות אותו.', 'אותו מכשיר, אותו רצף, אותו שיא אישי. רק מה שנמדד משתנה.', 1600);
     await wait(1500, id);
     await press(id, '#ab-go');
 
     // 2 · today: the score of the day
-    await line(id, '01', 'גבריות היא לא תכונה. היא ציון.', 'הציון של היום: חד. 1031 hPa, 12 ימים בלי דמעה.');
+    await line(id, '01', 'גבריות היא לא תכונה. היא ציון.', 'הציון של היום: חד. 12 ימים בלי דמעה.');
     await scrollTo(id, '.metrics');
     await line(id, '07', 'אם גבר מוכן לבכות רק כשזה נספר,', 'אז שזה ייספר. בכי, כעס שנאמר, הדחקות, שיחות עומק.');
 
     // 3 · EgoCheck stops the plaster before it is sent
-    await scrollTo(id, '#ego-note');
+    await press(id, '#ego-fab');
     await line(id, '03', 'את הסדקים לא מתקנים. מכסים אותם.', 'בבדיחה, באקסל, ב״הכל דבש״. המקלדת עוצרת את השפכטל לפני שהוא נשלח.');
     await press(id, '[data-ego="fixed"]');
     await wait(2600, id);
@@ -179,13 +180,13 @@ body { font-family: Leon, system-ui, sans-serif; color: var(--ink); -webkit-font
 
     // 7 · the league stays
     await press(id, '#tab-trends');
-    await scrollTo(id, '#month-shapes');
+    await scrollTo(id, '#chart-press');
     await line(id, '02', 'רוב הגברים לא מאמינים בחוקים. כמעט כולם מצייתים להם.', 'החוקים התחלפו. הטבלה נשארה.');
-    await scrollTo(id, '.stats', 'end');
+    await scrollTo(id, '.stats');
     await line(id, '', 'אחוזון 8 בקבוצת הגיל.', 'עכשיו מתחרים על מי בכה יותר.');
 
     // 8 · who profits
-    await press(id, '#tab-profile');
+    await press(id, '#tab-today'); await press(id, '.me-btn');
     line(id, '', 'ומי מרוויח?', 'קופת רווחה. 12% הנחה בפרמיה, תמורת הדמעות שלך.');
     await wait(2400, id);
     await scrollTo(id, '.privacy');

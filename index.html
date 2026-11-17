@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0A0E2E">
 <title>WHEEP · תחזית רגשית</title>
-<link rel="stylesheet" href="style.css?v=20">
-<link rel="stylesheet" href="brutal.css?v=20">
+<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="brutal.css?v=22">
 </head>
 <body>
 
@@ -42,6 +42,7 @@
         <header class="today-head">
           <h1 class="today-title">היום</h1>
           <p class="today-date">ג׳ <span class="num">15.12</span> · תל אביב-יפו</p>
+          <button class="me-btn" type="button" data-go="profile" aria-label="פרופיל"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.25" r="3.75"/><path d="M4.75 20.25c.9-3.6 3.75-5.75 7.25-5.75s6.35 2.15 7.25 5.75"/></svg></button>
         </header>
         <header class="hero">
           <div class="hero-shape">
@@ -132,6 +133,47 @@
             <div class="scrub-ticks" aria-hidden="true"><span>3.12 · בכי אחרון</span><span class="tk-today">היום</span><span class="tk-fc">תחזית</span></div>
           </div>
         </div>
+
+        <section class="panel needs-panel" aria-labelledby="needs-h">
+          <div class="panel-row"><h2 class="panel-h" id="needs-h">מה הוא צריך</h2><span class="panel-meta">הגבר שבפנים · היום</span></div>
+          <ul class="needs" id="needs"></ul>
+        </section>
+        <section class="panel acts-panel" aria-labelledby="acts-h">
+          <h2 class="panel-h" id="acts-h">לטפל בו עכשיו</h2>
+          <div class="acts" id="acts"></div>
+          <p class="acts-out" id="acts-out" aria-live="polite"></p>
+        </section>
+      </section>
+
+      <!-- רגשות -->
+      <section class="screen" id="screen-emo" role="tabpanel" aria-labelledby="tab-emo" tabindex="-1" hidden>
+        <header class="page-head"><h1 class="page-title">אטלס הרגשות</h1></header>
+        <p class="emo-sensor"><span class="emo-dot" aria-hidden="true"></span>המדבקה מיפתה <b class="num">214</b> רגעים השבוע · <b class="num">31</b> לא זוהו</p>
+        <section class="panel emo-radar" aria-labelledby="radar-h">
+          <div class="panel-row"><h2 class="panel-h" id="radar-h">חמש היבשות <small>עוצמה 0–99</small></h2></div>
+          <ul class="radar-key" aria-hidden="true"><li class="k-now">השבוע</li><li class="k-prev">שבוע שעבר</li></ul>
+          <svg id="radar" viewBox="0 0 340 312" role="img"></svg>
+        </section>
+        <div class="emo-pick" id="emo-pick" role="radiogroup" aria-label="בחירת יבשה"></div>
+        <section class="panel emo-det" id="emo-det" aria-live="polite"></section>
+      </section>
+
+      <!-- החבר'ה -->
+      <section class="screen" id="screen-crew" role="tabpanel" aria-labelledby="tab-crew" tabindex="-1" hidden>
+        <header class="page-head"><h1 class="page-title">החבר'ה</h1></header>
+        <p class="crew-sub">החבר'ה מהצבא · <span class="num">5</span> · מחובר</p>
+        <section class="panel crew-group" aria-labelledby="crew-state">
+          <div class="crew-shape" id="crew-shape"></div>
+          <div class="crew-body">
+            <h2 class="crew-state" id="crew-state">הקבוצה · מתוחה</h2>
+            <p>מתעגלת רק כשמישהו פותח שיחה. אין ניקוד ואין מקומות.</p>
+            <button class="crew-btn is-ink" type="button" data-crew-group>שיחה קבוצתית</button>
+          </div>
+        </section>
+        <label class="panel crew-seen"><span>הצורה שלך גלויה לחבר'ה. <b>עידו ראה היום שאתה חד.</b></span><input type="checkbox" class="switch" checked aria-label="הצורה שלי גלויה לחבר'ה"></label>
+        <ul class="crew-list" id="crew-list"></ul>
+        <button class="crew-invite" type="button" id="crew-invite">+ להזמין לחבורה</button>
+        <p class="crew-out" id="crew-out" aria-live="polite"></p>
       </section>
 
       <!-- מגמות -->
@@ -145,16 +187,11 @@
         </header>
 
         <section class="panel" aria-labelledby="ch1">
-          <div class="panel-row"><h2 class="panel-h" id="ch1">MPL <small>מדד לחץ גבריות · 0–1000</small></h2><p class="panel-val"><b class="num" id="press-now">775</b> <span id="press-delta"></span></p></div>
-          <svg class="chart" id="chart-press" viewBox="0 0 340 196" role="img" aria-label="גרף לחץ פנימי"></svg>
+          <div class="panel-row"><h2 class="panel-h" id="ch1">MPL <small>מדד לחץ גבריות · 0–1000</small></h2><p class="panel-val mpl-val"><b class="num" id="press-now">775</b><span id="press-delta"></span></p></div>
+          <svg class="chart" id="chart-press" viewBox="0 0 340 222" role="img" aria-label="גרף מדד לחץ הגבריות"></svg>
         </section>
 
-        <section class="panel" aria-labelledby="mw-h">
-          <div class="panel-row"><h2 class="panel-h" id="mw-h">ארבעת המדדים</h2><span class="panel-meta">4 שבועות אחרונים</span></div>
-          <ul class="mw-list" id="measures-weeks"></ul>
-        </section>
-
-        <section class="panel" aria-labelledby="cal-h">
+        <section class="panel" aria-labelledby="cal-h" data-only="month">
           <div class="panel-row"><h2 class="panel-h" id="cal-h">דצמבר 2026</h2><span class="badge" id="pending-badge">ממתין לאישורך · <span class="num">1</span></span></div>
           <div class="cal" id="cal" role="group" aria-label="ימי דצמבר"></div>
           <div class="cal-detail" id="cal-detail" aria-live="polite">
@@ -163,7 +200,13 @@
           <ul class="cal-key" id="cal-key" aria-hidden="true"></ul>
         </section>
 
-        <section class="panel story" aria-labelledby="story-h">
+        <section class="panel" aria-labelledby="mw-h" data-only="month">
+          <div class="panel-row"><h2 class="panel-h" id="mw-h">ארבעת המדדים <small>לפי שבוע</small></h2></div>
+          <table class="mw-table" id="measures-weeks"></table>
+          <p class="mw-key"><span class="mk mk-sharp"></span>נשאר בפנים<span class="mk mk-mid"></span>באמצע<span class="mk mk-round"></span>יצא</p>
+        </section>
+
+        <section class="panel story" aria-labelledby="story-h" data-only="week" hidden>
           <div class="panel-row"><h2 class="panel-h" id="story-h">השבוע במילים</h2><span class="panel-meta">התיוגים שלך</span></div>
           <ol class="story-list" id="story"></ol>
         </section>
@@ -176,8 +219,8 @@
       </section>
 
       <!-- פרופיל -->
-      <section class="screen" id="screen-profile" role="tabpanel" aria-labelledby="tab-profile" tabindex="-1" hidden>
-        <header class="page-head"><h1 class="page-title">פרופיל</h1></header>
+      <section class="screen" id="screen-profile" role="region" aria-labelledby="profile-h" tabindex="-1" hidden>
+        <header class="page-head"><button class="back-btn" type="button" data-go="today"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>היום</button><h1 class="page-title" id="profile-h">פרופיל</h1></header>
 
         <section class="panel records" aria-labelledby="rec-h">
           <h2 class="panel-h" id="rec-h">שיאים</h2>
@@ -241,13 +284,17 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.25l1.6 4.1 4.3-1.2-1.6 4.1 4 2-4.2 1.4 1.5 4.2-4.1-1.7-1.5 4.3-1.5-4.3-4.1 1.7 1.5-4.2-4.2-1.4 4-2-1.6-4.1 4.3 1.2z"/></svg>
         <span>צורה</span>
       </button>
+      <button role="tab" id="tab-emo" aria-controls="screen-emo" aria-selected="false" data-tab="emo" tabindex="-1">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8.5 6.2-3.2 10H6.7L3.5 9.2z"/><path d="M12 8.5l3.6 2.4-1.5 4.4H9.9l-1.5-4.4z"/></svg>
+        <span>רגשות</span>
+      </button>
+      <button role="tab" id="tab-crew" aria-controls="screen-crew" aria-selected="false" data-tab="crew" tabindex="-1">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3.25"/><path d="M3 19.5c.7-3.2 3-5 6-5s5.3 1.8 6 5"/><path d="M15.5 5.6a3.25 3.25 0 0 1 0 5.8M17.6 14.8c1.8.6 3 2.2 3.4 4.7"/></svg>
+        <span>החבר'ה</span>
+      </button>
       <button role="tab" id="tab-trends" aria-controls="screen-trends" aria-selected="false" data-tab="trends" tabindex="-1">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.75 20.25h16.5"/><path d="M4.75 15.5l4.5-4.25 3.75 2.75 5.5-6.5"/><circle cx="18.5" cy="7.5" r="1.6"/></svg>
         <span>מגמות</span>
-      </button>
-      <button role="tab" id="tab-profile" aria-controls="screen-profile" aria-selected="false" data-tab="profile" tabindex="-1">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.25" r="3.75"/><path d="M4.75 20.25c.9-3.6 3.75-5.75 7.25-5.75s6.35 2.15 7.25 5.75"/></svg>
-        <span>פרופיל</span>
       </button>
     </nav>
 
@@ -298,6 +345,7 @@
         <p class="iw-clock num"><span class="t-before">30.11.2026 · 23:59</span><span class="t-after">1.12.2026 · 00:00</span></p>
         <svg class="iw-ring" viewBox="0 0 200 200">
           <circle cx="100" cy="100" r="78" class="iw-track"/>
+          <path id="iw-sh" class="iw-sh" d="" transform="translate(4 4)"/>
           <path id="iw-shape" class="iw-shape" d="" pathLength="100"/>
         </svg>
         <div class="iw-center">
@@ -330,6 +378,6 @@
   </div>
 </div>
 
-<script src="app.js?v=20"></script>
+<script src="app.js?v=22"></script>
 </body>
 </html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHEEP · הגבר שבפנים (Tamagotchi)</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+.stage { position: relative; margin-top: 18px; height: 280px; display: grid; place-items: center; background: var(--panel); border: var(--bw) solid var(--ink); border-radius: 22px; box-shadow: var(--sh); overflow: hidden; }
+.stage::before { content: ''; position: absolute; inset-inline: 0; bottom: 0; height: 64px; background: var(--green); border-top: var(--bw) solid var(--ink); }
+#pet { position: relative; width: 210px; height: 210px; overflow: visible; }
+.mood { margin-top: 16px; text-align: center; }
+.mood b { display: block; font-size: 30px; font-weight: 900; line-height: 1; }
+.mood p { margin-top: 6px; font-size: 15px; color: var(--ink-2); }
+.needs { list-style: none; display: grid; gap: 12px; padding-top: 12px; }
+.need { display: grid; grid-template-columns: 30px 70px 1fr 36px; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; }
+.need .kshape { width: 28px; height: 28px; }
+.bar { height: 14px; border: 2px solid var(--ink); border-radius: 8px; background: var(--panel); overflow: hidden; }
+.bar i { display: block; height: 100%; border-inline-end: 2px solid var(--ink); transition: width .5s cubic-bezier(.16, 1, .3, 1); }
+.need .num { text-align: end; font-weight: 900; }
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 12px; }
+.acts .btn { display: grid; gap: 2px; text-align: start; padding: 10px 12px; }
+.acts .btn small { font-size: 12px; font-weight: 700; color: var(--ink-2); }
+.fine { margin-top: 14px; font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="head"><h1 class="title">הגבר שבפנים</h1><p class="sub">יום <span class="num">15</span> · גדל איתך מאז <span class="num">1.12</span></p></header>
+
+  <div class="stage" aria-live="polite">
+    <svg id="pet" viewBox="0 0 220 220" role="img" aria-label="היצור: מתוח">
+      <path id="pet-sh" fill="#121212" transform="translate(7 7)"/>
+      <path id="pet-body" stroke="#121212" stroke-width="4" stroke-linejoin="round"/>
+      <circle id="eye-a" cx="88" cy="100" r="9" fill="#121212"/>
+      <circle id="eye-b" cx="132" cy="100" r="9" fill="#121212"/>
+      <path id="mouth" fill="none" stroke="#121212" stroke-width="4.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="mood"><b id="mood">מתוח</b><p id="mood-why">לא דיבר עם אף אחד 3 ימים. ישן 5 שעות.</p></div>
+
+  <section class="card" aria-labelledby="needs-h">
+    <h2 id="needs-h">מה הוא צריך</h2>
+    <ul class="needs" id="needs"></ul>
+  </section>
+
+  <section class="card" aria-labelledby="acts-h">
+    <h2 id="acts-h">לטפל בו עכשיו</h2>
+    <div class="acts" id="acts"></div>
+  </section>
+
+  <p class="fine">הוא לא מת אם מזניחים אותו. הוא רק מתחדד, ומבקש. ב-22:00 קופת רווחה מקבלת עדכון יומי.</p>
+</main>
+<p class="toast" id="toast" role="status"></p>
+
+<script src="kit.js"></script>
+<script>
+// Tamagotchi: the shape is a creature to raise. Care rounds it; neglect sharpens it.
+const NEEDS = [
+  { id: 'talk', name: 'שיחה', base: 'bubble', n: 6, fill: '#FF7AC6', v: 20 },
+  { id: 'move', name: 'תנועה', base: 'burst', n: 9, fill: '#FFD23F', v: 45 },
+  { id: 'sleep', name: 'שינה', base: 'box', n: 8, fill: '#9B6BFF', v: 35 },
+  { id: 'release', name: 'שחרור', base: 'drop', n: 7, fill: '#3FC8F5', v: 10 },
+];
+const ACTS = [
+  ['talk', 'להתקשר לעידו', '5 דק׳ · +30 שיחה', 30],
+  ['move', 'הליכה בלי אוזניות', '20 דק׳ · +25 תנועה', 25],
+  ['sleep', 'לישון ב-23:00', 'הלילה · +30 שינה', 30],
+  ['release', 'סרט שמבכה', '"השיר שלנו" · +35 שחרור', 35],
+];
+const $ = (s) => document.querySelector(s);
+const avg = () => NEEDS.reduce((n, x) => n + x.v, 0) / NEEDS.length / 100;
+const render = () => {
+  $('#needs').innerHTML = NEEDS.map((x) => `<li class="need">${K.shape(x.v / 100, { base: x.base, n: x.n, fill: x.fill })}<span>${x.name}</span><span class="bar"><i style="width:${x.v}%;background:${x.fill}"></i></span><span class="num">${x.v}</span></li>`).join('');
+  const r = avg();
+  const word = r > .7 ? 'רגוע' : r > .45 ? 'מתעגל' : r > .25 ? 'מתוח' : 'חד';
+  $('#mood').textContent = word;
+  $('#pet').setAttribute('aria-label', `היצור: ${word}`);
+  const low = NEEDS.slice().sort((a, b) => a.v - b.v)[0];
+  $('#mood-why').textContent = r > .7 ? 'הוא קיבל מה שהוא צריך היום. מחר זה מתחיל מחדש.' : `הכי חסר לו: ${low.name}.`;
+};
+$('#acts').innerHTML = ACTS.map(([id, t, s], i) => `<button type="button" class="btn" data-i="${i}"><span>${t}</span><small>${s}</small></button>`).join('');
+let toastT = 0;
+$('#acts').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-i]'); if (!b) return;
+  const [id, t, , add] = ACTS[+b.dataset.i];
+  const need = NEEDS.find((x) => x.id === id);
+  need.v = Math.min(100, need.v + add);
+  render();
+  const toast = $('#toast'); toast.textContent = `${t} · נרשם. הוא התעגל קצת.`; toast.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => toast.classList.remove('on'), 2200);
+});
+// slow neglect: every few seconds each need drains a little
+setInterval(() => { NEEDS.forEach((x) => { x.v = Math.max(0, x.v - 1); }); render(); }, 4000);
+
+let cur = avg();
+const frame = (t) => {
+  cur += (avg() - cur) * .06;
+  const tremble = K.reduced ? 0 : (1 - cur) * .04;
+  const bob = K.reduced ? 0 : Math.sin(t / 600) * 4;
+  const d = K.polar({ round: cur, R: 92, cx: 110, cy: 112 + bob, n: 9, tremble, phase: t / 120, N: 240 });
+  $('#pet-sh').setAttribute('d', d); $('#pet-body').setAttribute('d', d); $('#pet-body').setAttribute('fill', K.color(cur));
+  ['#eye-a', '#eye-b'].forEach((s) => $(s).setAttribute('cy', 100 + bob));
+  const smile = (cur - .45) * 34;                            // frown when sharp, smile when round
+  $('#mouth').setAttribute('d', `M92 ${136 + bob} Q110 ${136 + bob + smile} 128 ${136 + bob}`);
+  requestAnimationFrame(frame);
+};
+render();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

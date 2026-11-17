@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHEEP · הצורה של החבר'ה</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+.ring { position: relative; margin-top: 18px; height: 330px; background: var(--panel); border: var(--bw) solid var(--ink); border-radius: 22px; box-shadow: var(--sh); }
+.center { position: absolute; left: 50%; top: 50%; translate: -50% -50%; display: grid; justify-items: center; gap: 4px; }
+.center .kshape { width: 120px; height: 120px; }
+.center b { font-size: 14px; font-weight: 900; padding: 1px 8px; background: var(--yellow); border: 2px solid var(--ink); border-radius: 8px; }
+.friend { position: absolute; translate: -50% -50%; display: grid; justify-items: center; gap: 3px; }
+.friend .kshape { width: 54px; height: 54px; }
+.friend span { font-size: 13px; font-weight: 900; }
+.friend[aria-pressed="true"] span { background: var(--yellow); padding: 0 6px; border: 2px solid var(--ink); border-radius: 6px; }
+.seen { margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--violet); border: var(--bw) solid var(--ink); border-radius: var(--r); box-shadow: var(--sh); }
+.seen p { font-size: 15px; font-weight: 700; line-height: 1.35; }
+.switch { -webkit-appearance: none; appearance: none; flex: none; width: 52px; height: 30px; border-radius: 15px; background: var(--panel); border: 2px solid var(--ink); position: relative; cursor: pointer; }
+.switch::after { content: ''; position: absolute; top: 2px; right: 2px; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); transition: right .2s; }
+.switch:checked { background: var(--green); }
+.switch:checked::after { right: 24px; }
+.det p { margin-top: 10px; font-size: 15px; line-height: 1.45; }
+.det .row { display: flex; gap: 10px; margin-top: 12px; }
+.note { margin-top: 16px; padding: 12px 14px; background: var(--panel); border: 2px dashed var(--ink); border-radius: 12px; font-size: 14px; line-height: 1.45; }
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="head"><h1 class="title">הצורה של החבר'ה</h1><p class="sub">5 חברים · בלי מקומות, בלי ניקוד</p></header>
+
+  <div class="ring" id="ring" role="group" aria-label="הצורה המשותפת של הקבוצה ומסביבה החברים"></div>
+
+  <label class="seen"><p>הצורה שלך גלויה לחבר'ה. עידו ראה היום שאתה <b>חד</b>.</p><input type="checkbox" class="switch" checked aria-label="הצורה שלי גלויה לחבר'ה"></label>
+
+  <section class="card det" id="det" aria-live="polite"></section>
+
+  <p class="note">הקבוצה מתעגלת רק כשמישהו פותח שיחה. אף אחד לא "מנצח". אבל כולם רואים מי לא פתח.</p>
+</main>
+<p class="toast" id="toast" role="status"></p>
+
+<script src="kit.js"></script>
+<script>
+// Nosedive, inverted: no ratings, one shared shape that only softens when someone starts a conversation.
+const F = [
+  { id: 'me', name: 'אתה', r: .3, last: 'לא פתחת שיחה 3 ימים' },
+  { id: 'ido', name: 'עידו', r: .22, last: 'שקט 4 ימים. הצורה שלו חדה כמו שלך.' },
+  { id: 'doron', name: 'דורון', r: .7, last: 'דיבר עם אבא שלו אתמול, 40 דק׳.' },
+  { id: 'alon', name: 'אלון', r: .5, last: 'שלח "בוא נדבר" בקבוצה. אף אחד לא ענה.' },
+  { id: 'yoni', name: 'יוני', r: .38, last: 'במילואים. החיישן לא מסונכרן.' },
+];
+const $ = (s) => document.querySelector(s);
+let sel = 'ido';
+const group = () => F.reduce((n, f) => n + f.r, 0) / F.length;
+const render = () => {
+  const pos = F.map((_, i) => { const a = -Math.PI / 2 + i * (2 * Math.PI / F.length); return [50 + 38 * Math.cos(a), 50 + 38 * Math.sin(a)]; });
+  $('#ring').innerHTML = `<div class="center">${K.shape(group(), { shadow: true })}<b>הקבוצה · ${group() > .5 ? 'מתעגלת' : 'מתוחה'}</b></div>`
+    + F.map((f, i) => `<button type="button" class="friend" data-id="${f.id}" aria-pressed="${f.id === sel}" style="left:${pos[i][0]}%;top:${pos[i][1]}%">${K.shape(f.r, { shadow: true })}<span>${f.name}</span></button>`).join('');
+  const f = F.find((x) => x.id === sel);
+  $('#det').innerHTML = `<h2>${f.name}</h2><p>${f.last}</p>
+    <div class="row">${f.id === 'me' ? '' : `<button type="button" class="btn" data-call="${f.id}">להתקשר ל${f.name}</button>`}<button type="button" class="btn" data-call="group">שיחה קבוצתית</button></div>`;
+};
+let toastT = 0;
+document.addEventListener('click', (e) => {
+  const fr = e.target.closest('.friend'); if (fr) { sel = fr.dataset.id; render(); return; }
+  const c = e.target.closest('[data-call]'); if (!c) return;
+  const who = c.dataset.call === 'group' ? F : [F[0], F.find((x) => x.id === c.dataset.call)];
+  who.forEach((f) => { f.r = Math.min(1, f.r + .12); });
+  render();
+  const t = $('#toast'); t.textContent = c.dataset.call === 'group' ? 'שיחה קבוצתית נפתחה. כל הקבוצה התעגלה קצת.' : 'שיחה נפתחה. שתי צורות התעגלו.';
+  t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2200);
+});
+render();
+</script>
+</body>
+</html>

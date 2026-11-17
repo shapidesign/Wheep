@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHEEP · שלוש השראות לבחירה</title>
+<style>
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductRegular.otf); font-weight: 400; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductBold.otf); font-weight: 700; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductHeavy.otf); font-weight: 900; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Leon, system-ui, sans-serif; background: #FFD23F; color: #121212; padding: 32px 28px 40px; -webkit-font-smoothing: antialiased; }
+h1 { font-size: 32px; font-weight: 900; }
+.lead { margin-top: 6px; font-size: 16px; max-width: 70ch; line-height: 1.5; }
+.row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 26px; }
+.c { display: flex; flex-direction: column; align-items: center; }
+.frame { width: 312px; height: 675px; border-radius: 40px; overflow: hidden; border: 3px solid #121212; box-shadow: 8px 8px 0 #121212; background: #E4DBFF center top / cover no-repeat; flex: none; position: relative; }
+.frame iframe { width: 390px; height: 844px; border: 0; transform: scale(.8); transform-origin: top right; }
+.c h2 { margin-top: 18px; font-size: 21px; font-weight: 900; align-self: stretch; }
+.c p { margin-top: 6px; font-size: 15px; line-height: 1.5; align-self: stretch; }
+.c ul { list-style: none; margin-top: 10px; align-self: stretch; display: grid; gap: 6px; font-size: 14px; line-height: 1.45; }
+.c li { padding-inline-start: 18px; position: relative; }
+.c li::before { position: absolute; inset-inline-start: 0; font-weight: 900; }
+.plus::before { content: '+'; }
+.minus::before { content: '−'; }
+.c a { margin-top: 10px; align-self: stretch; color: #121212; font-size: 14px; font-weight: 900; text-underline-offset: 4px; }
+@media (max-width: 1100px) { .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <h1>שלוש השראות · תצוגה מקדימה</h1>
+  <p class="lead">כל אחת מסכי טלפון אינטראקטיבי באותה שפה (Bouba/Kiki, ניאו-ברוטליסטי). אפשר לבחור אחת, שתיים או לשלב.</p>
+  <div class="row">
+    <section class="c">
+      <div class="frame" style="background-image:url(previews/tamagotchi.png)"><iframe src="tamagotchi.html" title="Tamagotchi: הגבר שבפנים"></iframe></div>
+      <h2>1 · הגבר שבפנים (Tamagotchi)</h2>
+      <p>הצורה היא יצור שמגדלים: ארבעה צרכים, ארבע פעולות קטנות. טיפול מעגל אותו, הזנחה מחדדת אותו, והוא נמס לאט כל כמה שניות.</p>
+      <ul><li class="plus">מעבר מתמונת מצב לכלים מעשיים</li><li class="plus">רגע רגשי חזק בהצגה: היצור מחייך</li><li class="minus">עלול להיראות "חמוד", לרכך את הביקורת</li></ul>
+      <a href="tamagotchi.html" target="_blank" rel="noopener">פתח במסך מלא</a>
+    </section>
+    <section class="c">
+      <div class="frame" style="background-image:url(previews/atlas.png)"><iframe src="atlas.html" title="אטלס הרגשות"></iframe></div>
+      <h2>2 · אטלס הרגשות (Ekman)</h2>
+      <p>חמש יבשות: פחד, כעס, עצב, גועל, הנאה. גודל = עוצמה, חדות = כמה נשאר בפנים. לכל יבשה מצבים, טריגר ו"מה עשית עם זה".</p>
+      <ul><li class="plus">מפה מלאה של רגשות, לא רק בכי</li><li class="plus">"מה עשית עם זה" חושף את ההדחקה בלי להטיף</li><li class="minus">הכי צפוף בקריאה, דורש זמן בהצגה</li></ul>
+      <a href="atlas.html" target="_blank" rel="noopener">פתח במסך מלא</a>
+    </section>
+    <section class="c">
+      <div class="frame" style="background-image:url(previews/group.png)"><iframe src="group.html" title="הצורה של החבר'ה"></iframe></div>
+      <h2>3 · הצורה של החבר'ה (Nosedive)</h2>
+      <p>בלי דירוג ובלי מקומות: צורה משותפת לקבוצה שמתעגלת רק כשמישהו פותח שיחה. אבל הצורה שלך גלויה לכולם.</p>
+      <ul><li class="plus">האגו המוסט נראה בלי להסביר: "כולם רואים מי לא פתח"</li><li class="plus">מחבר ישר ל"לדבר עכשיו"</li><li class="minus">הכי קרוב לתחרות, צריך לשמור על העמימות</li></ul>
+      <a href="group.html" target="_blank" rel="noopener">פתח במסך מלא</a>
+    </section>
+  </div>
+</body>
+</html>
