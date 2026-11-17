@@ -70,7 +70,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .fine { font-size: 12px; line-height: 1.5; color: var(--paper-2); text-align: center; }
 .barcode { display: block; width: 100%; height: 46px; margin-top: 12px; }
 
-.stamp { position: absolute; top: 120px; inset-inline-start: 22px; rotate: -12deg; padding: 4px 10px; font-size: 15px; font-weight: 900; color: var(--stamp); border: 2.5px solid var(--stamp); border-radius: 8px; opacity: 0; scale: 1.6; mix-blend-mode: multiply; transition: opacity .25s, scale .35s cubic-bezier(.3, 1.6, .5, 1); }
+.stamp { position: absolute; top: 120px; inset-inline-start: 22px; rotate: -12deg; padding: 6px 12px; font-size: 15px; font-weight: 900; color: var(--stamp); border: 2.5px solid var(--stamp); border-radius: 8px; opacity: 0; scale: 1.6; mix-blend-mode: multiply; transition: opacity .25s, scale .35s cubic-bezier(.3, 1.6, .5, 1); }
 .stamp.is-on { opacity: .85; scale: 1; }
 
 /* coupons: tear-off stubs under the receipt */
@@ -81,7 +81,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .coupon .cw { grid-column: 1; font-size: 12px; color: var(--paper-2); }
 .coupon .cc { grid-row: 1 / 3; grid-column: 2; display: grid; justify-items: center; gap: 6px; }
 .coupon .cc b { font-size: 20px; font-weight: 900; }
-.coupon button { min-height: 40px; min-width: 76px; padding: 4px 12px; font-size: 13px; font-weight: 900; background: transparent; border: 2px solid var(--paper-ink); border-radius: 8px; }
+.coupon button { min-height: 40px; min-width: 76px; padding: 6px 12px; font-size: 13px; font-weight: 900; background: transparent; border: 2px solid var(--paper-ink); border-radius: 8px; }
 .coupon button.is-armed { background: var(--paper-ink); color: var(--paper); }
 .coupon button:disabled { opacity: .35; cursor: default; }
 .coupon.is-torn { translate: -110% 40px; rotate: -8deg; opacity: 0; }
