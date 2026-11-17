@@ -11,7 +11,7 @@ html.aura {
   --panel-2: rgba(255, 253, 249, .5);
   --ink: #26221E;
   --ink-2: #554E47;
-  --ink-3: #857D74;
+  --ink-3: #6B635B;
   --hair: rgba(38, 34, 30, .11);
   --frost: rgba(255, 253, 249, .42);
   --c-yellow: #F7C531;
@@ -240,7 +240,7 @@ html.aura .shop { display: flex !important; gap: 12px; overflow-x: auto; scroll-
 html.aura .shop::-webkit-scrollbar { display: none; }
 html.aura .shop li { flex: 0 0 64%; scroll-snap-align: center; display: flex !important; flex-direction: column; justify-content: space-between; gap: 14px; min-height: 210px; padding: 20px !important; border: 0 !important; border-radius: 28px; background: rgba(255, 253, 249, .5); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
 html.aura .shop .s-c { order: -1; text-align: start; font-size: 44px; font-weight: 200; line-height: 1; }
-html.aura .shop .s-c::after { content: " נק׳"; font-size: 12px; letter-spacing: .06em; color: var(--ink-2); }
+html.aura .shop .s-c::after { content: " כוכבים"; font-size: 12px; letter-spacing: .06em; color: var(--ink-2); }
 html.aura .shop .s-t { font-size: 15px; font-weight: 500; line-height: 1.3; }
 html.aura .shop .crew-btn { width: 100%; min-height: 40px; }
 html.aura .gain-fine { text-align: center; }
@@ -258,3 +258,12 @@ html.aura .is-new { animation-name: is-new-aura; }
 html.aura .p-code { border: 0; background: var(--frost); border-radius: 999px; font-weight: 400; }
 html.aura .my-perks li { border-bottom: 1px solid var(--hair); }
 html.aura .acts .act:last-child:nth-child(odd) { grid-column: auto; }
+
+/* v7 polish: the number sits under the light, not inside it (the shape describes the measure, not him) */
+html.aura .hero-mpl { position: static; translate: none; margin-top: 18px; flex-direction: row; align-items: baseline; gap: 8px; }
+html.aura .hero-mpl b { font-size: 84px; text-shadow: none; }
+html.aura .alert, html.aura .e-go { min-height: 40px; }
+html.aura .k-now::before { background: linear-gradient(90deg, #5B5BD6, #F7C531, #F0504A) !important; border: 0 !important; height: 6px; border-radius: 3px; }
+html.aura .k-prev::before { border-radius: 50%; }
+html.aura .records.is-archive { background: none !important; }
+html.aura .crew-btn.is-armed { background: var(--ink) !important; color: #FFFDF8; box-shadow: none !important; }

@@ -142,7 +142,7 @@
   // the composite of the four measures per day (crying is one of four)
   const DAYR = [.86, .7, .58, .5, .46, .3, .36, .4, .27, .44, .2, .3, .33, .34, .36, .66];
   const roundAt = (d) => at(DAYR, d);
-  const stateWord = (r) => (r > .7 ? 'עגול' : r > .35 ? 'מתוח' : 'חד');
+  const stateWord = (r) => (r > .7 ? 'לחץ נמוך' : r > .35 ? 'לחץ בינוני' : 'לחץ גבוה');
 
   /* ── today: 7-day forecast ── */
   const DAYROWS = [
@@ -360,14 +360,14 @@
   requestAnimationFrame(frame);
   /* ── shape tab: 16 days of one shape ── */
   const NOTES = {
-    0: '11 דק׳ בכי ברמזור בדרך הביתה. הצורה כמעט עגולה.',
+    0: '11 דק׳ בכי ברמזור בדרך הביתה. MPL ירד ל-310.',
     3: 'החיישן הוסר בין 02:10 ל-07:40. הצורה נמדדה חלקית.',
     5: 'כעס שלא נאמר · ישיבת צוות. קוץ ראשון.',
     6: 'דמעה לא מאומתת · 0.4 מ״ל. סיבה אפשרית: בצל.',
     8: 'ארוחת שישי. שלוש פעמים "לא משנה".',
     10: 'פקק באיילון. 40 דקות של שתיקה. קוץ חדש.',
     11: 'אבא שאל מה נשמע. "סבבה".',
-    12: '12 ימים ללא משקעים. 9 הדחקות השבוע.',
+    12: '12 ימים בלי שחרור באף מדד. 9 הדחקות השבוע.',
     15: 'תחזית: 60% שהצורה תתעגל. ארוחת ערב משפחתית.',
   };
   const strip = $('#shape-strip');
@@ -380,7 +380,7 @@
     $('#hero-day').textContent = label;
     dayInput.setAttribute('aria-valuetext', label);
     $('#hero-mpl').textContent = i === TODAY ? liveMpl() : mpl(at(PRESS, d));
-    $('#hero-note').textContent = i === TODAY ? '' : NOTES[i] || 'יבש. אין רישום.';
+    $('#hero-note').textContent = i === TODAY ? '' : NOTES[i] || 'אין רישום.';
     $('#hero-shape').setAttribute('aria-label', `צורת הגבריות ב-${label}: ${stateWord(i === TODAY ? heroTarget() : r)}`);
     strip.querySelectorAll('.sday').forEach((b) => b.classList.toggle('is-sel', +b.dataset.i === i));
     setFrame(curTarget());
@@ -483,7 +483,7 @@
       // a long talk rounds the people on it too: the friend, or the whole crew
       (who.group ? CREW : CREW.filter((f) => f.id === who.id)).forEach((f) => { f.r = Math.min(1, f.r + .15); });
       earn(who.group ? `שיחה קבוצתית · ${mins} דק׳` : `שיחה עם ${who.name} · ${mins} דק׳`, who.group ? 40 : 30, $('#call-end'));
-      $('#call-out').textContent += ` +${who.group ? 40 : 30} נקודות רווחה.`;
+      $('#call-out').textContent += ` +${who.group ? 40 : 30} כוכבים.`;
       renderMetrics(); renderNeeds(); renderCrew();
     } else {
       $('#call-out').textContent = callSecs ? `שיחה של ${mins} דק׳. קצרה מדי כדי להיחשב כשיחת עומק.` : 'השיחה לא נענתה. לא נרשם דבר.';
@@ -524,7 +524,7 @@
     renderNeeds(); renderMetrics();
     const low = NEEDS.slice().sort((a, c) => a.v - c.v)[0];
     earn(t, 15, b);
-    $('#acts-out').textContent = `${t} · נרשם, +15 נקודות. הוא התעגל קצת. הכי חסר לו עכשיו: ${low.name}.`;
+    $('#acts-out').textContent = `${t} · נרשם, +15 כוכבים. הלחץ ירד קצת. הכי חסר לו עכשיו: ${low.name}.`;
   });
   renderNeeds();
 
@@ -598,7 +598,7 @@
 
   /* ── the crew: a shared shape, no ranks; you can see who is sharp and reach him ── */
   const CREW = rf([
-    { id: 'ido', name: 'עידו', init: 'ע', fill: '#3FC8F5', r: .22, last: 'שקט 4 ימים. הצורה שלו חדה כמו שלך.' },
+    { id: 'ido', name: 'עידו', init: 'ע', fill: '#3FC8F5', r: .22, last: 'שקט 4 ימים. גם ה-MPL שלו עולה.' },
     { id: 'doron', name: 'דורון', init: 'ד', fill: '#3DDC97', r: .7, last: 'דיבר עם אבא שלו אתמול, 40 דק׳.' },
     { id: 'alon', name: 'אלון', init: 'א', fill: '#FF7AC6', r: .5, last: 'שלח "בוא נדבר" בקבוצה. אף אחד לא ענה.' },
     { id: 'yoni', name: 'יוני', init: 'י', fill: '#FFD23F', r: .38, last: 'במילואים. החיישן לא מסונכרן.', off: true },
@@ -606,7 +606,7 @@
   const renderCrew = () => {
     const g = (CREW.reduce((n, f) => n + f.r, 0) + heroTarget()) / (CREW.length + 1);
     $('#crew-shape').innerHTML = mini(g, 'mini', false, `הצורה של הקבוצה: ${stateWord(g)}`, undefined, 'burst', 9, true);
-    $('#crew-state').textContent = `הקבוצה · ${g > .5 ? 'מתעגלת' : 'מתוחה'}`;
+    $('#crew-state').textContent = `הקבוצה · ${g > .5 ? 'הלחץ יורד' : 'לחץ גבוה'}`;
     $('#crew-list').innerHTML = CREW.map((f) => `<li class="mate">
       ${mini(f.r, 'mini mate-shape', !!f.off, '', undefined, 'burst', 9, true)}
       <div class="mate-body"><p class="mate-name"><b>${f.name}</b></p><p class="mate-last">${f.last}</p></div>
@@ -638,7 +638,8 @@
     { t: 'עיסוי זוגי', c: 700, n: '60 דק׳ · שתי מיטות' },
     { t: 'יום חופש מהעבודה, בלי להסביר', c: 1200, n: 'המעסיק מקבל אישור, לא סיבה' },
   ];
-  const clock = () => { const n = new Date(); return `${n.getHours()}:${String(n.getMinutes()).padStart(2, '0')}`; };
+  let tick = 0;
+  const clock = () => { const m = 41 + tick++ * 3; return `${9 + Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
   const renderGain = () => {
     $('#gain-bal').textContent = GAIN.bal.toLocaleString('he-IL');
     const next = SHOP.find((x) => !x.done && x.c > GAIN.bal) || SHOP.find((x) => !x.done);
@@ -648,7 +649,7 @@
     $('#led-sum').innerHTML = sum ? `<span class="num">+${sum}</span> היום` : '';
     $('#ledger').innerHTML = GAIN.led.length
       ? GAIN.led.map(([t, p, at]) => `<li><span class="num l-at">${at}</span><span class="l-t">${t}</span><b class="num l-p">+${p}</b></li>`).join('')
-      : '<li class="l-empty">עוד לא הרווחת היום. 12 ימים בלי בכי לא שווים נקודות.</li>';
+      : '<li class="l-empty">עוד לא הרווחת היום. 12 ימים בלי שחרור לא שווים כוכבים.</li>';
     $('#earn').innerHTML = EARN.map(([t, p, how]) => `<li><span class="e-t">${t}</span><b class="num e-p">+${p}</b>${['talk', 'group', 'care'].includes(how) ? `<button type="button" class="crew-btn e-go" data-earn="${how}">${how === 'group' ? 'לפתוח' : how === 'talk' ? 'להתקשר' : 'לטפל'}</button>` : `<span class="e-how">${how}</span>`}</li>`).join('');
     $('#shop').innerHTML = SHOP.map((x, i) => `<li class="${x.done ? 'is-done' : ''}"><span class="s-t">${x.t}<small>${x.n}</small></span><span class="num s-c">${x.c}</span><button type="button" class="crew-btn" data-buy="${i}" ${x.done || x.c > GAIN.bal ? 'disabled' : ''}>${x.done ? 'מומש' : 'לממש'}</button></li>`).join('');
   };
@@ -670,6 +671,12 @@
     const b = e.target.closest('[data-buy]'); if (!b) return;
     const x = SHOP[+b.dataset.buy];
     if (x.done || x.c > GAIN.bal) return;
+    if (!b.classList.contains('is-armed')) {                // first tap: say who gets told
+      $$('#shop .is-armed').forEach((o) => { o.classList.remove('is-armed'); o.textContent = 'לממש'; });
+      b.classList.add('is-armed'); b.textContent = 'לאשר';
+      $('#gain-out').textContent = `${x.t} · ${x.c} כוכבים. המעסיק יקבל אישור ותאריך, לא סיבה. הקשה נוספת מממשת.`;
+      return fx(b, 'is-pressed');
+    }
     const was = GAIN.bal;
     GAIN.bal -= x.c; x.done = true; x.code = `WHP-${1000 + Math.floor(Math.random() * 9000)}`; x.at = clock();
     renderGain(); renderPerks();
@@ -767,11 +774,11 @@
     press: { r: [.55, .46, .33, .22], v: ['4', '5', '7', '9'] },
     talk: { r: [.5, .55, .6, .67], v: ['2', '3', '3', '4'] },
   };
-  const trendWord = (a2) => { const d = a2[a2.length - 1] - a2[0]; return d > .08 ? 'מתעגל' : d < -.08 ? 'מתחדד' : 'יציב'; };
+  const trendWord = (a2) => { const d = a2[a2.length - 1] - a2[0]; return d > .08 ? 'משתחרר' : d < -.08 ? 'נאגר' : 'יציב'; };
   $('#measures-weeks').innerHTML = `<colgroup><col class="c-name"><col span="4"><col class="c-trend"></colgroup><thead><tr><th scope="col"><span class="sr">מדד</span></th>${WEEK_LABELS.map((w, i) => `<th scope="col" class="num">${i === WEEK_LABELS.length - 1 ? 'השבוע' : w}</th>`).join('')}<th scope="col"><span class="sr">מגמה</span></th></tr></thead><tbody>`
     + METRICS.map((m) => {
       const w = WEEKS[m.id], t = trendWord(w.r);
-      return `<tr><th scope="row">${mini(.5, 'mini mw-icon', false, '', m.fill, m.base, m.n)}<span>${m.name}</span></th>${w.v.map((v, i) => `<td><span class="mw-tile num" style="background:${R(w.r[i] < .34 ? '#FF5A36' : w.r[i] < .6 ? '#FFD23F' : '#3FC8F5')}">${v}</span></td>`).join('')}<td><span class="mw-trend is-${t === 'מתעגל' ? 'up' : t === 'מתחדד' ? 'down' : 'flat'}">${t}</span></td></tr>`;
+      return `<tr><th scope="row">${mini(.5, 'mini mw-icon', false, '', m.fill, m.base, m.n)}<span>${m.name}</span></th>${w.v.map((v, i) => `<td><span class="mw-tile num" style="background:${R(w.r[i] < .34 ? '#FF5A36' : w.r[i] < .6 ? '#FFD23F' : '#3FC8F5')}">${v}</span></td>`).join('')}<td><span class="mw-trend is-${t === 'משתחרר' ? 'up' : t === 'נאגר' ? 'down' : 'flat'}">${t}</span></td></tr>`;
     }).join('') + '</tbody>';
 
   // December 2026 calendar (1.12 is a Tuesday; columns run Sunday → Saturday, right to left).
@@ -791,7 +798,7 @@
   const TEAR = {
     pending: 'דמעה לא מאומתת · <span class="num">0.4</span> מ״ל · סיבה אפשרית: בצל.',
     confirmed: 'נשלח לאימות ידני בקופת רווחה. זמן טיפול משוער: 14 ימי עסקים.',
-    rejected: 'נמחק. הרצף היבש נשמר.',
+    rejected: 'נמחק. הרצף נשמר.',
   };
   const cal = $('#cal');
   let calSel = null;
@@ -821,7 +828,7 @@
         + (tearState === 'pending' ? `<div class="cd-actions"><button type="button" data-tear="confirmed">אשר</button><button type="button" data-tear="rejected">דחה</button></div>` : '');
       return;
     }
-    const text = log?.text || (calSel > 15 ? 'עוד לא נמדד.' : 'יבש. אין רישום.');
+    const text = log?.text || (calSel > 15 ? 'עוד לא נמדד.' : 'אין רישום.');
     box.innerHTML = `<p class="cd-line">${date}${log?.g ? glyph(log.g, 'glyph glyph-detail') : ''}<span>${text}</span></p>`;
   };
   cal.addEventListener('click', (e) => {
@@ -837,14 +844,14 @@
     tearState = b.dataset.tear;
     // the decision follows him everywhere: Today's measure, the shape tab note, the week in words
     METRICS[0].sub = tearState === 'rejected' ? 'הדמעה נמחקה' : 'בבדיקה בקופה';
-    NOTES[6] = tearState === 'rejected' ? 'הדמעה נמחקה. הרצף היבש נשמר.' : 'דמעה לא מאומתת · נשלחה לאימות ידני.';
+    NOTES[6] = tearState === 'rejected' ? 'הדמעה נמחקה. הרצף נשמר.' : 'דמעה לא מאומתת · נשלחה לאימות ידני.';
     renderMetrics();
     const storyRow = $('#story li');
-    if (storyRow && tearState === 'rejected') storyRow.querySelector('.st-text').textContent = 'נמחק. הרצף היבש נשמר.';
+    if (storyRow && tearState === 'rejected') storyRow.querySelector('.st-text').textContent = 'נמחק. הרצף נשמר.';
     $('#pending-badge').hidden = true;
     renderCal(); renderDetail(); drawTrends();
   });
-  $('#cal-key').innerHTML = `<li>${mini(.08, 'mini ck-shape')}חד</li><li>${mini(.95, 'mini ck-shape')}עגול</li>`
+  $('#cal-key').innerHTML = `<li>${mini(.08, 'mini ck-shape')}נשאר בפנים</li><li>${mini(.95, 'mini ck-shape')}יצא</li>`
     + '<li><i class="ck-unv"></i>לא מאומת</li><li><i class="ck-gap"></i>חיישן מנותק</li>';
   renderCal();
 
@@ -874,7 +881,7 @@
     const v = +goal.value;
     stepBtns[0].disabled = v <= 0;
     stepBtns[1].disabled = v >= 7;
-    $('#goal-note').textContent = v === 0 ? 'יעד אפס כבוי. המעקב ממשיך.' : `ממוצע לגילך: 4 בשבוע. הושלמו 0 מתוך ${v}.`;
+    $('#goal-note').textContent = v === 0 ? 'יעד אפס כבוי. המעקב ממשיך.' : `הושלמו 0 מתוך ${v}.`;
   };
   stepBtns.forEach((b) => b.addEventListener('click', () => { goal.value = String(Math.max(0, Math.min(7, +goal.value + +b.dataset.step))); syncGoal(); }));
   syncGoal();

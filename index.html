@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0A0E2E">
 <title>WHEEP · תחזית רגשית</title>
-<link rel="stylesheet" href="style.css?v=30">
-<link rel="stylesheet" href="brutal.css?v=30">
-<link rel="stylesheet" href="aura.css?v=30">
+<link rel="stylesheet" href="style.css?v=32">
+<link rel="stylesheet" href="brutal.css?v=32">
+<link rel="stylesheet" href="aura.css?v=32">
 <script>
   // ?style=aura or the switch on the caption; remembered between visits
   (() => { const q = new URLSearchParams(location.search).get('style'); if (q) localStorage.setItem('wheepStyle', q);
@@ -53,7 +53,7 @@
         </header>
         <header class="hero">
           <div class="hero-shape">
-            <svg viewBox="-12 -12 344 344" id="hero-shape" role="img" aria-label="הצורה של היום: חדה">
+            <svg viewBox="-12 -12 344 344" id="hero-shape" role="img" aria-label="הצורה של היום: לחץ גבוה">
               <defs><path id="hero-d"/></defs><path class="sh"/><g class="ed"><use href="#hero-d" y="1"/><use href="#hero-d" y="2"/><use href="#hero-d" y="3"/><use href="#hero-d" y="4"/><use href="#hero-d" y="5"/><use href="#hero-d" y="6"/><use href="#hero-d" y="7"/><use href="#hero-d" y="8"/><use href="#hero-d" y="9"/></g><path class="fg"/>
             </svg>
           </div>
@@ -73,7 +73,7 @@
         </div>
 
           </div>
-          <p class="hero-range"><span>שיא אישי <b class="num">19</b> ימים</span><span>ממוצע לגילך <b class="num">2</b> ימים</span></p>
+          <p class="hero-range"><span><b class="num">12</b> ימים בלי שחרור</span><span>תחזית ו׳: <b class="num">60%</b></span></p>
         </header>
 
 
@@ -85,8 +85,8 @@
             <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>
           </span>
           <span class="alert-more" id="alert-more" hidden>
-            <span class="alert-body">מדד לחץ הגבריות (MPL) עומד על <b class="num">775</b> ועולה ברציפות כבר <b class="num">12</b> ימים. לא נרשמו משקעים מאז <b class="num">3</b> בדצמבר.</span>
-            <span class="alert-body">בתוקף עד יום ו׳, <span class="num">20:00</span>. ההתראה תוסר אוטומטית עם תחילת משקעים.</span>
+            <span class="alert-body">מדד לחץ הגבריות (MPL) עומד על <b class="num">775</b> ועולה ברציפות כבר <b class="num">12</b> ימים. אף אחד מארבעת המדדים לא השתחרר מאז <b class="num">3</b> בדצמבר.</span>
+            <span class="alert-body">בתוקף עד יום ו׳, <span class="num">20:00</span>. ההתראה תוסר אוטומטית כשאחד המדדים ישתחרר.</span>
           </span>
         </button>
 
@@ -107,7 +107,7 @@
 
         <section class="talk" aria-labelledby="talk-h">
           <h2 class="talk-h" id="talk-h">לדבר עכשיו</h2>
-          <p class="talk-sub">שיחה של 5 דקות מעגלת את הצורה יותר מכל יעד.</p>
+          <p class="talk-sub">שיחה של 20 דקות מורידה את הלחץ יותר מכל יעד.</p>
           <div class="talk-people" id="talk-people"></div>
         </section>
 
@@ -121,10 +121,10 @@
       <!-- רווחה -->
       <section class="screen" id="screen-gain" role="tabpanel" aria-labelledby="tab-gain" tabindex="-1" hidden>
         <header class="page-head"><h1 class="page-title">רווחה</h1></header>
-        <p class="gain-sub">נקודות על מה שיצא החוצה. אין טבלה, אף אחד לא רואה כמה יש לך.</p>
+        <p class="gain-sub">כוכבים על מה שיצא החוצה. אין טבלה, אף אחד לא רואה כמה יש לך.</p>
         <section class="panel gain-wallet" aria-labelledby="gain-h">
           <h2 class="sr-only" id="gain-h">היתרה שלך</h2>
-          <p class="gain-bal"><b class="num" id="gain-bal">340</b><span>נקודות רווחה</span></p>
+          <p class="gain-bal"><b class="num" id="gain-bal">340</b><span>כוכבים</span></p>
           <div class="gain-next"><span class="bar"><i id="gain-bar"></i></span><p id="gain-next-t"></p></div>
           <p class="gain-out" id="gain-out" aria-live="polite"></p>
         </section>
@@ -140,7 +140,7 @@
           <div class="panel-row"><h2 class="panel-h" id="shop-h">לממש</h2><span class="panel-meta">בשיתוף קופת רווחה</span></div>
           <ul class="shop" id="shop"></ul>
         </section>
-        <p class="fine gain-fine">נקודות לא עוברות בין משתמשים ולא נצברות מעבר ל-5,000. בכי שלא אומת לא מזכה בנקודות עד לאימות.</p>
+        <p class="fine gain-fine">כוכבים לא עוברים בין משתמשים ולא נצברים מעבר ל-5,000. בכי שלא אומת לא מזכה בכוכבים עד לאימות.</p>
       </section>
 
       <!-- רגשות -->
@@ -164,11 +164,11 @@
           <div class="crew-shape" id="crew-shape"></div>
           <div class="crew-body">
             <h2 class="crew-state" id="crew-state">הקבוצה · מתוחה</h2>
-            <p>מתעגלת רק כשמישהו פותח שיחה. אין ניקוד ואין מקומות.</p>
+            <p>הלחץ של הקבוצה יורד רק כשמישהו פותח שיחה. אין ניקוד ואין מקומות.</p>
             <button class="crew-btn is-ink" type="button" data-crew-group>שיחה קבוצתית</button>
           </div>
         </section>
-        <label class="panel crew-seen"><span>הצורה שלך גלויה לחבר'ה. <b>עידו ראה היום שאתה חד.</b></span><input type="checkbox" class="switch" checked aria-label="הצורה שלי גלויה לחבר'ה"></label>
+        <label class="panel crew-seen"><span>הצורה שלך גלויה לחבר'ה. <b>עידו ראה היום את מצבך.</b></span><input type="checkbox" class="switch" checked aria-label="הצורה שלי גלויה לחבר'ה"></label>
         <ul class="crew-list" id="crew-list"></ul>
         <button class="crew-invite" type="button" id="crew-invite">+ להזמין לחבורה</button>
         <p class="crew-out" id="crew-out" aria-live="polite"></p>
@@ -215,9 +215,9 @@
         </section>
 
         <dl class="stats">
-          <div><dt>רצף יבש נוכחי</dt><dd><b class="num">12</b> ימים</dd></div>
-          <div><dt>ימי משקעים החודש</dt><dd><b class="num">1</b> מתוך <b class="num">15</b></dd></div>
-          <div><dt>בכית יותר מ-</dt><dd><b class="num">8%</b> מהגברים בגילך</dd></div>
+          <div><dt>ימים בלי שחרור</dt><dd><b class="num">12</b> ימים</dd></div>
+          <div><dt>ימי שחרור החודש</dt><dd><b class="num">1</b> מתוך <b class="num">15</b></dd></div>
+          <div><dt>המדד שזז הכי הרבה</dt><dd>שיחות עומק</dd></div>
         </dl>
       </section>
 
@@ -225,13 +225,6 @@
       <section class="screen" id="screen-profile" role="region" aria-labelledby="profile-h" tabindex="-1" hidden>
         <header class="page-head"><button class="back-btn" type="button" data-go="today"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>היום</button><h1 class="page-title" id="profile-h">פרופיל</h1></header>
 
-        <section class="panel records" aria-labelledby="rec-h">
-          <h2 class="panel-h" id="rec-h">שיאים</h2>
-          <ul class="rec-list">
-            <li class="rec"><span class="rec-name"><svg class="medal" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14.5" r="5.25"/><path d="M9.25 3.75l1.75 5.6M14.75 3.75L13 9.35"/></svg>רצף יבש ארוך ביותר</span><span class="rec-val"><b class="num">19</b> ימים</span><span class="rec-date num">14.10–1.11.2026</span></li>
-            <li class="rec"><span class="rec-name"><svg class="medal" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14.5" r="5.25"/><path d="M9.25 3.75l1.75 5.6M14.75 3.75L13 9.35"/></svg>שיא בכי</span><span class="rec-val"><b class="num">23</b> דק׳</span><span class="rec-date num">17.1.2026</span></li>
-          </ul>
-        </section>
 
         <section class="panel perks" aria-labelledby="perks-h">
           <div class="panel-row"><h2 class="panel-h" id="perks-h">ההטבות שלי</h2><span class="panel-meta num" id="perks-n"></span></div>
@@ -255,14 +248,14 @@
         <section class="panel" aria-labelledby="goal-h">
           <h2 class="panel-h" id="goal-h">יעדים</h2>
           <div class="row">
-            <span>יעד משקעים שבועי</span>
+            <span>יעד בכי שבועי</span>
             <div class="stepper">
               <button type="button" data-step="-1" aria-label="הפחתה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
               <output class="num" id="goal-rain" aria-live="polite">2</output>
               <button type="button" data-step="1" aria-label="הוספה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12"/></svg></button>
             </div>
           </div>
-          <p class="row-note" id="goal-note">ממוצע לגילך: 4 בשבוע.</p>
+          <p class="row-note" id="goal-note">הושלמו 0 מתוך 2.</p>
         </section>
 
         <section class="panel" aria-labelledby="ntf-h">
@@ -278,6 +271,14 @@
             <p class="share-num num">12%</p>
             <p>הנחה בפרמיה החודשית. השיתוף יתחיל ב-<span class="num">1.1.2027</span>.</p>
           </div>
+        </section>
+        <section class="panel records is-archive" aria-labelledby="rec-h">
+          <div class="panel-row"><h2 class="panel-h" id="rec-h">ארכיון WHOOP</h2><span class="panel-meta num">נסגר 30.11.2026</span></div>
+          <p class="rec-sub-note">נמדד לפני 1.12. כבר לא נספר.</p>
+          <ul class="rec-list">
+            <li class="rec"><span class="rec-name"><svg class="medal" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14.5" r="5.25"/><path d="M9.25 3.75l1.75 5.6M14.75 3.75L13 9.35"/></svg>רצף ארוך ביותר בלי שחרור</span><span class="rec-val"><b class="num">19</b> ימים</span><span class="rec-date num">14.10–1.11.2026</span></li>
+            <li class="rec"><span class="rec-name"><svg class="medal" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14.5" r="5.25"/><path d="M9.25 3.75l1.75 5.6M14.75 3.75L13 9.35"/></svg>שיא בכי</span><span class="rec-val"><b class="num">23</b> דק׳</span><span class="rec-date num">17.1.2026</span></li>
+          </ul>
         </section>
       </section>
     </main>
@@ -357,13 +358,13 @@
 
       <div class="about" id="about">
         <h1 class="ab-title" id="ab-h">מה זה WHEEP</h1>
-        <p class="ab-lead">WHEEP מודד ארבעה דברים בכל יום, וכל אחד מהם הוא צורה. חדה כשמשהו נשאר בפנים, עגולה כשהוא יוצא.</p>
+        <p class="ab-lead">WHEEP מודד ארבעה דברים בכל יום, וכל אחד מהם הוא צורה: קוצים כשמשהו נשאר בפנים, קווים רכים כשהוא יוצא. הצורה מתארת את המדד, לא אותך.</p>
         <ul class="ab-map" id="ab-map"></ul>
         <div class="ab-shape">
           <svg class="kb kb-a" viewBox="0 0 48 48" aria-hidden="true"><path/></svg>
           <svg class="kb kb-b" viewBox="0 0 48 48" aria-hidden="true"><path/></svg>
           <svg class="kb kb-c" viewBox="0 0 48 48" aria-hidden="true"><path/></svg>
-          <p>חד · מתוח · עגול</p>
+          <p>נשאר בפנים · באמצע · יצא</p>
         </div>
         <p class="ab-quiet">השיאים הקודמים שלך נשמרו בארכיון.</p>
         <button class="ab-go" type="button" id="ab-go">המשך</button>
@@ -372,6 +373,6 @@
   </div>
 </div>
 
-<script src="app.js?v=30"></script>
+<script src="app.js?v=32"></script>
 </body>
 </html>
