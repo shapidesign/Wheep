@@ -155,6 +155,7 @@
       $('.phone').classList.toggle('on-today', name === 'today');
     });
     setSky(name === 'shape' ? wetness(shapeDay) : 0);
+    setFrame(name === 'shape' ? roundAt(shapeDay) : heroTarget());
     if (name === 'trends') drawTrends();
   };
   tabs.forEach((t) => t.addEventListener('click', () => show(t.dataset.tab)));
@@ -249,6 +250,17 @@
   const NEEDS0 = needsAvg();
   const care = () => Math.max(0, needsAvg() - NEEDS0) * .6;
 
+  // the frame is the variable: as the shape softens, the ink thins, the shadows drop and the corners round.
+  // Today's sharp shape (~.3) keeps the full brutal frame; the round day after a cry (~.86) has almost none.
+  const setFrame = (round) => {
+    const k = Math.max(0, Math.min(1, (round - .3) / .5)), ph = $('.phone').style, o = (6 * (1 - k)).toFixed(1), o2 = (4 * (1 - k)).toFixed(1);
+    ph.setProperty('--sh', `${o}px ${o}px 0 var(--ink)`);
+    ph.setProperty('--sh-sm', `${o2}px ${o2}px 0 var(--ink)`);
+    ph.setProperty('--bw', `${(3 - 1.8 * k).toFixed(2)}px`);
+    ph.setProperty('--r', `${Math.round(14 + 16 * k)}px`);
+    $('.phone').dataset.frame = k > .66 ? 'round' : k > .2 ? 'mid' : 'sharp';
+  };
+
   /* ── four measures, each its own Bouba/Kiki shape; the hero is their average ── */
   const state = { press: 9, talks: 4 };
   const METRICS = [
@@ -263,12 +275,7 @@
       <li class="metric">${mini(m.round(), 'mini metric-shape', false, '', m.fill, m.base, m.n, true)}
         <b class="num">${m.val()}</b><span class="m-name">${m.name}</span><small>${m.sub}</small></li>`).join('');
     $('#hero-state').textContent = stateWord(heroTarget());
-    // the frame is the variable: as the shape softens, the ink thins, the shadows drop and the corners round
-    const k = Math.max(0, Math.min(1, (heroTarget() - .3) / .6)), ph = $('.phone').style;
-    ph.setProperty('--sh', `${(4 * (1 - k)).toFixed(1)}px ${(4 * (1 - k)).toFixed(1)}px 0 var(--ink)`);
-    ph.setProperty('--sh-sm', `${(3 * (1 - k)).toFixed(1)}px ${(3 * (1 - k)).toFixed(1)}px 0 var(--ink)`);
-    ph.setProperty('--bw', `${(2.5 - 1.2 * k).toFixed(2)}px`);
-    ph.setProperty('--r', `${Math.round(14 + 12 * k)}px`);
+    if ($('#screen-shape').hidden) setFrame(heroTarget());
     $('#hero-shape').setAttribute('aria-label', `הצורה של היום: ${stateWord(heroTarget())}`);
   };
 
@@ -327,6 +334,7 @@
     $('#shape-note').textContent = NOTES[i] || 'יבש. אין רישום.';
     $('#shape-big').setAttribute('aria-label', `צורת הגבריות ב-${label}: ${stateWord(r)}`);
     strip.querySelectorAll('.sday').forEach((b) => b.classList.toggle('is-sel', +b.dataset.i === i));
+    if (!$('#screen-shape').hidden) setFrame(Math.min(1, r + (i === TODAY ? care() : 0)));
     setSky(wetness(d));
   };
   dayInput.addEventListener('input', () => { stopPlay(); setDay(+dayInput.value); });
@@ -493,8 +501,23 @@
     { id: 'joy', name: 'הנאה', base: 'blob', n: 7, fill: '#FFD23F', v: 41, prev: 52, out: .85,
       states: [['הקלה', 3], ['שמחה', 2], ['גאווה', 1]], trigger: 'שיחה עם עידו', did: 'צחקת' },
   ];
+  // 48-grid figures: round head, thick round-capped limbs; the posture is the emotion
+  const PICTO = {
+    fear: { head: [25, 18], lines: ['M25 24L23 32', 'M25 25L18 16', 'M25 25L32 15', 'M23 32L15 36L17 42', 'M23 32L30 37L29 43'] },
+    anger: { head: [24, 12], lines: ['M24 18L24 30', 'M24 20L15 24L16 30', 'M24 20L33 24L32 30', 'M24 30L16 41', 'M24 30L32 41', 'M18 5L16 2', 'M30 5L32 2', 'M24 4L24 1'] },
+    sad: { head: [20, 17], lines: ['M22 22Q25 26 25 32', 'M22 23L19 32', 'M24 24L27 31', 'M25 32L22 42', 'M25 32L29 42'] },
+    disgust: { head: [29, 12], lines: ['M28 18L26 31', 'M28 20L17 18', 'M16 14L16 22', 'M28 21L31 29', 'M26 31L21 41', 'M26 31L31 41'] },
+    joy: { head: [24, 10], lines: ['M24 16L24 29', 'M24 19L15 9', 'M24 19L33 9', 'M24 29L16 40', 'M24 29L32 40'] },
+  };
+  const picto = (e, cls = 'picto', x, y, size) => {
+    const p = PICTO[e.id];
+    const pos = x == null ? '' : ` x="${x}" y="${y}" width="${size}" height="${size}"`;
+    return `<svg class="${cls}" viewBox="0 0 48 48"${pos} aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="11" fill="${e.fill}" stroke="#121212" stroke-width="2.5"/>`
+      + `<g fill="none" stroke="#121212" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">${p.lines.map((d) => `<path d="${d}"/>`).join('')}</g>`
+      + `<circle cx="${p.head[0]}" cy="${p.head[1]}" r="4.6" fill="#121212"/></svg>`;
+  };
   let emoSel = 'fear';
-  const RC = { x: 170, y: 162, R: 110 };
+  const RC = { x: 170, y: 180, R: 110 };
   const rPt = (i, v) => {
     const a = -Math.PI / 2 + i * (2 * Math.PI / EMO.length);
     return [RC.x + Math.cos(a) * RC.R * v / 99, RC.y + Math.sin(a) * RC.R * v / 99];
@@ -514,15 +537,15 @@
       g += `<circle cx="${x}" cy="${y}" r="${on ? 7.5 : 5.5}" fill="${e.fill}" stroke="#121212" stroke-width="2"/>`;
       const [lx, ly] = rPt(i, 99 * 1.3);
       g += `<g class="r-label${on ? ' is-on' : ''}" data-emo="${e.id}" transform="translate(${lx.toFixed(1)} ${(ly - 8).toFixed(1)})">
-        <path d="${polar({ round: e.out, R: 11, cx: 0, cy: -6, base: e.base, n: e.n })}" fill="${e.fill}" stroke="#121212" stroke-width="2" stroke-linejoin="round"/>
+        ${picto(e, 'picto', -15, -24, 30)}
         <text y="21" text-anchor="middle" class="r-name">${e.name} <tspan class="num">${e.v}</tspan></text></g>`;
     });
     const R = $('#radar');
     R.innerHTML = g;
     R.setAttribute('aria-label', `עוצמת הרגשות השבוע: ${EMO.map((e) => `${e.name} ${e.v}`).join(', ')}`);
-    $('#emo-pick').innerHTML = EMO.map((e) => `<button type="button" role="radio" aria-checked="${e.id === emoSel}" data-emo="${e.id}">${mini(e.out, 'mini', false, '', e.fill, e.base, e.n)}<span>${e.name}</span></button>`).join('');
+    $('#emo-pick').innerHTML = EMO.map((e) => `<button type="button" role="radio" aria-checked="${e.id === emoSel}" data-emo="${e.id}">${picto(e)}<span>${e.name}</span></button>`).join('');
     const e = EMO.find((x) => x.id === emoSel), d = e.v - e.prev;
-    $('#emo-det').innerHTML = `<div class="panel-row"><h2 class="panel-h emo-h">${mini(e.out, 'mini', false, '', e.fill, e.base, e.n, true)}${e.name}</h2>
+    $('#emo-det').innerHTML = `<div class="panel-row"><h2 class="panel-h emo-h">${picto(e)}${e.name}</h2>
       <span class="panel-val"><b class="num">${e.v}</b> · ${d > 0 ? '+' : ''}<span class="num">${d}</span> מהשבוע שעבר</span></div>
       <p class="emo-out">יצא החוצה <b class="num">${Math.round(e.out * 100)}%</b> · השאר נשאר בפנים</p>
       <ul class="emo-states">${e.states.map(([n, v]) => `<li><span>${n}</span><span class="bar"><i style="width:${v * 10}%;background:${e.fill}"></i></span><b class="num">${v}</b></li>`).join('')}</ul>
@@ -544,7 +567,7 @@
     $('#crew-state').textContent = `הקבוצה · ${g > .5 ? 'מתעגלת' : 'מתוחה'}`;
     $('#crew-list').innerHTML = CREW.map((f) => `<li class="mate">
       ${mini(f.r, 'mini mate-shape', !!f.off, '', undefined, 'burst', 9, true)}
-      <div class="mate-body"><p class="mate-name"><b>${f.name}</b><span class="mate-state">${f.off ? 'לא ידוע' : stateWord(f.r)}</span></p><p class="mate-last">${f.last}</p></div>
+      <div class="mate-body"><p class="mate-name"><b>${f.name}</b></p><p class="mate-last">${f.last}</p></div>
       <div class="mate-acts"><button type="button" class="crew-btn" data-crew-call="${f.id}">להתקשר</button><button type="button" class="crew-btn" data-crew-msg="${f.id}">הודעה</button></div></li>`).join('');
   };
   $('#screen-crew').addEventListener('click', (e) => {
@@ -634,7 +657,7 @@
     talk: { r: [.5, .55, .6, .67], v: ['2', '3', '3', '4'] },
   };
   const trendWord = (a2) => { const d = a2[a2.length - 1] - a2[0]; return d > .08 ? 'מתעגל' : d < -.08 ? 'מתחדד' : 'יציב'; };
-  $('#measures-weeks').innerHTML = `<thead><tr><th scope="col"><span class="sr">מדד</span></th>${WEEK_LABELS.map((w, i) => `<th scope="col" class="num">${i === WEEK_LABELS.length - 1 ? 'השבוע' : w}</th>`).join('')}<th scope="col"><span class="sr">מגמה</span></th></tr></thead><tbody>`
+  $('#measures-weeks').innerHTML = `<colgroup><col class="c-name"><col span="4"><col class="c-trend"></colgroup><thead><tr><th scope="col"><span class="sr">מדד</span></th>${WEEK_LABELS.map((w, i) => `<th scope="col" class="num">${i === WEEK_LABELS.length - 1 ? 'השבוע' : w}</th>`).join('')}<th scope="col"><span class="sr">מגמה</span></th></tr></thead><tbody>`
     + METRICS.map((m) => {
       const w = WEEKS[m.id], t = trendWord(w.r);
       return `<tr><th scope="row">${mini(.5, 'mini mw-icon', false, '', m.fill, m.base, m.n)}<span>${m.name}</span></th>${w.v.map((v, i) => `<td><span class="mw-tile num" style="background:${w.r[i] < .34 ? "#FF5A36" : w.r[i] < .6 ? "#FFD23F" : "#3FC8F5"}">${v}</span></td>`).join('')}<td><span class="mw-trend is-${t === 'מתעגל' ? 'up' : t === 'מתחדד' ? 'down' : 'flat'}">${t}</span></td></tr>`;

@@ -529,3 +529,38 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 .crew-btn { min-height: 44px; }
 .phone, .panel, .metric, .alert, .stats div, .mate, .act, .person { transition: box-shadow .6s var(--ease), border-radius .6s var(--ease), border-width .6s var(--ease); }
 .cal { grid-template-columns: repeat(7, minmax(0, 1fr)); } .cal .c { min-width: 0; aspect-ratio: auto; height: 48px; }
+
+
+/* ── round 3 ── */
+/* four measures: fixed columns so the table never leaves its panel; small text in regular weight */
+.mw-table { table-layout: fixed; border-spacing: 0 7px; }
+.mw-table col.c-name { width: 98px; }
+.mw-table col.c-trend { width: 54px; }
+.mw-table thead th { font-weight: 400; font-size: 11px; }
+.mw-table tbody th { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+.mw-icon { width: 18px; height: 18px; margin-inline-end: 4px; }
+.mw-table td { padding: 0 2px; }
+.mw-tile { min-width: 0; height: 32px; font-size: 13px; font-weight: 700; }
+.mw-table td:last-child { text-align: end; padding: 0; }
+.mw-trend { font-size: 11px; font-weight: 700; padding: 1px 5px; border-width: 1.5px; }
+.mw-key { font-weight: 400; }
+.panel-h small, .panel-meta, .c-y, .c-x, .cal-key li, .crew-sub, .emo-sensor, .act small, #press-delta { font-weight: 400; }
+.c-ev-t { font-weight: 700; }
+
+/* switches: one centred knob, same gap on every side, everywhere */
+.switch { width: 50px; height: 30px; border-radius: 15px; border: 2px solid var(--ink); }
+.switch::after { top: 50%; right: 3px; width: 20px; height: 20px; translate: 0 -50%; box-shadow: none; transition: right .25s var(--ease); }
+.switch:checked::after { right: calc(100% - 23px); }
+
+/* the crew panel: ink on a light ground */
+.crew-group { background: var(--c-cyan); }
+
+/* emotions: a pictogram family, not the measures' shapes */
+.picto { display: block; overflow: visible; }
+.emo-pick .picto { width: 34px; height: 34px; }
+.emo-h .picto { width: 34px; height: 34px; }
+
+/* the frame: transitions so the softening is seen */
+.panel, .metric, .alert, .stats div, .mate, .act, .person, .talk, .tabbar button, .emo-pick button, .crew-btn, .ts-lines button, .records, .device-card {
+  transition: box-shadow .5s var(--ease), border-radius .5s var(--ease), border-width .5s var(--ease);
+}
