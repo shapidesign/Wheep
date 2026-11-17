@@ -34,13 +34,16 @@ html.riso .phone::after {
 @media (max-width: 500px) { html.riso .phone::after { inset: 0; border-radius: 0; } }
 
 /* cut paper: no outline, a second-ink plate printed off register beneath, and a real lift off the page */
-html.riso svg.cut { overflow: visible; filter: drop-shadow(0 1px 0 rgba(30, 27, 24, .18)) drop-shadow(0 4px 5px rgba(30, 27, 24, .2)); }
-html.riso svg.cut .plate { mix-blend-mode: multiply; opacity: .85; }
+html.riso svg.cut { overflow: visible; filter: drop-shadow(0 3px 2px rgba(30, 27, 24, .22)) drop-shadow(0 9px 9px rgba(30, 27, 24, .2)); }
+html.riso svg.cut .plate { mix-blend-mode: multiply; opacity: .8; }
+html.riso svg.cut .paper { filter: url(#cutlight); }
 
 /* the big shapes (today's hero, the shape tab): the same paper, at scale */
-html.riso #hero-shape, html.riso #shape-big { filter: drop-shadow(0 3px 0 rgba(30, 27, 24, .15)) drop-shadow(0 16px 18px rgba(30, 27, 24, .24)); }
-html.riso #hero-shape .sh, html.riso #shape-big .sh { fill: var(--c-pink); mix-blend-mode: multiply; transform: translate(7px, 5px); opacity: .9; }
-html.riso #hero-shape .fg, html.riso #shape-big .fg { stroke: none; }
+/* depth: nine 1px sheets of darker paper under the lit top, the pink plate off register behind, a long soft shadow on the desk */
+html.riso #hero-shape, html.riso #shape-big { filter: drop-shadow(0 6px 4px rgba(30, 27, 24, .2)) drop-shadow(0 26px 24px rgba(30, 27, 24, .26)); }
+html.riso #hero-shape .sh, html.riso #shape-big .sh { fill: var(--c-pink); mix-blend-mode: multiply; transform: translate(9px, 6px); opacity: .85; }
+html.riso .ed { display: inline; }
+html.riso #hero-shape .fg, html.riso #shape-big .fg { stroke: none; filter: url(#cutlight-lg); }
 
 /* the opening's star lands as a cutout too */
 html.riso .intro.is-midnight .iw-shape { stroke: transparent; }

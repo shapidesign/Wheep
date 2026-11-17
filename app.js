@@ -8,6 +8,16 @@
   const RMAP = { '#3FC8F5': '#0078BF', '#FF5A36': '#FF665E', '#9B6BFF': '#AA60BF', '#FF7AC6': '#FF48B0', '#FFD23F': '#FFB511', '#3DDC97': '#00A95C' };
   const R = (hex) => (RISO && hex ? RMAP[hex] || hex : hex);
   // the second ink plate printed under each cutout, a little off register
+  // the cut edge of the paper: the same ink, darker
+  const shade = (c) => {
+    const m = /^#?([0-9a-f]{6})$/i.exec(c || ''), n = m ? parseInt(m[1], 16) : 0;
+    const rgb = m ? [n >> 16, (n >> 8) & 255, n & 255] : (c.match(/\d+/g) || [0, 0, 0]).map(Number);
+    return `rgb(${rgb.map((v) => Math.round(v * .68)).join(',')})`;
+  };
+  // a riso cutout: off-register plate, a stack of darker paper for thickness, the lit top sheet
+  const cutSvg = (d, f, cls, attrs, dim = false) => `<svg class="${cls} cut" viewBox="0 0 48 48"${attrs}><path class="plate" d="${d}" transform="translate(2.4 1.8)" fill="${plateOf(f)}"/>`
+    + [.8, 1.6, 2.4].map((k) => `<path d="${d}" transform="translate(0 ${k})" fill="${shade(f)}"/>`).join('')
+    + `<path class="paper" d="${d}" fill="${f}"${dim ? ' fill-opacity=".5"' : ''}/></svg>`;
   const plateOf = (hex) => (/0078BF|AA60BF/i.test(hex || '') ? '#FF48B0' : '#0078BF');
   const rf = (arr) => { if (RISO) arr.forEach((x) => { x.fill = R(x.fill); }); return arr; };
 
@@ -93,7 +103,7 @@
     const d = polar({ round, R: 18, base, n });
     if (RISO) {
       const f = R(fill) || kbColor(round);
-      return `<svg class="${cls} cut" viewBox="0 0 48 48" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}><path class="plate" d="${d}" transform="translate(2.2 1.6)" fill="${plateOf(f)}"/><path class="paper" d="${d}" fill="${f}"${dashed ? ' fill-opacity=".45"' : ''}/></svg>`;
+      return cutSvg(d, f, cls, ` ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}`, dashed);
     }
     const sh = shadow ? `<path d="${d}" transform="translate(2.5 2.5)" fill="${INK}"/>` : '';
     return `<svg class="${cls}" viewBox="0 0 48 48" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}>${sh}<path d="${d}" fill="${fill || kbColor(round)}" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"${dashed ? ' stroke-dasharray="4 3"' : ''}/></svg>`;
@@ -306,8 +316,8 @@
   /* ── the live shapes: Today's hero and the shape tab, both trembling with pressure ── */
   let egoBonus = 0, shapeDay = TODAY;
   const live = {
-    hero: { cur: .3, sh: $('#hero-shape .sh'), fg: $('#hero-shape .fg'), R: 140 },
-    big: { cur: .3, sh: $('#shape-big .sh'), fg: $('#shape-big .fg'), R: 140 },
+    hero: { cur: .3, sh: $('#hero-shape .sh'), fg: $('#hero-shape .fg'), def: $('#hero-d'), ed: $('#hero-shape .ed'), R: 140 },
+    big: { cur: .3, sh: $('#shape-big .sh'), fg: $('#shape-big .fg'), def: $('#big-d'), ed: $('#shape-big .ed'), R: 140 },
   };
   const heroTarget = () => Math.min(1, composite() + egoBonus + care());
   const frame = (t) => {
@@ -320,6 +330,7 @@
       L.sh.setAttribute('d', d);
       L.fg.setAttribute('d', d);
       L.fg.setAttribute('fill', kbColor(L.cur));
+      if (RISO) { L.def.setAttribute('d', d); L.ed.style.fill = shade(kbColor(L.cur)); }
     });
     requestAnimationFrame(frame);
   };
@@ -529,7 +540,7 @@
   const picto = (e, cls = 'picto', x, y, size) => {
     const d = polar({ round: e.out, R: 19, cx: 24, cy: 24, base: e.base, n: e.n, N: 220 });
     const pos = x == null ? '' : ` x="${x}" y="${y}" width="${size}" height="${size}"`;
-    if (RISO) return `<svg class="${cls} cut" viewBox="0 0 48 48"${pos} aria-hidden="true"><path class="plate" d="${d}" transform="translate(2.2 1.6)" fill="${plateOf(e.fill)}"/><path class="paper" d="${d}" fill="${e.fill}"/></svg>`;
+    if (RISO) return cutSvg(d, e.fill, cls, `${pos} aria-hidden="true"`);
     return `<svg class="${cls}" viewBox="0 0 48 48"${pos} aria-hidden="true"><path d="${d}" transform="translate(2.5 2.5)" fill="#121212"/><path d="${d}" fill="${e.fill}" stroke="#121212" stroke-width="2.4" stroke-linejoin="round"/></svg>`;
   };
   let emoSel = 'fear';

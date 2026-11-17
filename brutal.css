@@ -570,3 +570,5 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 .style-switch { display: flex; gap: 8px; margin-top: 22px; }
 .style-switch button { padding: 8px 14px; font-size: 14px; font-weight: 700; color: var(--ink); background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; box-shadow: 3px 3px 0 var(--ink); }
 .style-switch button[aria-pressed="true"] { background: var(--c-yellow); }
+
+.ed { display: none; }
