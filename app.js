@@ -38,12 +38,18 @@
     bubble: (a) => .9 / ((Math.abs(Math.cos(a)) ** 3 + Math.abs(Math.sin(a) / .74) ** 3) ** (1 / 3))
       + .44 * Math.max(0, Math.cos(a - Math.PI * .72)) ** 34,             // talk: a speech bubble with a tail
     blob: (a) => .86 + .07 * Math.cos(4 * a + .5),                        // joy: a soft four-lobed bouba
-    bean: (a) => .82 + .13 * Math.cos(3 * a + 1),                         // disgust: a squashed bean, also bouba
+    bean: (a) => .82 + .13 * Math.cos(3 * a + 1),                         // a squashed bean (needs)
+    // emotions: amorphous, each with its own gesture
+    shiver: (a) => .8 + .07 * Math.cos(13 * a),                                                   // fear: a small body that ripples
+    flare: (a) => .66 + .44 * Math.max(0, -Math.sin(a)) ** 1.4 * (.5 + .5 * Math.cos(5 * (a + Math.PI / 2))), // anger: it flares up
+    sag: (a) => .6 + .48 * Math.max(0, Math.sin(a)) ** 1.6 + .14 * Math.abs(Math.cos(a)) ** 4 * (Math.sin(a) > 0 ? 1 : .3),      // sadness: it sinks and spreads
+    recoil: (a) => .86 + .1 * Math.cos(2 * a + .6) - .42 * Math.max(0, Math.cos(a)) ** 6,        // disgust: it pulls away, a dent
+    bloom: (a) => .86 + .065 * Math.cos(8 * a + Math.PI / 2),                                               // joy: it opens
   };
   // how much the spikes may cut into each silhouette: the burst is all spikes, the others keep their outline readable
-  const SHARP = { burst: 1, drop: .14, box: .3, bubble: .06, blob: .12, bean: .14 };
+  const SHARP = { burst: 1, drop: .14, box: .3, bubble: .06, blob: .12, bean: .14, shiver: .22, flare: .3, sag: .16, recoil: .18, bloom: .14 };
   // silhouettes that are not centred on their own origin (the drop's tip, the bubble's tail)
-  const OFF = { drop: .26, bubble: -.07 };
+  const OFF = { drop: .26, bubble: -.07, flare: .14, sag: -.2, recoil: 0 };
   const polar = ({ round = 0, R = 20, cx = 24, cy = 24, n = 9, amp, k, tremble = 0, phase = 0, N = 180, base = 'burst' }) => {
     const B = BASE[base], S = SHARP[base];
     cy += (OFF[base] || 0) * R;
@@ -490,31 +496,22 @@
 
   /* ── emotions: the patch maps Ekman's five continents; a radar like a player card, without a score ── */
   const EMO = [
-    { id: 'fear', name: 'פחד', base: 'box', n: 8, fill: '#9B6BFF', v: 82, prev: 70, out: .18,
+    { id: 'fear', name: 'פחד', base: 'shiver', n: 13, fill: '#9B6BFF', v: 82, prev: 70, out: .18,
       states: [['דאגה', 8], ['חרדה', 5], ['בהלה', 1]], trigger: 'הכסף לחתונה', did: 'אמרת "הכל טוב"' },
-    { id: 'anger', name: 'כעס', base: 'burst', n: 9, fill: '#FF5A36', v: 64, prev: 71, out: .3,
+    { id: 'anger', name: 'כעס', base: 'flare', n: 9, fill: '#FF5A36', v: 64, prev: 71, out: .3,
       states: [['עצבנות', 6], ['תסכול', 4], ['זעם', 1]], trigger: 'פקק באיילון', did: 'שתקת 40 דקות' },
-    { id: 'sad', name: 'עצב', base: 'drop', n: 7, fill: '#3FC8F5', v: 48, prev: 35, out: .12,
+    { id: 'sad', name: 'עצב', base: 'sag', n: 7, fill: '#3FC8F5', v: 48, prev: 35, out: .12,
       states: [['בדידות', 4], ['אכזבה', 3], ['אבל', 0]], trigger: 'אבא שאל מה נשמע', did: 'לא תויג' },
-    { id: 'disgust', name: 'גועל', base: 'bean', n: 6, fill: '#3DDC97', v: 30, prev: 26, out: .62,
+    { id: 'disgust', name: 'גועל', base: 'recoil', n: 6, fill: '#3DDC97', v: 30, prev: 26, out: .62,
       states: [['בוז עצמי', 3], ['סלידה', 2]], trigger: 'המראה בחדר הכושר', did: 'יצאת מוקדם' },
-    { id: 'joy', name: 'הנאה', base: 'blob', n: 7, fill: '#FFD23F', v: 41, prev: 52, out: .85,
+    { id: 'joy', name: 'הנאה', base: 'bloom', n: 6, fill: '#FFD23F', v: 41, prev: 52, out: .85,
       states: [['הקלה', 3], ['שמחה', 2], ['גאווה', 1]], trigger: 'שיחה עם עידו', did: 'צחקת' },
   ];
-  // 48-grid figures: round head, thick round-capped limbs; the posture is the emotion
-  const PICTO = {
-    fear: { head: [25, 18], lines: ['M25 24L23 32', 'M25 25L18 16', 'M25 25L32 15', 'M23 32L15 36L17 42', 'M23 32L30 37L29 43'] },
-    anger: { head: [24, 12], lines: ['M24 18L24 30', 'M24 20L15 24L16 30', 'M24 20L33 24L32 30', 'M24 30L16 41', 'M24 30L32 41', 'M18 5L16 2', 'M30 5L32 2', 'M24 4L24 1'] },
-    sad: { head: [20, 17], lines: ['M22 22Q25 26 25 32', 'M22 23L19 32', 'M24 24L27 31', 'M25 32L22 42', 'M25 32L29 42'] },
-    disgust: { head: [29, 12], lines: ['M28 18L26 31', 'M28 20L17 18', 'M16 14L16 22', 'M28 21L31 29', 'M26 31L21 41', 'M26 31L31 41'] },
-    joy: { head: [24, 10], lines: ['M24 16L24 29', 'M24 19L15 9', 'M24 19L33 9', 'M24 29L16 40', 'M24 29L32 40'] },
-  };
+  // an emotion's mark: its own amorphous silhouette; how sharp it is = how much stayed inside
   const picto = (e, cls = 'picto', x, y, size) => {
-    const p = PICTO[e.id];
+    const d = polar({ round: e.out, R: 19, cx: 24, cy: 24, base: e.base, n: e.n, N: 220 });
     const pos = x == null ? '' : ` x="${x}" y="${y}" width="${size}" height="${size}"`;
-    return `<svg class="${cls}" viewBox="0 0 48 48"${pos} aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="11" fill="${e.fill}" stroke="#121212" stroke-width="2.5"/>`
-      + `<g fill="none" stroke="#121212" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">${p.lines.map((d) => `<path d="${d}"/>`).join('')}</g>`
-      + `<circle cx="${p.head[0]}" cy="${p.head[1]}" r="4.6" fill="#121212"/></svg>`;
+    return `<svg class="${cls}" viewBox="0 0 48 48"${pos} aria-hidden="true"><path d="${d}" transform="translate(2.5 2.5)" fill="#121212"/><path d="${d}" fill="${e.fill}" stroke="#121212" stroke-width="2.4" stroke-linejoin="round"/></svg>`;
   };
   let emoSel = 'fear';
   const RC = { x: 170, y: 180, R: 110 };
@@ -537,7 +534,7 @@
       g += `<circle cx="${x}" cy="${y}" r="${on ? 7.5 : 5.5}" fill="${e.fill}" stroke="#121212" stroke-width="2"/>`;
       const [lx, ly] = rPt(i, 99 * 1.3);
       g += `<g class="r-label${on ? ' is-on' : ''}" data-emo="${e.id}" transform="translate(${lx.toFixed(1)} ${(ly - 8).toFixed(1)})">
-        ${picto(e, 'picto', -15, -24, 30)}
+        ${picto(e, 'picto', -20, -32, 40)}
         <text y="21" text-anchor="middle" class="r-name">${e.name} <tspan class="num">${e.v}</tspan></text></g>`;
     });
     const R = $('#radar');
