@@ -1,0 +1,107 @@
+/* AURA · WHEEP as light instead of ink.
+   Cream page, no hard edges, no block shadows: the data is a set of soft gradient orbs,
+   crisp while something is held in (kiki), dissolving into the page as it is released (bouba).
+   Small labels whisper in spaced capitals; type stays ink so it reads over any glow.
+   Everything is scoped to html.aura, so the neo-brutalist skin stays untouched underneath. */
+
+html.aura {
+  --ground: #F4EEE6;            /* warm cream, like the paper the light falls on */
+  --panel: rgba(255, 253, 249, .62);
+  --panel-2: rgba(255, 253, 249, .8);
+  --ink: #26221E;
+  --ink-2: #57504A;
+  --ink-3: #8A8279;
+  --hair: rgba(38, 34, 30, .12);
+  --c-yellow: #F7C531;
+  --c-cyan: #3D8BE0;
+  --c-red: #F0504A;
+  --c-violet: #8C7BE8;
+  --c-pink: #F27BC4;
+  --c-green: #4FCB8A;
+  --bw: 1px;
+  --r: 22px;
+  --sh: 0 12px 34px rgba(80, 52, 30, .08);
+  --sh-sm: 0 6px 18px rgba(80, 52, 30, .07);
+  --plate: transparent;
+}
+html.aura body { background: #E8E1D7; }
+html.aura .phone { background: #1B1917; box-shadow: 0 40px 90px rgba(60, 40, 20, .28); }
+
+/* ambient light behind every screen: three large out-of-focus orbs, the room's weather */
+html.aura .screens { background:
+  radial-gradient(38% 24% at 78% 14%, rgba(240, 80, 74, .30), transparent 72%),
+  radial-gradient(34% 22% at 18% 46%, rgba(247, 197, 49, .30), transparent 72%),
+  radial-gradient(42% 26% at 70% 86%, rgba(61, 139, 224, .24), transparent 74%),
+  var(--ground); background-attachment: local, local, local, local; }
+html.aura .about, html.aura .intro::before { background: var(--ground); }
+
+/* surfaces: frosted sheets with a hairline, never a block shadow */
+html.aura .panel, html.aura .alert, html.aura .metric, html.aura .talk, html.aura .records, html.aura .device-card,
+html.aura .mate, html.aura .stats div, html.aura .act, html.aura .person, html.aura .emo-pick button, html.aura .crew-seen {
+  border: 1px solid var(--hair) !important; box-shadow: var(--sh); background: var(--panel);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+}
+html.aura .panel-h, html.aura .panel-row { border-bottom: 1px solid var(--hair); }
+html.aura .alert { background: rgba(247, 197, 49, .28); }
+html.aura .talk { background: rgba(242, 123, 196, .22); }
+html.aura .crew-group { background: rgba(61, 139, 224, .18); }
+html.aura .stats div:nth-child(1) { background: rgba(247, 197, 49, .3); }
+html.aura .stats div:nth-child(2) { background: rgba(61, 139, 224, .2); }
+html.aura .stats div:nth-child(3) { background: rgba(242, 123, 196, .24); }
+
+/* small labels: spaced, quiet */
+html.aura .panel-h small, html.aura .panel-meta, html.aura .hero-sub, html.aura .today-date, html.aura .crew-sub, html.aura .emo-sensor,
+html.aura .stats dt, html.aura .c-x, html.aura .c-y, html.aura .mw-table thead th, html.aura .r-name {
+  letter-spacing: .06em;
+}
+html.aura .today-title { background: none; border: 0; box-shadow: none; rotate: 0deg; padding: 0; font-weight: 700; letter-spacing: -.01em; }
+
+/* controls: pills with a hairline; the selected one glows */
+html.aura button, html.aura .seg, html.aura .back-btn, html.aura .me-btn, html.aura .info-btn, html.aura .crew-btn, html.aura .ts-lines button,
+html.aura .choices button, html.aura .style-switch button {
+  box-shadow: none !important; border-width: 1px !important; border-color: var(--hair) !important;
+}
+html.aura .crew-btn, html.aura .act, html.aura .choices button, html.aura .back-btn { border-radius: 999px; background: rgba(255, 253, 249, .7); }
+html.aura .crew-btn.is-ink, html.aura .ts-go, html.aura .ab-go { background: var(--ink); color: #FFFDF8; border-color: var(--ink) !important; }
+html.aura .me-btn { background: radial-gradient(circle at 50% 45%, #F27BC4, rgba(242, 123, 196, .25) 70%); }
+html.aura .info-btn { background: rgba(255, 253, 249, .7); }
+html.aura .tabbar { background: rgba(244, 238, 230, .78); border-top: 1px solid var(--hair); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+html.aura .tabbar button[aria-selected="true"] { border: 0 !important; background: radial-gradient(circle at 50% 45%, rgba(247, 197, 49, .9), rgba(247, 197, 49, .18) 62%, transparent 72%); }
+html.aura .seg button[aria-checked="true"], html.aura .ts-lines button[aria-checked="true"], html.aura .emo-pick button[aria-checked="true"],
+html.aura .choices button[aria-pressed="true"] { background: radial-gradient(circle at 50% 50%, rgba(247, 197, 49, .85), rgba(247, 197, 49, .25)); color: var(--ink); }
+html.aura .switch { border: 1px solid var(--hair); background: rgba(38, 34, 30, .08); }
+html.aura .switch:checked { background: linear-gradient(90deg, #4FCB8A, #F7C531); }
+html.aura .switch::after { background: #FFFDF8; box-shadow: 0 2px 6px rgba(0, 0, 0, .18); }
+
+/* orbs: the blur is inline (per shape); give them room to glow past their box */
+html.aura svg.aura-orb { overflow: visible; }
+html.aura #hero-shape .sh, html.aura #shape-big .sh, html.aura .ed { display: none; }
+html.aura #hero-shape .fg, html.aura #shape-big .fg { stroke: none; }
+html.aura #hero-shape, html.aura #shape-big { overflow: visible; }
+
+/* charts and tiles: light, not blocks */
+html.aura .c-area { fill: rgba(242, 123, 196, .28); }
+html.aura .c-line { stroke-width: 2; }
+html.aura .c-now { fill: var(--c-yellow); stroke-width: 1.5; }
+html.aura .mw-tile { border: 0; border-radius: 50%; width: 34px; height: 34px; margin: 0 auto; color: var(--ink); opacity: .9; }
+html.aura .mw-trend, html.aura .badge { border-width: 1px; border-color: var(--hair); }
+html.aura .cal .c { border: 1px solid var(--hair); background: rgba(255, 253, 249, .45); }
+html.aura .cal .c.today { background: radial-gradient(circle, rgba(247, 197, 49, .7), rgba(247, 197, 49, .15)); }
+html.aura .bar { border: 1px solid var(--hair); background: rgba(38, 34, 30, .05); }
+html.aura .bar i { border: 0; }
+
+/* the opening lands as light too */
+html.aura .intro.is-midnight .iw-shape { stroke: transparent; fill: #F0504A; filter: blur(6px); }
+html.aura .iw-sh { display: none; }
+
+/* EgoCheck stays a glowing drop of violet */
+html.aura .ego-fab { border: 0; box-shadow: 0 0 0 1px var(--hair), 0 10px 26px rgba(140, 123, 232, .45); background: radial-gradient(circle at 50% 45%, #8C7BE8, #B8AEF5); }
+
+html.aura ::selection { background: rgba(247, 197, 49, .6); color: var(--ink); }
+html.aura .tabbar button { border-color: transparent !important; background: none; }
+html.aura .avatar, html.aura .call-avatar { border: 0; box-shadow: 0 6px 16px rgba(80, 52, 30, .14); }
+html.aura .cal-detail, html.aura .emo-facts p, html.aura .radar-key li::before, html.aura .mk, html.aura .ck-unv, html.aura .mw-trend,
+html.aura .crew-invite, html.aura .ts-card, html.aura .ts-close { border-color: var(--hair) !important; border-width: 1px !important; }
+html.aura .emo-facts p { background: rgba(255, 253, 249, .55); }
+html.aura .cal .c.future { border-color: transparent; background: none; }
+html.aura .ts-card { box-shadow: 0 -20px 60px rgba(80, 52, 30, .16); background: rgba(250, 246, 240, .94); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }

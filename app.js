@@ -3,26 +3,25 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // RISO: the same app printed in riso inks on paper, its shapes cut by hand (see riso.css)
-  const RISO = document.documentElement.classList.contains('riso');
-  const RMAP = { '#3FC8F5': '#0078BF', '#FF5A36': '#FF665E', '#9B6BFF': '#AA60BF', '#FF7AC6': '#FF48B0', '#FFD23F': '#FFB511', '#3DDC97': '#00A95C' };
-  const R = (hex) => (RISO && hex ? RMAP[hex] || hex : hex);
-  // the second ink plate printed under each cutout, a little off register
-  // the cut edge of the paper: the same ink, darker
-  const shade = (c) => {
-    const m = /^#?([0-9a-f]{6})$/i.exec(c || ''), n = m ? parseInt(m[1], 16) : 0;
-    const rgb = m ? [n >> 16, (n >> 8) & 255, n & 255] : (c.match(/\d+/g) || [0, 0, 0]).map(Number);
-    return `rgb(${rgb.map((v) => Math.round(v * .68)).join(',')})`;
+  // AURA: the same app as light, not ink. Every shape is a blurred gradient orb on cream;
+  // the sharper (kiki) a shape is, the crisper its edge; the rounder (bouba), the more it dissolves into the page.
+  const AURA = document.documentElement.classList.contains('aura');
+  const RMAP = { '#3FC8F5': '#3D8BE0', '#FF5A36': '#F0504A', '#9B6BFF': '#8C7BE8', '#FF7AC6': '#F27BC4', '#FFD23F': '#F7C531', '#3DDC97': '#4FCB8A' };
+  const R = (hex) => (AURA && hex ? RMAP[hex] || hex : hex);
+  // the halo hue around each core: neighbours on the colour wheel, so every orb carries two lights
+  const HALO = { '#3D8BE0': '#F27BC4', '#F0504A': '#F7C531', '#8C7BE8': '#3D8BE0', '#F27BC4': '#F7A23B', '#F7C531': '#FF8A3D', '#4FCB8A': '#D6E35A' };
+  const haloOf = (c) => HALO[c] || '#F7C531';
+  let gseq = 0;
+  const auraSvg = (d, f, round, cls, attrs, dim = false) => {
+    const id = `au${++gseq}`, blur = (.5 + Math.max(0, Math.min(1, round)) * 2.6).toFixed(2);
+    return `<svg class="${cls} aura-orb" viewBox="0 0 48 48"${attrs}><defs>`
+      + `<radialGradient id="${id}g" cx="50%" cy="46%" r="58%"><stop offset="0" stop-color="${f}"/><stop offset=".58" stop-color="${f}"/><stop offset="1" stop-color="${haloOf(f)}"/></radialGradient>`
+      + `<filter id="${id}f" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${blur}"/></filter></defs>`
+      + `<path d="${d}" fill="url(#${id}g)" filter="url(#${id}f)"${dim ? ' opacity=".45"' : ''}/></svg>`;
   };
-  // a riso cutout: off-register plate, a stack of darker paper for thickness, the lit top sheet
-  const cutSvg = (d, f, cls, attrs, dim = false) => `<svg class="${cls} cut" viewBox="0 0 48 48"${attrs}><path class="plate" d="${d}" transform="translate(2.4 1.8)" fill="${plateOf(f)}"/>`
-    + [.8, 1.6, 2.4].map((k) => `<path d="${d}" transform="translate(0 ${k})" fill="${shade(f)}"/>`).join('')
-    + `<path class="paper" d="${d}" fill="${f}"${dim ? ' fill-opacity=".5"' : ''}/></svg>`;
-  const plateOf = (hex) => (/0078BF|AA60BF/i.test(hex || '') ? '#FF48B0' : '#0078BF');
-  const rf = (arr) => { if (RISO) arr.forEach((x) => { x.fill = R(x.fill); }); return arr; };
-
+  const rf = (arr) => { if (AURA) arr.forEach((x) => { x.fill = R(x.fill); }); return arr; };
   $$('[data-style]').forEach((b) => {
-    b.setAttribute('aria-pressed', String((b.dataset.style === 'riso') === RISO));
+    b.setAttribute('aria-pressed', String((b.dataset.style === 'aura') === AURA));
     b.addEventListener('click', () => { localStorage.setItem('wheepStyle', b.dataset.style); location.reload(); });
   });
 
@@ -84,16 +83,14 @@
       const w = lerp(tri ** K, soft, round);
       const spike = Math.floor((u + 1) / 2);
       const ang = -Math.PI / 2 + (j / N) * Math.PI * 2;
-      const cut = RISO ? 1 + .035 * Math.sin(3 * ang + 1.1) + .022 * Math.sin(5 * ang + 2.3) : 1;
-      const r = R * B(ang) * cut * (1 - A * (1 - w)) * (1 + tremble * Math.sin(phase + spike * 1.9) * w);
+      const r = R * B(ang) * (1 - A * (1 - w)) * (1 + tremble * Math.sin(phase + spike * 1.9) * w);
       d += `${j ? 'L' : 'M'}${(cx + r * Math.cos(ang)).toFixed(2)} ${(cy + r * Math.sin(ang)).toFixed(2)}`;
     }
     return d + 'Z';
   };
   // flat three-stop scale: kiki red → tense yellow → bouba cyan (a colour per state, never a gradient)
-  const KB = RISO ? [[255, 102, 94], [255, 181, 17], [0, 120, 191]] : [[255, 90, 54], [255, 210, 63], [63, 200, 245]];
+  const KB = AURA ? [[240, 80, 74], [247, 197, 49], [61, 139, 224]] : [[255, 90, 54], [255, 210, 63], [63, 200, 245]];
   const kbColor = (round) => {
-    if (RISO) return round < .34 ? '#FF665E' : round < .62 ? '#FFB511' : '#0078BF';   // riso prints spot inks, never a blend
     const t = Math.max(0, Math.min(1, round)) * 2, i = Math.min(1, Math.floor(t)), f = t - i;
     return `rgb(${KB[i].map((x, k) => Math.round(x + (KB[i + 1][k] - x) * f)).join(',')})`;
   };
@@ -101,10 +98,7 @@
   const INK = '#121212';
   const mini = (round, cls = 'mini', dashed = false, label = '', fill, base = 'burst', n = 9, shadow = false) => {
     const d = polar({ round, R: 18, base, n });
-    if (RISO) {
-      const f = R(fill) || kbColor(round);
-      return cutSvg(d, f, cls, ` ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}`, dashed);
-    }
+    if (AURA) return auraSvg(d, R(fill) || kbColor(round), round, cls, ` ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}`, dashed);
     const sh = shadow ? `<path d="${d}" transform="translate(2.5 2.5)" fill="${INK}"/>` : '';
     return `<svg class="${cls}" viewBox="0 0 48 48" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}>${sh}<path d="${d}" fill="${fill || kbColor(round)}" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"${dashed ? ' stroke-dasharray="4 3"' : ''}/></svg>`;
   };
@@ -287,6 +281,7 @@
   // the frame is the variable: as the shape softens, the ink thins, the shadows drop and the corners round.
   // Today's sharp shape (~.3) keeps the full brutal frame; the round day after a cry (~.86) has almost none.
   const setFrame = (round) => {
+    if (AURA) return;
     const k = Math.max(0, Math.min(1, (round - .3) / .5)), ph = $('.phone').style, o = (6 * (1 - k)).toFixed(1), o2 = (4 * (1 - k)).toFixed(1);
     ph.setProperty('--sh', `${o}px ${o}px 0 var(--plate)`);
     ph.setProperty('--sh-sm', `${o2}px ${o2}px 0 var(--plate)`);
@@ -319,6 +314,12 @@
     hero: { cur: .3, sh: $('#hero-shape .sh'), fg: $('#hero-shape .fg'), def: $('#hero-d'), ed: $('#hero-shape .ed'), R: 140 },
     big: { cur: .3, sh: $('#shape-big .sh'), fg: $('#shape-big .fg'), def: $('#big-d'), ed: $('#shape-big .ed'), R: 140 },
   };
+  if (AURA) Object.entries(live).forEach(([k, L]) => {
+    const svg = L.fg.ownerSVGElement;
+    svg.querySelector('defs').insertAdjacentHTML('beforeend', `<radialGradient id="${k}-ag" cx="50%" cy="46%" r="58%"><stop offset="0"/><stop offset=".6"/><stop offset="1"/></radialGradient><filter id="${k}-ab" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter>`);
+    L.gs = [...svg.querySelectorAll(`#${k}-ag stop`)]; L.blur = svg.querySelector(`#${k}-ab feGaussianBlur`);
+    L.fg.setAttribute('filter', `url(#${k}-ab)`); L.fg.style.fill = `url(#${k}-ag)`;
+  });
   const heroTarget = () => Math.min(1, composite() + egoBonus + care());
   const frame = (t) => {
     [['hero', heroTarget(), '#screen-today'], ['big', Math.min(1, roundAt(shapeDay) + (Math.round(shapeDay) === TODAY ? care() : 0)), '#screen-shape']].forEach(([key, target, scr]) => {
@@ -330,7 +331,11 @@
       L.sh.setAttribute('d', d);
       L.fg.setAttribute('d', d);
       L.fg.setAttribute('fill', kbColor(L.cur));
-      if (RISO) { L.def.setAttribute('d', d); L.ed.style.fill = shade(kbColor(L.cur)); }
+      if (AURA) {                                          // the big orb: its edge dissolves as it rounds
+        const c = kbColor(L.cur);
+        L.gs[0].setAttribute('stop-color', c); L.gs[1].setAttribute('stop-color', c); L.gs[2].setAttribute('stop-color', haloOf(c.startsWith('#') ? c : '') );
+        L.blur.setAttribute('stdDeviation', (3 + L.cur * 16).toFixed(1));
+      }
     });
     requestAnimationFrame(frame);
   };
@@ -540,7 +545,7 @@
   const picto = (e, cls = 'picto', x, y, size) => {
     const d = polar({ round: e.out, R: 19, cx: 24, cy: 24, base: e.base, n: e.n, N: 220 });
     const pos = x == null ? '' : ` x="${x}" y="${y}" width="${size}" height="${size}"`;
-    if (RISO) return cutSvg(d, e.fill, cls, `${pos} aria-hidden="true"`);
+    if (AURA) return auraSvg(d, e.fill, e.out, cls, `${pos} aria-hidden="true"`);
     return `<svg class="${cls}" viewBox="0 0 48 48"${pos} aria-hidden="true"><path d="${d}" transform="translate(2.5 2.5)" fill="#121212"/><path d="${d}" fill="${e.fill}" stroke="#121212" stroke-width="2.4" stroke-linejoin="round"/></svg>`;
   };
   let emoSel = 'fear';
@@ -556,12 +561,22 @@
     EMO.forEach((_, i) => { const [x, y] = rPt(i, 99); g += `<line x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}" stroke="#121212" stroke-opacity=".16" stroke-width="1.2"/>`; });
     [20, 40, 60, 80].forEach((v) => { const [, y] = rPt(0, v); g += `<text x="${RC.x - 4}" y="${y + 3.5}" text-anchor="end" class="r-tick num">${v}</text>`; });
     const now = pts(EMO.map((e) => e.v));
+    if (AURA) {
+      g += `<defs>${EMO.map((e, i) => { const [x, y] = rPt(i, e.v); return `<linearGradient id="ray-${e.id}" gradientUnits="userSpaceOnUse" x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}"><stop offset="0" stop-color="#5B5BD6"/><stop offset=".45" stop-color="${haloOf(e.fill)}"/><stop offset="1" stop-color="${e.fill}"/></linearGradient>`; }).join('')}</defs>`;
+      EMO.forEach((e, i) => {
+        const [x, y] = rPt(i, e.v), [px, py] = rPt(i, e.prev), on = e.id === emoSel;
+        g += `<line x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}" stroke="url(#ray-${e.id})" stroke-width="${on ? 17 : 13}" stroke-linecap="round"/>`;
+        g += `<circle cx="${px}" cy="${py}" r="4" fill="none" stroke="#2A2622" stroke-width="1" stroke-dasharray="2 2"/>`;
+        g += `<circle cx="${x}" cy="${y}" r="${on ? 13 : 11}" fill="none" stroke="#2A2622" stroke-width="1"/>`;
+      });
+    } else {
     g += `<polygon points="${now}" transform="translate(3 3)" fill="#121212"/>`;
     g += `<polygon points="${now}" fill="#FFD23F" stroke="#121212" stroke-width="2.6" stroke-linejoin="round"/>`;
     g += `<polygon points="${pts(EMO.map((e) => e.prev))}" fill="none" stroke="#121212" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`;
+    }
     EMO.forEach((e, i) => {
       const [x, y] = rPt(i, e.v), on = e.id === emoSel;
-      g += `<circle cx="${x}" cy="${y}" r="${on ? 7.5 : 5.5}" fill="${e.fill}" stroke="#121212" stroke-width="2"/>`;
+      if (!AURA) g += `<circle cx="${x}" cy="${y}" r="${on ? 7.5 : 5.5}" fill="${e.fill}" stroke="#121212" stroke-width="2"/>`;
       const [lx, ly] = rPt(i, 99 * 1.3);
       g += `<g class="r-label${on ? ' is-on' : ''}" data-emo="${e.id}" transform="translate(${lx.toFixed(1)} ${(ly - 8).toFixed(1)})">
         ${picto(e, 'picto', -20, -32, 40)}
