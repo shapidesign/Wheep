@@ -572,3 +572,43 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 .style-switch button[aria-pressed="true"] { background: var(--c-yellow); }
 
 .ed { display: none; }
+
+/* ── v4: Today holds the shape, its days, and the care; MPL is the headline ── */
+.aura-field { display: none; }
+.hero-mpl { display: flex; justify-content: center; align-items: baseline; gap: 8px; margin-top: 14px; color: var(--ink); }
+.hero-mpl b { font-size: 72px; font-weight: 900; line-height: .9; letter-spacing: -.02em; }
+.hero-mpl span { font-size: 18px; font-weight: 700; color: var(--ink-2); }
+.hero-sub { margin-top: 8px; }
+.hero-note { min-height: 1.4em; margin-top: 6px; font-size: 14px; color: var(--ink-2); line-height: 1.4; }
+.hero-days { margin-top: 10px; text-align: start; }
+.hero-days .scrub { margin-top: 10px; }
+.hero-range { margin-top: 14px; }
+
+/* ── רווחה ── */
+.gain-sub { margin-top: 4px; padding-inline: 4px; font-size: 14px; color: var(--ink-2); line-height: 1.4; }
+.gain-wallet { margin-top: 16px; background: var(--c-green); }
+.gain-bal { display: flex; align-items: baseline; gap: 10px; }
+.gain-bal b { font-size: 64px; font-weight: 900; line-height: .9; }
+.gain-bal span { font-size: 16px; font-weight: 700; }
+.gain-next { margin-top: 14px; display: grid; gap: 6px; }
+.gain-next .bar { height: 16px; background: var(--panel); }
+.gain-next .bar i { background: var(--c-yellow); }
+.gain-next p { font-size: 14px; }
+.gain-out:not(:empty) { margin-top: 10px; font-size: 14px; font-weight: 700; }
+.ledger, .earn, .shop { list-style: none; display: grid; gap: 0; padding-top: 6px; }
+.ledger li, .earn li, .shop li { display: grid; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid rgba(18, 18, 18, .12); font-size: 15px; }
+.ledger li:last-child, .earn li:last-child, .shop li:last-child { border-bottom: 0; }
+.ledger li { grid-template-columns: 44px 1fr auto; }
+.l-at { font-size: 12px; color: var(--ink-2); }
+.l-p, .e-p { font-weight: 900; }
+.l-empty { grid-template-columns: 1fr !important; color: var(--ink-2); font-size: 14px; }
+.earn li { grid-template-columns: 1fr 40px 86px; }
+.e-how { font-size: 12px; color: var(--ink-2); text-align: center; }
+.e-go { min-height: 36px; padding: 4px 10px; font-size: 13px; }
+.shop li { grid-template-columns: 1fr 44px 76px; }
+.s-c { font-weight: 900; text-align: end; }
+.shop .crew-btn { min-height: 36px; padding: 4px 8px; font-size: 13px; }
+.shop .crew-btn:disabled { opacity: .45; cursor: default; box-shadow: none; }
+.shop li.is-done .s-t { text-decoration: line-through; color: var(--ink-2); }
+.gain-fine { margin-top: 16px; padding-inline: 4px; }
+#screen-gain { padding-bottom: 130px; }

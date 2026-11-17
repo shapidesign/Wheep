@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0A0E2E">
 <title>WHEEP · תחזית רגשית</title>
-<link rel="stylesheet" href="style.css?v=27">
-<link rel="stylesheet" href="brutal.css?v=27">
-<link rel="stylesheet" href="aura.css?v=27">
+<link rel="stylesheet" href="style.css?v=28">
+<link rel="stylesheet" href="brutal.css?v=28">
+<link rel="stylesheet" href="aura.css?v=28">
 <script>
   // ?style=aura or the switch on the caption; remembered between visits
   (() => { const q = new URLSearchParams(location.search).get('style'); if (q) localStorage.setItem('wheepStyle', q);
@@ -42,6 +42,7 @@
       </span>
     </div>
 
+    <div class="aura-field" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <main class="screens">
 
       <!-- היום -->
@@ -57,9 +58,22 @@
               <defs><path id="hero-d"/></defs><path class="sh"/><g class="ed"><use href="#hero-d" y="1"/><use href="#hero-d" y="2"/><use href="#hero-d" y="3"/><use href="#hero-d" y="4"/><use href="#hero-d" y="5"/><use href="#hero-d" y="6"/><use href="#hero-d" y="7"/><use href="#hero-d" y="8"/><use href="#hero-d" y="9"/></g><path class="fg"/>
             </svg>
           </div>
-          <h2 class="hero-state" id="hero-state">חד</h2>
-          <p class="hero-sub">צורת הגבריות שלך · ממוצע של 4 מדדים</p>
-          <p class="hero-cond"><span class="gauge-num num">775 <small>MPL</small></span> <span class="hero-press-note">עולה. 12 ימים ברצף.</span></p>
+          <p class="hero-mpl"><b class="num" id="hero-mpl">775</b><span>MPL</span></p>
+          <p class="hero-sub"><span id="hero-day">היום</span> · צורת הגבריות שלך, ממוצע של 4 מדדים</p>
+          <p class="hero-note" id="hero-note" aria-live="polite"></p>
+          <div class="hero-days">
+            <div class="shape-strip" id="shape-strip" role="group" aria-label="צורת הגבריות בכל יום"></div>
+        <div class="scrub">
+          <button class="play" id="play" type="button" aria-label="הפעלת מעבר על הימים">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5v13l11-6.5z"/><g class="i-pause"><rect x="6.5" y="5.5" width="4" height="13" rx="1"/><rect x="13.5" y="5.5" width="4" height="13" rx="1"/></g></svg>
+          </button>
+          <div class="scrub-track">
+            <input type="range" id="day" min="0" max="15" step="0.05" value="12" aria-label="יום" aria-valuetext="היום">
+            <div class="scrub-ticks" aria-hidden="true"><span>3.12 · בכי אחרון</span><span class="tk-today">היום</span><span class="tk-fc">תחזית</span></div>
+          </div>
+        </div>
+
+          </div>
           <p class="hero-range"><span>שיא אישי <b class="num">19</b> ימים</span><span>ממוצע לגילך <b class="num">2</b> ימים</span></p>
         </header>
 
@@ -82,65 +96,6 @@
           <ul class="metric-grid" id="metric-grid"></ul>
         </section>
 
-        <section class="talk" aria-labelledby="talk-h">
-          <h2 class="talk-h" id="talk-h">לדבר עכשיו</h2>
-          <p class="talk-sub">שיחה של 5 דקות מעגלת את הצורה יותר מכל יעד.</p>
-          <div class="talk-people" id="talk-people"></div>
-        </section>
-
-
-        <section class="panel journal" aria-labelledby="jr-h">
-          <div class="panel-row"><h2 class="panel-h" id="jr-h">בכית אתמול?</h2><span class="panel-meta">ב׳ <span class="num">14.12</span></span></div>
-          <div class="choices" role="group" aria-labelledby="jr-h">
-            <button type="button" data-answer="yes" aria-pressed="false">כן</button>
-            <button type="button" data-answer="no" aria-pressed="false">לא</button>
-            <button type="button" data-answer="unsure" aria-pressed="false">לא בטוח</button>
-          </div>
-          <p class="journal-out" id="journal-out" aria-live="polite">החיישן לא רשם משקעים ביום הזה.</p>
-        </section>
-
-        <section class="panel ego" aria-labelledby="ego-h">
-          <div class="panel-row"><h2 class="panel-h" id="ego-h">תיקוני אגו</h2><span class="panel-meta"><span class="dot-ok" aria-hidden="true"></span>EgoCheck · מסונכרן</span></div>
-          <div id="ego-out" aria-live="polite"></div>
-        </section>
-
-        <section class="panel" aria-labelledby="hourly-h">
-          <h2 class="panel-h" id="hourly-h">סיכויי שחרור היום</h2>
-          <ol class="hourly" id="hourly"></ol>
-        </section>
-
-        <section class="panel" aria-labelledby="week-h">
-          <h2 class="panel-h" id="week-h">תחזית ל-7 ימים</h2>
-          <ol class="days" id="days"></ol>
-        </section>
-
-      </section>
-
-      <!-- צורה -->
-      <section class="screen screen-shape" id="screen-shape" role="tabpanel" aria-labelledby="tab-shape" tabindex="-1" hidden>
-        <header class="map-head">
-          <h1 class="map-title">צורת הגבריות</h1>
-          <p class="map-sub" id="shape-day-label">היום · ג׳ 15.12</p>
-        </header>
-        <div class="shape-stage">
-          <svg viewBox="-12 -12 344 344" id="shape-big" role="img" aria-label="הצורה">
-            <defs><path id="big-d"/></defs><path class="sh"/><g class="ed"><use href="#big-d" y="1"/><use href="#big-d" y="2"/><use href="#big-d" y="3"/><use href="#big-d" y="4"/><use href="#big-d" y="5"/><use href="#big-d" y="6"/><use href="#big-d" y="7"/><use href="#big-d" y="8"/><use href="#big-d" y="9"/></g><path class="fg"/>
-          </svg>
-        </div>
-        <p class="shape-state" id="shape-state">חד</p>
-        <p class="shape-num-line"><b class="num" id="shape-num">775</b> MPL</p>
-        <p class="shape-note" id="shape-note" aria-live="polite"></p>
-        <div class="shape-strip" id="shape-strip" role="group" aria-label="צורת הגבריות בכל יום"></div>
-        <div class="scrub">
-          <button class="play" id="play" type="button" aria-label="הפעלת מעבר על הימים">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5v13l11-6.5z"/><g class="i-pause"><rect x="6.5" y="5.5" width="4" height="13" rx="1"/><rect x="13.5" y="5.5" width="4" height="13" rx="1"/></g></svg>
-          </button>
-          <div class="scrub-track">
-            <input type="range" id="day" min="0" max="15" step="0.05" value="12" aria-label="יום" aria-valuetext="היום">
-            <div class="scrub-ticks" aria-hidden="true"><span>3.12 · בכי אחרון</span><span class="tk-today">היום</span><span class="tk-fc">תחזית</span></div>
-          </div>
-        </div>
-
         <section class="panel needs-panel" aria-labelledby="needs-h">
           <div class="panel-row"><h2 class="panel-h" id="needs-h">מה הוא צריך</h2><span class="panel-meta">הגבר שבפנים · היום</span></div>
           <ul class="needs" id="needs"></ul>
@@ -150,6 +105,43 @@
           <div class="acts" id="acts"></div>
           <p class="acts-out" id="acts-out" aria-live="polite"></p>
         </section>
+
+        <section class="talk" aria-labelledby="talk-h">
+          <h2 class="talk-h" id="talk-h">לדבר עכשיו</h2>
+          <p class="talk-sub">שיחה של 5 דקות מעגלת את הצורה יותר מכל יעד.</p>
+          <div class="talk-people" id="talk-people"></div>
+        </section>
+
+
+
+
+
+
+      </section>
+
+      <!-- רווחה -->
+      <section class="screen" id="screen-gain" role="tabpanel" aria-labelledby="tab-gain" tabindex="-1" hidden>
+        <header class="page-head"><h1 class="page-title">רווחה</h1></header>
+        <p class="gain-sub">נקודות על מה שיצא החוצה. אין טבלה, אף אחד לא רואה כמה יש לך.</p>
+        <section class="panel gain-wallet" aria-labelledby="gain-h">
+          <h2 class="sr-only" id="gain-h">היתרה שלך</h2>
+          <p class="gain-bal"><b class="num" id="gain-bal">340</b><span>נקודות רווחה</span></p>
+          <div class="gain-next"><span class="bar"><i id="gain-bar"></i></span><p id="gain-next-t"></p></div>
+          <p class="gain-out" id="gain-out" aria-live="polite"></p>
+        </section>
+        <section class="panel" aria-labelledby="led-h">
+          <div class="panel-row"><h2 class="panel-h" id="led-h">היום הרווחת</h2><span class="panel-meta" id="led-sum"></span></div>
+          <ol class="ledger" id="ledger"></ol>
+        </section>
+        <section class="panel" aria-labelledby="earn-h">
+          <h2 class="panel-h" id="earn-h">איך מרוויחים</h2>
+          <ul class="earn" id="earn"></ul>
+        </section>
+        <section class="panel" aria-labelledby="shop-h">
+          <div class="panel-row"><h2 class="panel-h" id="shop-h">לממש</h2><span class="panel-meta">בשיתוף קופת רווחה</span></div>
+          <ul class="shop" id="shop"></ul>
+        </section>
+        <p class="fine gain-fine">נקודות לא עוברות בין משתמשים ולא נצברות מעבר ל-5,000. בכי שלא אומת לא מזכה בנקודות עד לאימות.</p>
       </section>
 
       <!-- רגשות -->
@@ -196,6 +188,11 @@
         <section class="panel" aria-labelledby="ch1">
           <div class="panel-row"><h2 class="panel-h" id="ch1">MPL <small>מדד לחץ גבריות · 0–1000</small></h2><p class="panel-val mpl-val"><b class="num" id="press-now">775</b><span id="press-delta"></span></p></div>
           <svg class="chart" id="chart-press" viewBox="0 0 340 222" role="img" aria-label="גרף מדד לחץ הגבריות"></svg>
+        </section>
+
+        <section class="panel forecast" aria-labelledby="week-h">
+          <h2 class="panel-h" id="week-h">תחזית ל-7 ימים</h2>
+          <ol class="days" id="days"></ol>
         </section>
 
         <section class="panel" aria-labelledby="cal-h" data-only="month">
@@ -287,9 +284,9 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="15.5" cy="8" r="3"/><path d="M15.5 2.25v1M20.6 4.4l-.7.7M21.75 9.5h-1"/><path d="M6.75 19.25h9.5a3.25 3.25 0 0 0 .2-6.5 4.75 4.75 0 0 0-9.1 1.05 2.75 2.75 0 0 0-.6 5.45z"/></svg>
         <span>היום</span>
       </button>
-      <button role="tab" id="tab-shape" aria-controls="screen-shape" aria-selected="false" data-tab="shape" tabindex="-1">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.25l1.6 4.1 4.3-1.2-1.6 4.1 4 2-4.2 1.4 1.5 4.2-4.1-1.7-1.5 4.3-1.5-4.3-4.1 1.7 1.5-4.2-4.2-1.4 4-2-1.6-4.1 4.3 1.2z"/></svg>
-        <span>צורה</span>
+      <button role="tab" id="tab-gain" aria-controls="screen-gain" aria-selected="false" data-tab="gain" tabindex="-1">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25"/><path d="M12 7.5v9M9.25 10.25c0-1.25 1.2-2 2.75-2s2.75.75 2.75 1.9-1.1 1.6-2.75 1.85-2.75.75-2.75 1.95 1.2 1.95 2.75 1.95 2.75-.7 2.75-1.95"/></svg>
+        <span>רווחה</span>
       </button>
       <button role="tab" id="tab-emo" aria-controls="screen-emo" aria-selected="false" data-tab="emo" tabindex="-1">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8.5 6.2-3.2 10H6.7L3.5 9.2z"/><path d="M12 8.5l3.6 2.4-1.5 4.4H9.9l-1.5-4.4z"/></svg>
@@ -325,21 +322,6 @@
       <p class="call-out" id="call-out" aria-live="polite"></p>
     </section>
 
-    <button class="ego-fab" id="ego-fab" type="button" aria-haspopup="dialog" aria-controls="ego-pop" aria-expanded="false" aria-label="EgoCheck · התראה אחת">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.25 4.75h13.5a1.75 1.75 0 0 1 1.75 1.75v8.5a1.75 1.75 0 0 1-1.75 1.75H10.5l-4.25 3.5V16.75h-1a1.75 1.75 0 0 1-1.75-1.75V6.5a1.75 1.75 0 0 1 1.75-1.75z"/><path d="M8.5 10.75l2.25 2.25 4.75-4.75"/></svg>
-      <span class="ego-dot num" aria-hidden="true">1</span>
-    </button>
-    <section class="ego-pop" id="ego-pop" role="dialog" aria-labelledby="en-h" hidden>
-      <button class="ego-pop-close" id="ego-pop-close" type="button" aria-label="סגירה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-          <p class="en-src"><span class="en-badge">EgoCheck</span> לפני 4 דק׳</p>
-          <h2 class="en-h" id="en-h">עצרתי הודעה לעידו לפני שנשלחה</h2>
-          <p class="en-diff"><s>"אחי הכל דבש"</s> <span aria-hidden="true">←</span> "האמת שאני בלחץ מהחתונה."</p>
-          <div class="en-actions" id="ego-note-actions">
-            <button type="button" data-ego="fixed">שלח את המתוקנת</button>
-            <button type="button" data-ego="mine">שלח את שלי</button>
-          </div>
-          <p class="en-out" id="ego-note-out" aria-live="polite"></p>
-    </section>
 
     <button class="info-btn" type="button" id="info-btn" aria-label="מה זה WHEEP" aria-haspopup="dialog">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.75"/><path d="M12 11v5.25"/><circle cx="12" cy="7.75" r="1" class="fill"/></svg>
@@ -385,6 +367,6 @@
   </div>
 </div>
 
-<script src="app.js?v=27"></script>
+<script src="app.js?v=28"></script>
 </body>
 </html>

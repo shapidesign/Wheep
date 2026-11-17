@@ -1,107 +1,146 @@
-/* AURA · WHEEP as light instead of ink.
-   Cream page, no hard edges, no block shadows: the data is a set of soft gradient orbs,
-   crisp while something is held in (kiki), dissolving into the page as it is released (bouba).
-   Small labels whisper in spaced capitals; type stays ink so it reads over any glow.
-   Everything is scoped to html.aura, so the neo-brutalist skin stays untouched underneath. */
+/* AURA · WHEEP as light, not as a dashboard.
+   Not a re-skin of the brutalist cards: there are no cards. Content floats on a slowly moving field
+   of out-of-focus colour that takes its hue from today's shape. Shapes are amorphous orbs:
+   crisp while something is held in (kiki), dissolving as it is released (bouba).
+   Numbers are thin and large, labels small and spaced; hairlines and space do the grouping.
+   Scoped to html.aura, so the neo-brutalist skin stays untouched underneath. */
 
 html.aura {
-  --ground: #F4EEE6;            /* warm cream, like the paper the light falls on */
-  --panel: rgba(255, 253, 249, .62);
-  --panel-2: rgba(255, 253, 249, .8);
+  --ground: #F4EEE6;
+  --panel: transparent;
+  --panel-2: rgba(255, 253, 249, .5);
   --ink: #26221E;
-  --ink-2: #57504A;
-  --ink-3: #8A8279;
-  --hair: rgba(38, 34, 30, .12);
+  --ink-2: #554E47;
+  --ink-3: #857D74;
+  --hair: rgba(38, 34, 30, .11);
+  --frost: rgba(255, 253, 249, .42);
   --c-yellow: #F7C531;
   --c-cyan: #3D8BE0;
   --c-red: #F0504A;
   --c-violet: #8C7BE8;
   --c-pink: #F27BC4;
   --c-green: #4FCB8A;
-  --bw: 1px;
-  --r: 22px;
-  --sh: 0 12px 34px rgba(80, 52, 30, .08);
-  --sh-sm: 0 6px 18px rgba(80, 52, 30, .07);
-  --plate: transparent;
+  --bw: 0px;
+  --r: 26px;
+  --sh: none;
+  --sh-sm: none;
+  --f1: #F0504A;
+  --f2: #F7C531;
 }
 html.aura body { background: #E8E1D7; }
 html.aura .phone { background: #1B1917; box-shadow: 0 40px 90px rgba(60, 40, 20, .28); }
+html.aura .phone::before { background: var(--ground); }
 
-/* ambient light behind every screen: three large out-of-focus orbs, the room's weather */
-html.aura .screens { background:
-  radial-gradient(38% 24% at 78% 14%, rgba(240, 80, 74, .30), transparent 72%),
-  radial-gradient(34% 22% at 18% 46%, rgba(247, 197, 49, .30), transparent 72%),
-  radial-gradient(42% 26% at 70% 86%, rgba(61, 139, 224, .24), transparent 74%),
-  var(--ground); background-attachment: local, local, local, local; }
-html.aura .about, html.aura .intro::before { background: var(--ground); }
+/* ── the field: four blurred lights drifting behind every screen ── */
+html.aura .aura-field { display: block; position: absolute; inset: 12px; border-radius: 52px; overflow: hidden; z-index: 0; pointer-events: none; }
+html.aura .aura-field i { position: absolute; width: 78%; aspect-ratio: 1; border-radius: 46% 54% 58% 42% / 52% 44% 56% 48%; filter: blur(48px); opacity: .62; }
+html.aura .aura-field i:nth-child(1) { background: var(--f1); top: -14%; inset-inline-start: -18%; animation: drift-a 26s ease-in-out infinite alternate; }
+html.aura .aura-field i:nth-child(2) { background: var(--f2); top: 30%; inset-inline-end: -26%; animation: drift-b 31s ease-in-out infinite alternate; }
+html.aura .aura-field i:nth-child(3) { background: #8C7BE8; bottom: -18%; inset-inline-start: -10%; opacity: .45; animation: drift-c 37s ease-in-out infinite alternate; }
+html.aura .aura-field i:nth-child(4) { background: #F27BC4; top: 58%; inset-inline-start: 30%; width: 52%; opacity: .4; animation: drift-d 23s ease-in-out infinite alternate; }
+@keyframes drift-a { to { translate: 34% 22%; rotate: 40deg; scale: 1.12; } }
+@keyframes drift-b { to { translate: -30% -26%; rotate: -30deg; scale: .9; } }
+@keyframes drift-c { to { translate: 22% -40%; rotate: 25deg; scale: 1.18; } }
+@keyframes drift-d { to { translate: -40% 18%; rotate: -50deg; scale: 1.1; } }
+@media (prefers-reduced-motion: reduce) { html.aura .aura-field i { animation: none; } }
+@media (max-width: 500px) { html.aura .aura-field { inset: 0; border-radius: 0; } }
+html.aura .screens, html.aura .about { background: transparent; }
+html.aura .intro::before { background: var(--ground); }
 
-/* surfaces: frosted sheets with a hairline, never a block shadow */
+/* ── no cards: every container dissolves; space and hairlines group things ── */
 html.aura .panel, html.aura .alert, html.aura .metric, html.aura .talk, html.aura .records, html.aura .device-card,
-html.aura .mate, html.aura .stats div, html.aura .act, html.aura .person, html.aura .emo-pick button, html.aura .crew-seen {
-  border: 1px solid var(--hair) !important; box-shadow: var(--sh); background: var(--panel);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+html.aura .mate, html.aura .stats, html.aura .stats div, html.aura .act, html.aura .person, html.aura .crew-seen, html.aura .crew-group,
+html.aura .gain-wallet, html.aura .emo-facts p, html.aura .cal .c, html.aura .ts-lines button {
+  background: none !important; border: 0 !important; box-shadow: none !important; border-radius: 0;
 }
-html.aura .panel-h, html.aura .panel-row { border-bottom: 1px solid var(--hair); }
-html.aura .alert { background: rgba(247, 197, 49, .28); }
-html.aura .talk { background: rgba(242, 123, 196, .22); }
-html.aura .crew-group { background: rgba(61, 139, 224, .18); }
-html.aura .stats div:nth-child(1) { background: rgba(247, 197, 49, .3); }
-html.aura .stats div:nth-child(2) { background: rgba(61, 139, 224, .2); }
-html.aura .stats div:nth-child(3) { background: rgba(242, 123, 196, .24); }
+html.aura .screen > .panel, html.aura .screen > .talk, html.aura .screen > .metrics, html.aura .screen > .stats, html.aura .screen > .crew-group,
+html.aura .screen > .gain-wallet, html.aura .screen > .crew-seen { margin-top: 34px; padding-inline: 2px; }
+html.aura .panel-h, html.aura .talk-h, html.aura .crew-state {
+  font-size: 12px !important; font-weight: 400 !important; letter-spacing: .1em; color: var(--ink-2); border: 0 !important; padding-bottom: 0;
+}
+html.aura .panel-row { border: 0 !important; padding-bottom: 6px; }
+html.aura .panel-h small { display: inline; margin-inline-start: 6px; letter-spacing: .06em; }
+html.aura .page-title, html.aura .today-title { font-weight: 200; font-size: 40px; letter-spacing: -.01em; background: none; border: 0; box-shadow: none; rotate: 0deg; padding: 0; }
 
-/* small labels: spaced, quiet */
-html.aura .panel-h small, html.aura .panel-meta, html.aura .hero-sub, html.aura .today-date, html.aura .crew-sub, html.aura .emo-sensor,
-html.aura .stats dt, html.aura .c-x, html.aura .c-y, html.aura .mw-table thead th, html.aura .r-name {
-  letter-spacing: .06em;
-}
-html.aura .today-title { background: none; border: 0; box-shadow: none; rotate: 0deg; padding: 0; font-weight: 700; letter-spacing: -.01em; }
+/* ── numbers are light and large ── */
+html.aura .hero-mpl b { font-weight: 200; font-size: 104px; letter-spacing: -.04em; }
+html.aura .hero-mpl span { font-weight: 400; letter-spacing: .14em; font-size: 13px; }
+html.aura .metric b, html.aura .gain-bal b, html.aura .mpl-val b, html.aura .stats b { font-weight: 200 !important; }
+html.aura .gain-bal b { font-size: 88px; }
+html.aura .stats dt { font-weight: 400; letter-spacing: .06em; }
 
-/* controls: pills with a hairline; the selected one glows */
-html.aura button, html.aura .seg, html.aura .back-btn, html.aura .me-btn, html.aura .info-btn, html.aura .crew-btn, html.aura .ts-lines button,
-html.aura .choices button, html.aura .style-switch button {
-  box-shadow: none !important; border-width: 1px !important; border-color: var(--hair) !important;
+/* ── today ── */
+html.aura .hero-shape { width: 300px; height: 300px; }
+html.aura .alert { padding: 0 2px; }
+html.aura .metric-grid { gap: 26px 14px; }
+html.aura .metric { padding: 0 !important; }
+html.aura .metric-shape { width: 46px !important; height: 46px !important; }
+html.aura .metric b { font-size: 40px; }
+html.aura .talk-people { gap: 10px; }
+html.aura .person .avatar { width: 48px; height: 48px; border: 0; filter: blur(.4px); box-shadow: 0 0 22px 6px rgba(255, 253, 249, .5); }
+html.aura .needs { gap: 16px; }
+html.aura .acts { gap: 10px; }
+html.aura .act { padding: 12px 16px !important; background: var(--frost) !important; border-radius: 22px !important; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+html.aura .sday.is-sel { background: var(--frost); box-shadow: none; border-radius: 14px; }
+
+/* ── lists and rows: hairlines only ── */
+html.aura .ledger li, html.aura .earn li, html.aura .shop li, html.aura .story-list li, html.aura .row, html.aura .rec { border-bottom: 1px solid var(--hair); }
+html.aura .mate { padding: 14px 0 !important; border-bottom: 1px solid var(--hair) !important; }
+html.aura .mate-shape { width: 56px !important; height: 56px !important; }
+html.aura .crew-shape .mini { width: 120px; height: 120px; }
+html.aura .crew-group { grid-template-columns: 120px 1fr; }
+
+/* ── controls: frosted pills on the light; the selected one is a glow ── */
+html.aura button, html.aura .seg, html.aura .crew-btn, html.aura .back-btn, html.aura .me-btn, html.aura .info-btn, html.aura .choices button, html.aura .style-switch button, html.aura .crew-invite, html.aura .mw-trend, html.aura .badge {
+  box-shadow: none !important; border: 0 !important;
 }
-html.aura .crew-btn, html.aura .act, html.aura .choices button, html.aura .back-btn { border-radius: 999px; background: rgba(255, 253, 249, .7); }
-html.aura .crew-btn.is-ink, html.aura .ts-go, html.aura .ab-go { background: var(--ink); color: #FFFDF8; border-color: var(--ink) !important; }
-html.aura .me-btn { background: radial-gradient(circle at 50% 45%, #F27BC4, rgba(242, 123, 196, .25) 70%); }
-html.aura .info-btn { background: rgba(255, 253, 249, .7); }
-html.aura .tabbar { background: rgba(244, 238, 230, .78); border-top: 1px solid var(--hair); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
-html.aura .tabbar button[aria-selected="true"] { border: 0 !important; background: radial-gradient(circle at 50% 45%, rgba(247, 197, 49, .9), rgba(247, 197, 49, .18) 62%, transparent 72%); }
+html.aura .crew-btn, html.aura .back-btn, html.aura .info-btn, html.aura .seg, html.aura .crew-invite, html.aura .emo-pick button {
+  background: var(--frost) !important; border-radius: 999px !important; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+}
+html.aura .crew-btn.is-ink, html.aura .ts-go, html.aura .ab-go { background: var(--ink) !important; color: #FFFDF8; }
+html.aura .me-btn { background: radial-gradient(circle at 50% 45%, #F27BC4, rgba(242, 123, 196, .2) 72%); }
 html.aura .seg button[aria-checked="true"], html.aura .ts-lines button[aria-checked="true"], html.aura .emo-pick button[aria-checked="true"],
-html.aura .choices button[aria-pressed="true"] { background: radial-gradient(circle at 50% 50%, rgba(247, 197, 49, .85), rgba(247, 197, 49, .25)); color: var(--ink); }
-html.aura .switch { border: 1px solid var(--hair); background: rgba(38, 34, 30, .08); }
+html.aura .choices button[aria-pressed="true"] { background: radial-gradient(circle at 50% 50%, rgba(247, 197, 49, .85), rgba(247, 197, 49, 0) 75%) !important; color: var(--ink); }
+html.aura .switch { border: 0; background: rgba(38, 34, 30, .12); }
 html.aura .switch:checked { background: linear-gradient(90deg, #4FCB8A, #F7C531); }
 html.aura .switch::after { background: #FFFDF8; box-shadow: 0 2px 6px rgba(0, 0, 0, .18); }
+html.aura .bar { border: 0 !important; background: rgba(38, 34, 30, .08) !important; border-radius: 999px; }
+html.aura .bar i { border: 0 !important; border-radius: 999px; filter: blur(.6px); }
+html.aura .mw-tile { border: 0; border-radius: 50%; width: 36px; height: 36px; margin: 0 auto; box-shadow: 0 0 16px 4px rgba(255, 253, 249, .4); }
+html.aura .mw-trend { background: var(--frost); }
+html.aura .badge { background: rgba(240, 80, 74, .22) !important; color: var(--ink); }
 
-/* orbs: the blur is inline (per shape); give them room to glow past their box */
+/* ── the tab bar floats: a frosted capsule above the light ── */
+html.aura .tabbar { inset-inline: 14px; bottom: 20px; height: 74px; padding: 8px; border: 0; border-radius: 37px; background: rgba(255, 253, 249, .46); -webkit-backdrop-filter: blur(24px) saturate(1.3); backdrop-filter: blur(24px) saturate(1.3); box-shadow: 0 12px 34px rgba(80, 52, 30, .12); }
+html.aura .tabbar button { height: 58px; border: 0 !important; background: none; color: var(--ink-2); }
+html.aura .tabbar button[aria-selected="true"] { background: radial-gradient(circle at 50% 45%, rgba(247, 197, 49, .95), rgba(247, 197, 49, .2) 60%, transparent 74%); color: var(--ink); }
+@media (max-width: 500px) { html.aura .tabbar { inset-inline: 10px; bottom: max(14px, env(safe-area-inset-bottom)); } }
+
+/* ── orbs ── */
 html.aura svg.aura-orb { overflow: visible; }
-html.aura #hero-shape .sh, html.aura #shape-big .sh, html.aura .ed { display: none; }
-html.aura #hero-shape .fg, html.aura #shape-big .fg { stroke: none; }
-html.aura #hero-shape, html.aura #shape-big { overflow: visible; }
+html.aura #hero-shape .sh, html.aura .ed { display: none; }
+html.aura #hero-shape .fg { stroke: none; }
+html.aura #hero-shape { overflow: visible; }
 
-/* charts and tiles: light, not blocks */
-html.aura .c-area { fill: rgba(242, 123, 196, .28); }
-html.aura .c-line { stroke-width: 2; }
-html.aura .c-now { fill: var(--c-yellow); stroke-width: 1.5; }
-html.aura .mw-tile { border: 0; border-radius: 50%; width: 34px; height: 34px; margin: 0 auto; color: var(--ink); opacity: .9; }
-html.aura .mw-trend, html.aura .badge { border-width: 1px; border-color: var(--hair); }
-html.aura .cal .c { border: 1px solid var(--hair); background: rgba(255, 253, 249, .45); }
-html.aura .cal .c.today { background: radial-gradient(circle, rgba(247, 197, 49, .7), rgba(247, 197, 49, .15)); }
-html.aura .bar { border: 1px solid var(--hair); background: rgba(38, 34, 30, .05); }
-html.aura .bar i { border: 0; }
+/* ── trends and emotions: light marks on the field ── */
+html.aura .c-area { fill: rgba(242, 123, 196, .3); }
+html.aura .c-line { stroke-width: 1.6; }
+html.aura .c-base { stroke: var(--hair); }
+html.aura .cal-detail { border-color: var(--hair) !important; border-top-width: 1px !important; }
+html.aura .c-now { fill: var(--c-yellow); stroke: none; }
+html.aura .cal .c.today { background: radial-gradient(circle, rgba(247, 197, 49, .8), transparent 70%) !important; }
+html.aura .radar-key li::before, html.aura .mk, html.aura .ck-unv { border-width: 1px; border-color: var(--hair); }
+html.aura .emo-facts p { padding: 0 !important; }
 
-/* the opening lands as light too */
-html.aura .intro.is-midnight .iw-shape { stroke: transparent; fill: #F0504A; filter: blur(6px); }
+/* ── sheets ── */
+html.aura .ts-card { border: 0 !important; background: rgba(250, 246, 240, .82); -webkit-backdrop-filter: blur(26px); backdrop-filter: blur(26px); box-shadow: 0 -20px 60px rgba(80, 52, 30, .16); }
+html.aura .ts-lines button { background: var(--frost) !important; border-radius: 18px !important; }
+html.aura .ts-close { border: 0; background: var(--frost); box-shadow: none; }
+html.aura .call { background: radial-gradient(70% 50% at 50% 30%, rgba(61, 139, 224, .55), transparent), var(--ground); }
+
+/* ── opening ── */
+html.aura .intro.is-midnight .iw-shape { stroke: transparent; fill: #F0504A; filter: blur(8px); }
 html.aura .iw-sh { display: none; }
 
-/* EgoCheck stays a glowing drop of violet */
-html.aura .ego-fab { border: 0; box-shadow: 0 0 0 1px var(--hair), 0 10px 26px rgba(140, 123, 232, .45); background: radial-gradient(circle at 50% 45%, #8C7BE8, #B8AEF5); }
-
 html.aura ::selection { background: rgba(247, 197, 49, .6); color: var(--ink); }
-html.aura .tabbar button { border-color: transparent !important; background: none; }
-html.aura .avatar, html.aura .call-avatar { border: 0; box-shadow: 0 6px 16px rgba(80, 52, 30, .14); }
-html.aura .cal-detail, html.aura .emo-facts p, html.aura .radar-key li::before, html.aura .mk, html.aura .ck-unv, html.aura .mw-trend,
-html.aura .crew-invite, html.aura .ts-card, html.aura .ts-close { border-color: var(--hair) !important; border-width: 1px !important; }
-html.aura .emo-facts p { background: rgba(255, 253, 249, .55); }
-html.aura .cal .c.future { border-color: transparent; background: none; }
-html.aura .ts-card { box-shadow: 0 -20px 60px rgba(80, 52, 30, .16); background: rgba(250, 246, 240, .94); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+html.aura .days li { border-bottom: 1px solid var(--hair) !important; }

@@ -13,7 +13,7 @@
   const haloOf = (c) => HALO[c] || '#F7C531';
   let gseq = 0;
   const auraSvg = (d, f, round, cls, attrs, dim = false) => {
-    const id = `au${++gseq}`, blur = (.5 + Math.max(0, Math.min(1, round)) * 2.6).toFixed(2);
+    const id = `au${++gseq}`, blur = (1.2 + Math.max(0, Math.min(1, round)) * 4.2).toFixed(2);
     return `<svg class="${cls} aura-orb" viewBox="0 0 48 48"${attrs}><defs>`
       + `<radialGradient id="${id}g" cx="50%" cy="46%" r="58%"><stop offset="0" stop-color="${f}"/><stop offset=".58" stop-color="${f}"/><stop offset="1" stop-color="${haloOf(f)}"/></radialGradient>`
       + `<filter id="${id}f" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${blur}"/></filter></defs>`
@@ -74,7 +74,8 @@
   const polar = ({ round = 0, R = 20, cx = 24, cy = 24, n = 9, amp, k, tremble = 0, phase = 0, N = 180, base = 'burst' }) => {
     const B = BASE[base], S = SHARP[base];
     cy += (OFF[base] || 0) * R;
-    const A = (amp ?? lerp(.5, .07, round)) * S, K = k ?? lerp(2.6, 1, round);
+    const A = (amp ?? lerp(.5, .07, round)) * S * (AURA ? .4 : 1), K = k ?? lerp(2.6, 1, round);
+    const ph = AURA ? base.length * 1.37 + n * .41 : 0;   // each silhouette gets its own organic lobes
     let d = '';
     for (let j = 0; j < N; j++) {
       const u = (j / N) * n * 2;                          // two units per spike
@@ -83,7 +84,8 @@
       const w = lerp(tri ** K, soft, round);
       const spike = Math.floor((u + 1) / 2);
       const ang = -Math.PI / 2 + (j / N) * Math.PI * 2;
-      const r = R * B(ang) * (1 - A * (1 - w)) * (1 + tremble * Math.sin(phase + spike * 1.9) * w);
+      const lobe = AURA ? 1 + .11 * Math.sin(3 * ang + ph) + .06 * Math.sin(5 * ang + ph * 1.7) + .03 * Math.sin(2 * ang + ph * .6) : 1;
+      const r = R * B(ang) * lobe * (1 - A * (1 - w)) * (1 + tremble * Math.sin(phase + spike * 1.9) * w);
       d += `${j ? 'L' : 'M'}${(cx + r * Math.cos(ang)).toFixed(2)} ${(cy + r * Math.sin(ang)).toFixed(2)}`;
     }
     return d + 'Z';
@@ -117,17 +119,6 @@
   const roundAt = (d) => at(DAYR, d);
   const stateWord = (r) => (r > .7 ? 'עגול' : r > .35 ? 'מתוח' : 'חד');
 
-  /* ── today: hourly ── */
-  const HOURS = [
-    ['עכשיו', 'clear', 5, ''], ['10:00', 'cloud', 5, ''], ['12:00', 'cloud', 5, ''],
-    ['14:00', 'cloud', 10, 'ישיבת צוות', 'press'], ['16:00', 'cloud', 5, ''], ['18:00', 'drizzle', 15, 'פקק באיילון', 'anger'],
-    ['20:00', 'cloud', 10, ''], ['22:00', 'drizzle', 25, 'שיחה עם שירי', 'empathy'],
-  ];
-  // the shape forecasts how round the hour will be; the hand marks what he expects to feel
-  $('#hourly').innerHTML = HOURS.map(([t, k, p, why, g]) => `
-    <li><span class="h-time num">${t}</span>${mini(Math.min(1, p / 60), 'mini mini-f', false, `${p}% שחרור`)}
-    <span class="h-pct num${p < 15 ? ' is-low' : ''}">${p}%</span><span class="h-cause">${g ? glyph(g, 'glyph glyph-cause') : ''}${why}</span></li>`).join('');
-
   /* ── today: 7-day forecast ── */
   const DAYROWS = [
     ['היום', 'clear', 5, 1024, 1031, 1031, ''],
@@ -143,17 +134,6 @@
     <li><span class="d-name">${n}</span>${mini(Math.min(1, p / 60), 'mini mini-f', n !== 'היום', `${p}% שחרור`)}
       <span class="d-pct num${p < 15 ? ' is-low' : ''}">${p}%</span>
       <span class="d-why">${why ? `${g ? glyph(g, 'glyph glyph-cause') : ''}${why}` : ''}</span></li>`).join('');
-
-  /* ── journal: the human answer is allowed to be "not sure" ── */
-  const JOURNAL = {
-    yes: 'נרשם. הדיווח שלך לא תואם לחיישן ונשלח לבדיקה.',
-    no: 'נרשם. תואם לחיישן.',
-    unsure: 'נרשם. ספק נשמר כנתון.',
-  };
-  $$('.choices button').forEach((b) => b.addEventListener('click', () => {
-    $$('.choices button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-    $('#journal-out').textContent = JOURNAL[b.dataset.answer];
-  }));
 
   /* ── alert expand ── */
   const alertBtn = $('#alert');
@@ -182,8 +162,7 @@
       $('.phone').classList.remove('is-scrolled');
       $('.phone').classList.toggle('on-today', name === 'today');
     });
-    setSky(name === 'shape' ? wetness(shapeDay) : 0);
-    setFrame(name === 'shape' ? roundAt(shapeDay) : heroTarget());
+    setFrame(curTarget());
     if (name === 'trends') drawTrends();
   };
   tabs.forEach((t) => t.addEventListener('click', () => show(t.dataset.tab)));
@@ -303,16 +282,17 @@
     $('#metric-grid').innerHTML = METRICS.map((m) => `
       <li class="metric">${mini(m.round(), 'mini metric-shape', false, '', m.fill, m.base, m.n, true)}
         <b class="num">${m.val()}</b><span class="m-name">${m.name}</span><small>${m.sub}</small></li>`).join('');
-    $('#hero-state').textContent = stateWord(heroTarget());
-    if ($('#screen-shape').hidden) setFrame(heroTarget());
-    $('#hero-shape').setAttribute('aria-label', `הצורה של היום: ${stateWord(heroTarget())}`);
+    const m = liveMpl();
+    if (Math.round(shapeDay) === TODAY) { $('#hero-mpl').textContent = m; $('#hero-shape').setAttribute('aria-label', `הצורה של היום: ${stateWord(heroTarget())}, MPL ${m}`); }
+    setFrame(curTarget());
+    // every 25 MPL let go of is worth 10 points
+    if (m <= lastMpl - 25) { const steps = Math.floor((lastMpl - m) / 25); earn(`MPL ירד ב-${steps * 25}`, steps * 10); lastMpl -= steps * 25; }
   };
 
   /* ── the live shapes: Today's hero and the shape tab, both trembling with pressure ── */
-  let egoBonus = 0, shapeDay = TODAY;
+  let shapeDay = TODAY, lastMpl = 775;
   const live = {
     hero: { cur: .3, sh: $('#hero-shape .sh'), fg: $('#hero-shape .fg'), def: $('#hero-d'), ed: $('#hero-shape .ed'), R: 140 },
-    big: { cur: .3, sh: $('#shape-big .sh'), fg: $('#shape-big .fg'), def: $('#big-d'), ed: $('#shape-big .ed'), R: 140 },
   };
   if (AURA) Object.entries(live).forEach(([k, L]) => {
     const svg = L.fg.ownerSVGElement;
@@ -320,9 +300,13 @@
     L.gs = [...svg.querySelectorAll(`#${k}-ag stop`)]; L.blur = svg.querySelector(`#${k}-ab feGaussianBlur`);
     L.fg.setAttribute('filter', `url(#${k}-ab)`); L.fg.style.fill = `url(#${k}-ag)`;
   });
-  const heroTarget = () => Math.min(1, composite() + egoBonus + care());
+  const heroTarget = () => Math.min(1, composite() + care());
+  const H0 = composite();
+  // MPL today moves with everything he does: talks, care, released measures
+  const liveMpl = () => Math.max(0, Math.min(1000, Math.round(775 - (heroTarget() - H0) * 700)));
+  const curTarget = () => (Math.round(shapeDay) === TODAY ? heroTarget() : roundAt(shapeDay));
   const frame = (t) => {
-    [['hero', heroTarget(), '#screen-today'], ['big', Math.min(1, roundAt(shapeDay) + (Math.round(shapeDay) === TODAY ? care() : 0)), '#screen-shape']].forEach(([key, target, scr]) => {
+    [['hero', curTarget(), '#screen-today']].forEach(([key, target, scr]) => {
       const L = live[key];
       if ($(scr).hidden) { L.cur = target; return; }
       L.cur += (target - L.cur) * .08;
@@ -334,20 +318,14 @@
       if (AURA) {                                          // the big orb: its edge dissolves as it rounds
         const c = kbColor(L.cur);
         L.gs[0].setAttribute('stop-color', c); L.gs[1].setAttribute('stop-color', c); L.gs[2].setAttribute('stop-color', haloOf(c.startsWith('#') ? c : '') );
-        L.blur.setAttribute('stdDeviation', (3 + L.cur * 16).toFixed(1));
+        L.blur.setAttribute('stdDeviation', (6 + L.cur * 22).toFixed(1));
+        const ph = $('.phone').style;                      // the light behind the screen follows the shape
+        ph.setProperty('--f1', c); ph.setProperty('--f2', haloOf(c.startsWith('#') ? c : ''));
       }
     });
     requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
-  // EgoCheck corrections lower the pressure; the hero shape softens with them
-  const gauge = $('.gauge-num');
-  new MutationObserver(() => {
-    const p = parseInt(gauge.textContent, 10);
-    egoBonus = Number.isFinite(p) ? Math.max(0, Math.min(.6, (775 - p) / 500)) : 0;
-    renderMetrics();
-  }).observe(gauge, { childList: true, characterData: true, subtree: true });
-
   /* ── shape tab: 16 days of one shape ── */
   const NOTES = {
     0: '11 דק׳ בכי ברמזור בדרך הביתה. הצורה כמעט עגולה.',
@@ -366,16 +344,14 @@
   const setDay = (d) => {
     shapeDay = d;
     const i = Math.round(d), r = roundAt(d);
-    const label = i === TODAY ? 'היום · ג׳ 15.12' : i > TODAY ? `תחזית · ${DAYS[i]}` : DAYS[i];
-    $('#shape-day-label').textContent = label;
+    const label = i === TODAY ? 'היום' : i > TODAY ? `תחזית · ${DAYS[i]}` : DAYS[i];
+    $('#hero-day').textContent = label;
     dayInput.setAttribute('aria-valuetext', label);
-    $('#shape-num').textContent = mpl(at(PRESS, d));
-    $('#shape-state').textContent = (i > TODAY ? 'צפוי: ' : '') + stateWord(r);
-    $('#shape-note').textContent = NOTES[i] || 'יבש. אין רישום.';
-    $('#shape-big').setAttribute('aria-label', `צורת הגבריות ב-${label}: ${stateWord(r)}`);
+    $('#hero-mpl').textContent = i === TODAY ? liveMpl() : mpl(at(PRESS, d));
+    $('#hero-note').textContent = i === TODAY ? '' : NOTES[i] || 'יבש. אין רישום.';
+    $('#hero-shape').setAttribute('aria-label', `צורת הגבריות ב-${label}: ${stateWord(i === TODAY ? heroTarget() : r)}`);
     strip.querySelectorAll('.sday').forEach((b) => b.classList.toggle('is-sel', +b.dataset.i === i));
-    if (!$('#screen-shape').hidden) setFrame(Math.min(1, r + (i === TODAY ? care() : 0)));
-    setSky(wetness(d));
+    setFrame(curTarget());
   };
   dayInput.addEventListener('input', () => { stopPlay(); setDay(+dayInput.value); });
   strip.addEventListener('click', (e) => { const b = e.target.closest('.sday'); if (!b) return; stopPlay(); dayInput.value = b.dataset.i; setDay(+b.dataset.i); });
@@ -401,28 +377,6 @@
   setDay(TODAY);
 
   renderMetrics();
-  /* ── EgoCheck: a floating button; the bot interrupts with a choice, and the choice moves a measure ── */
-  const egoFab = $('#ego-fab'), egoPop = $('#ego-pop');
-  const togglePop = (open) => {
-    egoPop.hidden = !open;
-    egoFab.setAttribute('aria-expanded', String(open));
-    if (open) egoPop.querySelector('button').focus();
-  };
-  egoFab.addEventListener('click', () => togglePop(egoPop.hidden));
-  $('#ego-pop-close').addEventListener('click', () => { togglePop(false); egoFab.focus(); });
-  egoPop.addEventListener('keydown', (e) => { if (e.key === 'Escape') { togglePop(false); egoFab.focus(); } });
-  egoPop.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-ego]'); if (!b) return;
-    const sent = b.dataset.ego === 'fixed';
-    state.press = Math.max(0, state.press + (sent ? -1 : 1));
-    $('#ego-note-actions').hidden = true;
-    $('#ego-note-out').textContent = sent ? 'נשלח לעידו: "האמת שאני בלחץ מהחתונה." הדחקות −1.' : 'נשלח: "אחי הכל דבש." הדחקות +1.';
-    egoFab.classList.add('is-read');
-    egoFab.setAttribute('aria-label', 'EgoCheck · אין התראות חדשות');
-    renderMetrics();
-    setTimeout(() => togglePop(false), 2600);
-  });
-  setTimeout(() => { if (!reduced) egoFab.classList.add('is-nudge'); }, 2500);
   $('#ab-map').innerHTML = METRICS.map((m) => `<li>${mini(.25, 'mini ab-mini', false, '', m.fill, m.base, m.n, true)}<span>${m.name}</span></li>`).join('');
 
   /* ── talk now: the quick fix is a conversation (and WHEEP still counts it) ── */
@@ -496,6 +450,8 @@
       NEEDS[0].v = Math.min(100, NEEDS[0].v + 30);
       // a long talk rounds the people on it too: the friend, or the whole crew
       (who.group ? CREW : CREW.filter((f) => f.id === who.id)).forEach((f) => { f.r = Math.min(1, f.r + .15); });
+      earn(who.group ? `שיחה קבוצתית · ${mins} דק׳` : `שיחה עם ${who.name} · ${mins} דק׳`, who.group ? 40 : 30);
+      $('#call-out').textContent += ` +${who.group ? 40 : 30} נקודות רווחה.`;
       renderMetrics(); renderNeeds(); renderCrew();
     } else {
       $('#call-out').textContent = callSecs ? `שיחה של ${mins} דק׳. קצרה מדי כדי להיחשב כשיחת עומק.` : 'השיחה לא נענתה. לא נרשם דבר.';
@@ -524,7 +480,8 @@
     need.v = Math.min(100, need.v + add);
     renderNeeds(); renderMetrics();
     const low = NEEDS.slice().sort((a, c) => a.v - c.v)[0];
-    $('#acts-out').textContent = `${t} · נרשם. הוא התעגל קצת. הכי חסר לו עכשיו: ${low.name}.`;
+    earn(t, 15);
+    $('#acts-out').textContent = `${t} · נרשם, +15 נקודות. הוא התעגל קצת. הכי חסר לו עכשיו: ${low.name}.`;
   });
   renderNeeds();
 
@@ -619,6 +576,53 @@
   });
   $('#crew-invite').addEventListener('click', () => { $('#crew-out').textContent = 'קוד הזמנה: WHP-4417. בתוקף 24 שעות. מי שמצטרף רואה את הצורה שלך.'; });
   renderCrew();
+
+  /* ── רווחה: points for what came out. Personal only: no table, no ranks, nobody sees the balance ── */
+  const GAIN = { bal: 340, led: [] };
+  const EARN = [
+    ['בכי מאומת', 50, 'נמדד אוטומטית'],
+    ['שיחת עומק · 20 דק׳ ומעלה', 30, 'talk'],
+    ['שיחה קבוצתית', 40, 'group'],
+    ['טיפול ב"מה הוא צריך"', 15, 'care'],
+    ['כל ירידה של 25 ב-MPL', 10, 'נמדד אוטומטית'],
+  ];
+  const SHOP = [
+    { t: 'כרטיס זוגי לסרט שמבכה', c: 300 },
+    { t: '10% הנחה בפרמיה החודשית', c: 500 },
+    { t: 'ארוחת ערב עם אבא · הקופה משלמת', c: 600 },
+    { t: 'שעה עם מטפל', c: 800 },
+    { t: 'יום חופש רגשי מהעבודה', c: 1200 },
+  ];
+  const clock = () => { const n = new Date(); return `${n.getHours()}:${String(n.getMinutes()).padStart(2, '0')}`; };
+  const renderGain = () => {
+    $('#gain-bal').textContent = GAIN.bal.toLocaleString('he-IL');
+    const next = SHOP.find((x) => !x.done && x.c > GAIN.bal) || SHOP.find((x) => !x.done);
+    $('#gain-bar').style.width = next ? `${Math.min(100, GAIN.bal / next.c * 100)}%` : '100%';
+    $('#gain-next-t').innerHTML = next ? (next.c > GAIN.bal ? `עוד <b class="num">${next.c - GAIN.bal}</b> ל${next.t}` : `אפשר לממש: ${next.t}`) : 'מימשת הכל.';
+    const sum = GAIN.led.reduce((n, l) => n + l[1], 0);
+    $('#led-sum').innerHTML = sum ? `<span class="num">+${sum}</span> היום` : '';
+    $('#ledger').innerHTML = GAIN.led.length
+      ? GAIN.led.map(([t, p, at]) => `<li><span class="num l-at">${at}</span><span class="l-t">${t}</span><b class="num l-p">+${p}</b></li>`).join('')
+      : '<li class="l-empty">עוד לא הרווחת היום. 12 ימים בלי בכי לא שווים נקודות.</li>';
+    $('#earn').innerHTML = EARN.map(([t, p, how]) => `<li><span class="e-t">${t}</span><b class="num e-p">+${p}</b>${['talk', 'group', 'care'].includes(how) ? `<button type="button" class="crew-btn e-go" data-earn="${how}">${how === 'group' ? 'לפתוח' : how === 'talk' ? 'להתקשר' : 'לטפל'}</button>` : `<span class="e-how">${how}</span>`}</li>`).join('');
+    $('#shop').innerHTML = SHOP.map((x, i) => `<li class="${x.done ? 'is-done' : ''}"><span class="s-t">${x.t}</span><span class="num s-c">${x.c}</span><button type="button" class="crew-btn" data-buy="${i}" ${x.done || x.c > GAIN.bal ? 'disabled' : ''}>${x.done ? 'מומש' : 'לממש'}</button></li>`).join('');
+  };
+  const earn = (t, pts) => { GAIN.bal = Math.min(5000, GAIN.bal + pts); GAIN.led.unshift([t, pts, clock()]); renderGain(); };
+  $('#screen-gain').addEventListener('click', (e) => {
+    const g = e.target.closest('[data-earn]');
+    if (g) {
+      if (g.dataset.earn === 'group') return openSheet('guys');
+      show('today');
+      const target = g.dataset.earn === 'talk' ? '#talk-h' : '#needs-h';
+      return setTimeout(() => $(target).scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }), 60);
+    }
+    const b = e.target.closest('[data-buy]'); if (!b) return;
+    const x = SHOP[+b.dataset.buy];
+    if (x.done || x.c > GAIN.bal) return;
+    GAIN.bal -= x.c; x.done = true; renderGain();
+    $('#gain-out').textContent = `מומש: ${x.t}. הקוד נשלח לקופת רווחה, שתעדכן את המעסיק שלך.`;
+  });
+  renderGain();
 
   /* ── trends ── */
   // 16.11 → 15.12 (i = 0…29). Dry since a cry on 14.11, one cry on 3.12 (i = 17), rising every day since.
@@ -809,25 +813,6 @@
   };
   stepBtns.forEach((b) => b.addEventListener('click', () => { goal.value = String(Math.max(0, Math.min(7, +goal.value + +b.dataset.step))); syncGoal(); }));
   syncGoal();
-  /* ── EgoCheck: corrections accepted on the keyboard lower the inner pressure ── */
-  const tileNum = $('.gauge-num'), tileNote = tileNum.nextElementSibling;
-  const renderEgo = () => {
-    let log = {};
-    try { log = JSON.parse(localStorage.getItem('wheep.egocheck') || '{}'); } catch (_) { /* no storage */ }
-    const rows = Object.values(log).sort((a, b) => a.at.localeCompare(b.at));
-    const drop = rows.reduce((n, r) => n + (r.from - r.to), 0);
-    const p = 775 - drop * 25;
-    tileNum.innerHTML = `${p} <small>MPL</small>`;
-    tileNote.textContent = drop ? `יורד. ${rows.length} תיקונים היום.` : 'עולה. 12 ימים ברצף.';
-    $('#ego-out').innerHTML = rows.length ? `
-      <div class="ego-sum"><span class="num">${rows.length}</span><p>תיקונים התקבלו היום. ה-MPL ירד ב-<b class="num">${drop * 25}</b>.</p></div>
-      <ol class="ego-list">${rows.map((r) => `<li><span class="ego-t num">${r.at}</span><span class="ego-chat">${esc(r.chat)}</span><span class="ego-d num" dir="ltr">−${r.from - r.to}</span><span class="ego-code">${esc(r.code)}</span></li>`).join('')}</ol>`
-      : '<p class="ego-empty">לא התקבלו תיקונים היום. כל תיקון שתקבלו במקלדת יירשם כאן כירידה בלחץ.</p>';
-  };
-  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  addEventListener('storage', (e) => { if (e.key === 'wheep.egocheck') renderEgo(); });
-  renderEgo();
-
   // the app opens on the WHOOP → WHEEP transition, unless a deep link asks for a specific tab
   const tabHash = tabs.some((t) => `#${t.dataset.tab}` === location.hash);
   if (tabHash) { intro.hidden = true; fromHash(); } else if (location.hash === '#about') openInfo(); else runIntro();
