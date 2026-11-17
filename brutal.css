@@ -259,7 +259,6 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 
 /* info button: steps aside while the content scrolls under it */
 .info-btn { transition: opacity .2s, transform .2s, background .2s; }
-.phone.is-scrolled .info-btn { opacity: 0; transform: scale(.8); pointer-events: none; }
 
 /* metrics: smaller shape column so names fit on one line */
 .metric { grid-template-columns: 44px 1fr; column-gap: 10px; padding: 14px; align-content: center; }
@@ -299,7 +298,7 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 .device-card { padding: 16px; gap: 16px; }
 
 /* page headers keep clear of the info button's corner */
-.page-head, .map-head { padding: 14px 4px 2px; padding-inline-end: 56px; min-height: 60px; }
+.page-head, .map-head { padding: 14px 4px 2px; padding-inline-end: 108px; min-height: 60px; }
 
 /* Today: a header that owns the screen */
 .today-head { display: flex; align-items: baseline; gap: 12px; padding: 12px 4px 0; padding-inline-end: 56px; min-height: 60px; flex-wrap: wrap; }
@@ -395,7 +394,7 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 .tabbar button { width: 70px; font-size: 12.5px; }
 .me-btn { margin-inline-start: auto; align-self: center; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: var(--c-pink); border: 2px solid var(--ink); box-shadow: var(--sh-sm); }
 .me-btn svg, .back-btn svg { width: 22px; height: 22px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.today-head { padding-inline-end: 60px; }
+.today-head { padding-inline-end: 108px; }
 .back-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px 6px 14px; font-size: 15px; font-weight: 900; background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; box-shadow: var(--sh-sm); color: var(--ink); }
 #screen-profile .page-head { justify-content: flex-start; gap: 14px; }
 
@@ -462,7 +461,10 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 .crew-btn.is-ink { background: var(--ink); color: #fff; box-shadow: 3px 3px 0 var(--c-yellow); }
 .crew-invite { width: 100%; margin-top: 16px; min-height: 48px; font-size: 15px; font-weight: 900; color: var(--ink); background: transparent; border: 2px dashed var(--ink); border-radius: 14px; }
 .today-head { position: relative; }
-.me-btn { position: absolute; top: 60px; inset-inline-end: 3px; margin: 0; }
+/* profile sits beside info, both pinned to the phone while the screen scrolls */
+.me-btn { position: absolute; z-index: 4; top: 66px; inset-inline-end: 76px; width: 40px; height: 40px; margin: 0; }
+.phone.on-profile .me-btn { display: none; }
+@media (max-width: 500px) { .me-btn { top: max(14px, env(safe-area-inset-top)); } }
 .screen-shape, #screen-emo, #screen-crew { padding-bottom: 130px; }
 
 
@@ -612,3 +614,8 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 .shop li.is-done .s-t { text-decoration: line-through; color: var(--ink-2); }
 .gain-fine { margin-top: 16px; padding-inline: 4px; }
 #screen-gain { padding-bottom: 130px; }
+
+/* v5 */
+.s-t small { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: var(--ink-2); line-height: 1.35; }
+.exhibit-line { margin-top: 14px; }
+.iw-clock { margin-top: 18px; }

@@ -118,7 +118,8 @@ html.aura .tabbar button[aria-selected="true"] { background: radial-gradient(cir
 
 /* ── orbs ── */
 html.aura svg.aura-orb { overflow: visible; }
-html.aura #hero-shape .sh, html.aura .ed { display: none; }
+html.aura .ed { display: none; }
+html.aura #hero-shape .sh { transform-box: view-box; transform-origin: 160px 160px; opacity: .6; stroke: none; translate: 0 0; }
 html.aura #hero-shape .fg { stroke: none; }
 html.aura #hero-shape { overflow: visible; }
 
@@ -139,8 +140,111 @@ html.aura .ts-close { border: 0; background: var(--frost); box-shadow: none; }
 html.aura .call { background: radial-gradient(70% 50% at 50% 30%, rgba(61, 139, 224, .55), transparent), var(--ground); }
 
 /* ── opening ── */
-html.aura .intro.is-midnight .iw-shape { stroke: transparent; fill: #F0504A; filter: blur(8px); }
+html.aura .intro.is-midnight .iw-shape { stroke: transparent; fill: #F0504A; filter: blur(1.5px) drop-shadow(0 0 18px rgba(247, 197, 49, .7)); }
 html.aura .iw-sh { display: none; }
 
 html.aura ::selection { background: rgba(247, 197, 49, .6); color: var(--ink); }
 html.aura .days li { border-bottom: 1px solid var(--hair) !important; }
+
+
+/* ════ v5 · a different app, same principle ════
+   The brutalist skin is a dashboard you read top to bottom. Aura is a calm instrument you hold:
+   one centred focus per screen, quiet centred headings, numbers living inside the light,
+   measures as a constellation, needs as levels that fill, actions you swipe, rewards you flip through.
+   Bouba/Kiki stays the only language: a defined body that keeps its spikes, a halo that spreads as it rounds. */
+
+/* headings: a small centred label, not a title block */
+html.aura .page-head, html.aura .today-head { justify-content: center; text-align: center; padding-inline: 108px; min-height: 64px; flex-direction: column; align-items: center; gap: 2px; padding-top: 22px; }
+html.aura .page-title, html.aura .today-title { font-size: 17px; font-weight: 500; letter-spacing: .02em; }
+html.aura .today-date { font-size: 12px; font-weight: 400; color: var(--ink-2); letter-spacing: .04em; }
+html.aura #screen-trends .page-head { padding-inline: 4px; padding-inline-end: 108px; flex-direction: row; justify-content: space-between; }
+html.aura #screen-trends .page-title { font-size: 17px; }
+html.aura .back-btn { position: absolute; inset-inline-start: 22px; top: 22px; }
+html.aura #screen-profile .page-head { position: relative; }
+html.aura .gain-sub, html.aura .crew-sub, html.aura .emo-sensor { text-align: center; font-size: 13px; color: var(--ink-2); padding-inline: 18px; }
+
+/* today: the number lives inside the light */
+html.aura .hero { position: relative; padding-top: 0; }
+html.aura .hero-shape { margin-top: 4px; }
+html.aura .hero-mpl { position: absolute; inset-inline: 0; top: 154px; translate: 0 -50%; margin: 0; flex-direction: column; align-items: center; gap: 0; pointer-events: none; }
+html.aura .hero-mpl b { font-size: 96px; font-weight: 300; color: #1E1A17; text-shadow: 0 1px 30px rgba(255, 253, 249, .55); }
+html.aura .hero-mpl span { font-size: 11px; letter-spacing: .3em; color: rgba(30, 26, 23, .7); margin-top: 4px; }
+html.aura .hero-sub { margin-top: 10px; font-size: 13px; }
+html.aura .hero-range { font-size: 13px; gap: 18px; }
+
+/* the warning: a quiet chip, opens in place */
+html.aura .alert { display: block; width: fit-content; max-width: 100%; margin: 28px auto 0 !important; padding: 8px 16px !important; border-radius: 999px !important; background: rgba(240, 80, 74, .14) !important; }
+html.aura .alert[aria-expanded="true"] { border-radius: 22px !important; }
+html.aura .alert-head { gap: 8px; justify-content: center; }
+html.aura .alert-title { font-size: 14px; font-weight: 500; }
+html.aura .alert-src { font-size: 11px; }
+
+/* measures: a constellation of four, read across */
+html.aura .metric-grid { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+html.aura .metric { display: flex !important; flex-direction: column; align-items: center; text-align: center; gap: 4px; }
+html.aura .metric-shape { width: 56px !important; height: 56px !important; margin-bottom: 6px; }
+html.aura .metric b { font-size: 30px; line-height: 1; }
+html.aura .metric .m-name { font-size: 12px; font-weight: 500; }
+html.aura .metric small { font-size: 11px; color: var(--ink-3); }
+
+/* what he needs: four levels that fill from the bottom */
+html.aura .needs-panel .panel-row, html.aura .acts-panel .panel-h, html.aura .talk-h, html.aura .talk-sub, html.aura .panel-row { justify-content: center; text-align: center; flex-direction: column; align-items: center; gap: 2px; }
+html.aura .needs { grid-template-columns: repeat(4, 1fr); gap: 14px !important; padding-top: 18px; }
+html.aura .need { display: grid; grid-template-columns: 1fr; grid-template-rows: auto 150px auto; justify-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
+html.aura .need b { order: -1; text-align: center; font-size: 20px; font-weight: 300; }
+html.aura .need .bar { position: relative; order: 0; width: 46px; height: 150px; border-radius: 23px; overflow: hidden; background: rgba(255, 253, 249, .45) !important; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+html.aura .need .bar i { position: absolute; inset-inline: 0; bottom: 0; width: 100% !important; height: calc(var(--v) * 1%); border-radius: 23px; filter: none; opacity: .9; transition: height .6s cubic-bezier(.16, 1, .3, 1); }
+html.aura .need .need-shape { order: 1; width: 26px !important; height: 26px !important; }
+html.aura .need > span:not(.bar) { order: 2; }
+
+/* care: swipe through them, one line each */
+html.aura .acts { display: flex !important; grid-template-columns: none; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -18px; padding: 16px 18px 6px; scrollbar-width: none; }
+html.aura .acts::-webkit-scrollbar { display: none; }
+html.aura .act { flex: 0 0 auto; scroll-snap-align: start; padding: 14px 20px !important; border-radius: 999px !important; text-align: center; }
+html.aura .act b { font-size: 14px; font-weight: 500; }
+html.aura .act small { font-size: 11px; font-weight: 400; }
+html.aura .acts-out, html.aura .crew-out, html.aura .gain-out { text-align: center; font-weight: 400 !important; }
+
+/* primary actions glow with today's light; nothing else does */
+html.aura .crew-btn:not(.is-ink), html.aura .e-go { background: linear-gradient(120deg, var(--f1), var(--f2)) !important; color: #1E1A17; border-radius: 999px !important; font-weight: 500; box-shadow: 0 6px 18px -6px var(--f1) !important; }
+html.aura .crew-btn:disabled { background: rgba(38, 34, 30, .08) !important; box-shadow: none !important; color: var(--ink-3); opacity: 1; }
+
+/* the tab bar: icons only; the open tab names itself */
+html.aura .tabbar { inset-inline: 28px; height: 64px; padding: 6px; justify-content: space-between; border-radius: 32px; }
+html.aura .tabbar button { width: auto; min-width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; border-radius: 26px; transition: background .3s, padding .3s; }
+html.aura .tabbar button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+html.aura .tabbar button[aria-selected="true"] span { position: static; width: auto; height: auto; clip-path: none; font-size: 13px; font-weight: 500; }
+html.aura .tabbar button[aria-selected="true"] { padding: 0 18px; background: linear-gradient(120deg, var(--f1), var(--f2)); }
+html.aura .tabbar svg { width: 24px; height: 24px; }
+
+/* רווחה: the balance alone, a thin line to the next thing, tokens to earn, rewards to flip through */
+html.aura .gain-wallet { text-align: center; }
+html.aura .gain-bal { flex-direction: column; align-items: center; gap: 4px; }
+html.aura .gain-bal span { font-size: 12px; font-weight: 400; letter-spacing: .1em; color: var(--ink-2); }
+html.aura .gain-next { justify-items: center; }
+html.aura .gain-next .bar { width: 70%; height: 3px !important; overflow: visible; }
+html.aura .gain-next .bar i { position: relative; height: 3px; background: linear-gradient(90deg, var(--f2), var(--f1)) !important; filter: none; }
+html.aura .gain-next .bar i::after { content: ""; position: absolute; inset-inline-end: -6px; top: -4.5px; width: 12px; height: 12px; border-radius: 50%; background: var(--f1); box-shadow: 0 0 14px 4px var(--f2); }
+html.aura .gain-next p { font-size: 13px; }
+html.aura .ledger li { grid-template-columns: 1fr auto; text-align: start; border: 0 !important; padding: 8px 0; }
+html.aura .ledger .l-at { display: none; }
+html.aura .ledger .l-p { color: var(--ink); font-weight: 300; font-size: 20px; }
+html.aura .l-empty { text-align: center !important; }
+html.aura .earn { grid-template-columns: 1fr 1fr; gap: 26px 12px !important; padding-top: 18px; }
+html.aura .earn li { display: flex !important; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 0 !important; border: 0 !important; }
+html.aura .earn .e-p { order: -1; font-size: 34px; font-weight: 200; line-height: 1; }
+html.aura .earn .e-t { font-size: 13px; line-height: 1.3; }
+html.aura .earn .e-how { font-size: 11px; color: var(--ink-3); }
+html.aura .e-go { min-height: 32px; padding: 4px 16px; font-size: 12px; }
+html.aura .shop { display: flex !important; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -18px; padding: 16px 18px 10px !important; scrollbar-width: none; }
+html.aura .shop::-webkit-scrollbar { display: none; }
+html.aura .shop li { flex: 0 0 64%; scroll-snap-align: center; display: flex !important; flex-direction: column; justify-content: space-between; gap: 14px; min-height: 210px; padding: 20px !important; border: 0 !important; border-radius: 28px; background: rgba(255, 253, 249, .5); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+html.aura .shop .s-c { order: -1; text-align: start; font-size: 44px; font-weight: 200; line-height: 1; }
+html.aura .shop .s-c::after { content: " נק׳"; font-size: 12px; letter-spacing: .06em; color: var(--ink-2); }
+html.aura .shop .s-t { font-size: 15px; font-weight: 500; line-height: 1.3; }
+html.aura .shop .crew-btn { width: 100%; min-height: 40px; }
+html.aura .gain-fine { text-align: center; }
+html.aura .panel-h { text-align: center; }
+html.aura .stepper { border: 0 !important; box-shadow: none !important; background: var(--frost) !important; border-radius: 999px !important; }
+/* in a list, calling is a quiet pill; the glow is kept for the one thing a screen asks for */
+html.aura .mate-acts .crew-btn { background: var(--frost) !important; box-shadow: none !important; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }

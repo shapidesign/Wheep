@@ -13,11 +13,14 @@
   const haloOf = (c) => HALO[c] || '#F7C531';
   let gseq = 0;
   const auraSvg = (d, f, round, cls, attrs, dim = false) => {
-    const id = `au${++gseq}`, blur = (1.2 + Math.max(0, Math.min(1, round)) * 4.2).toFixed(2);
+    const id = `au${++gseq}`, r = Math.max(0, Math.min(1, round)), h = haloOf(f);
+    const glow = (1.2 + r * 3.6).toFixed(2), edge = (.12 + r * .5).toFixed(2), sc = (1.04 + r * .14).toFixed(3);
     return `<svg class="${cls} aura-orb" viewBox="0 0 48 48"${attrs}><defs>`
-      + `<radialGradient id="${id}g" cx="50%" cy="46%" r="58%"><stop offset="0" stop-color="${f}"/><stop offset=".58" stop-color="${f}"/><stop offset="1" stop-color="${haloOf(f)}"/></radialGradient>`
-      + `<filter id="${id}f" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${blur}"/></filter></defs>`
-      + `<path d="${d}" fill="url(#${id}g)" filter="url(#${id}f)"${dim ? ' opacity=".45"' : ''}/></svg>`;
+      + `<radialGradient id="${id}g" cx="40%" cy="36%" r="72%"><stop offset="0" stop-color="${h}"/><stop offset=".55" stop-color="${f}"/><stop offset="1" stop-color="${f}"/></radialGradient>`
+      + `<filter id="${id}h" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${glow}"/></filter>`
+      + `<filter id="${id}e" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${edge}"/></filter></defs>`
+      + `<g${dim ? ' opacity=".42"' : ''}><path d="${d}" fill="${h}" opacity="${(.35 + r * .3).toFixed(2)}" filter="url(#${id}h)" transform="translate(24 24) scale(${sc}) translate(-24 -24)"/>`
+      + `<path d="${d}" fill="url(#${id}g)" filter="url(#${id}e)"/></g></svg>`;
   };
   const rf = (arr) => { if (AURA) arr.forEach((x) => { x.fill = R(x.fill); }); return arr; };
   $$('[data-style]').forEach((b) => {
@@ -71,10 +74,10 @@
   const SHARP = { burst: 1, drop: .14, box: .3, bubble: .06, blob: .12, bean: .14, shiver: .22, flare: .3, sag: .16, recoil: .18, bloom: .14 };
   // silhouettes that are not centred on their own origin (the drop's tip, the bubble's tail)
   const OFF = { drop: .26, bubble: -.07, flare: .14, sag: -.2, recoil: 0 };
-  const polar = ({ round = 0, R = 20, cx = 24, cy = 24, n = 9, amp, k, tremble = 0, phase = 0, N = 180, base = 'burst' }) => {
+  const polar = ({ round = 0, R = 20, cx = 24, cy = 24, n = 9, amp, k, tremble = 0, phase = 0, N = 180, base = 'burst', lobes = 1 }) => {
     const B = BASE[base], S = SHARP[base];
     cy += (OFF[base] || 0) * R;
-    const A = (amp ?? lerp(.5, .07, round)) * S * (AURA ? .4 : 1), K = k ?? lerp(2.6, 1, round);
+    const A = (amp ?? lerp(.5, .07, round)) * S * (AURA ? .78 : 1), K = k ?? lerp(2.6, 1, round);
     const ph = AURA ? base.length * 1.37 + n * .41 : 0;   // each silhouette gets its own organic lobes
     let d = '';
     for (let j = 0; j < N; j++) {
@@ -84,7 +87,7 @@
       const w = lerp(tri ** K, soft, round);
       const spike = Math.floor((u + 1) / 2);
       const ang = -Math.PI / 2 + (j / N) * Math.PI * 2;
-      const lobe = AURA ? 1 + .11 * Math.sin(3 * ang + ph) + .06 * Math.sin(5 * ang + ph * 1.7) + .03 * Math.sin(2 * ang + ph * .6) : 1;
+      const lobe = AURA ? 1 + lobes * (.06 * Math.sin(3 * ang + ph) + .03 * Math.sin(5 * ang + ph * 1.7) + .02 * Math.sin(2 * ang + ph * .6)) : 1;
       const r = R * B(ang) * lobe * (1 - A * (1 - w)) * (1 + tremble * Math.sin(phase + spike * 1.9) * w);
       d += `${j ? 'L' : 'M'}${(cx + r * Math.cos(ang)).toFixed(2)} ${(cy + r * Math.sin(ang)).toFixed(2)}`;
     }
@@ -161,6 +164,7 @@
       } else if (!on) s2.hidden = true;
       $('.phone').classList.remove('is-scrolled');
       $('.phone').classList.toggle('on-today', name === 'today');
+      $('.phone').classList.toggle('on-profile', name === 'profile');
     });
     setFrame(curTarget());
     if (name === 'trends') drawTrends();
@@ -188,7 +192,7 @@
   let introTimers = [], morphRaf = 0;
   const PACE = Math.max(.2, +new URLSearchParams(location.search).get('pace') || 1);   // ?pace=2 slows the opening for film.html
   const setShape = (t) => {
-    const d = polar({ R: lerp(78, 88, t), cx: 100, cy: 100, n: 11, amp: .5 * t, k: 2.6, N: 264 });
+    const d = polar({ R: lerp(78, 88, t), cx: 100, cy: 100, n: 11, amp: .5 * t, k: 2.6, N: 264, lobes: t });
     shapeEl.setAttribute('d', d); $('#iw-sh').setAttribute('d', d);
     shapeEl.style.strokeDasharray = `${88 + 12 * t} 100`;   // the strain ring at 88% closes into a whole shape
   };
@@ -296,9 +300,10 @@
   };
   if (AURA) Object.entries(live).forEach(([k, L]) => {
     const svg = L.fg.ownerSVGElement;
-    svg.querySelector('defs').insertAdjacentHTML('beforeend', `<radialGradient id="${k}-ag" cx="50%" cy="46%" r="58%"><stop offset="0"/><stop offset=".6"/><stop offset="1"/></radialGradient><filter id="${k}-ab" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter>`);
+    svg.querySelector('defs').insertAdjacentHTML('beforeend', `<radialGradient id="${k}-ag" cx="40%" cy="36%" r="72%"><stop offset="0"/><stop offset=".6"/><stop offset="1"/></radialGradient><filter id="${k}-ab" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="14"/></filter><filter id="${k}-ae" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1"/></filter>`);
     L.gs = [...svg.querySelectorAll(`#${k}-ag stop`)]; L.blur = svg.querySelector(`#${k}-ab feGaussianBlur`);
-    L.fg.setAttribute('filter', `url(#${k}-ab)`); L.fg.style.fill = `url(#${k}-ag)`;
+    L.fg.setAttribute('filter', `url(#${k}-ae)`); L.fg.style.fill = `url(#${k}-ag)`;
+    L.sh.setAttribute('filter', `url(#${k}-ab)`); L.edge = svg.querySelector(`#${k}-ae feGaussianBlur`);
   });
   const heroTarget = () => Math.min(1, composite() + care());
   const H0 = composite();
@@ -317,8 +322,11 @@
       L.fg.setAttribute('fill', kbColor(L.cur));
       if (AURA) {                                          // the big orb: its edge dissolves as it rounds
         const c = kbColor(L.cur);
-        L.gs[0].setAttribute('stop-color', c); L.gs[1].setAttribute('stop-color', c); L.gs[2].setAttribute('stop-color', haloOf(c.startsWith('#') ? c : '') );
-        L.blur.setAttribute('stdDeviation', (6 + L.cur * 22).toFixed(1));
+        L.gs[0].setAttribute('stop-color', haloOf(R(['#FF5A36', '#FFD23F', '#3FC8F5'][Math.min(2, Math.round(L.cur * 2))]))); L.gs[1].setAttribute('stop-color', c); L.gs[2].setAttribute('stop-color', c);
+        L.blur.setAttribute('stdDeviation', (10 + L.cur * 22).toFixed(1));
+        L.edge.setAttribute('stdDeviation', (.6 + L.cur * 2.6).toFixed(2));
+        L.sh.style.fill = haloOf(R(['#FF5A36', '#FFD23F', '#3FC8F5'][Math.min(2, Math.round(L.cur * 2))]));
+        L.sh.style.transform = `scale(${(1.06 + L.cur * .12).toFixed(3)})`;
         const ph = $('.phone').style;                      // the light behind the screen follows the shape
         ph.setProperty('--f1', c); ph.setProperty('--f2', haloOf(c.startsWith('#') ? c : ''));
       }
@@ -469,7 +477,7 @@
     ['release', 'סרט שמבכה', '"השיר שלנו" · +35 שחרור', 35],
   ];
   const renderNeeds = () => {
-    $('#needs').innerHTML = NEEDS.map((x) => `<li class="need">${mini(x.v / 100, 'mini need-shape', false, '', x.fill, x.base, x.n)}<span>${x.name}</span><span class="bar"><i style="width:${x.v}%;background:${x.fill}"></i></span><b class="num">${x.v}</b></li>`).join('');
+    $('#needs').innerHTML = NEEDS.map((x) => `<li class="need" style="--v:${x.v}">${mini(x.v / 100, 'mini need-shape', false, '', x.fill, x.base, x.n)}<span>${x.name}</span><span class="bar"><i style="width:${x.v}%;background:${x.fill}"></i></span><b class="num">${x.v}</b></li>`).join('');
   };
   $('#acts').innerHTML = ACTS.map(([id, t, sub], i) => `<button type="button" class="act" data-i="${i}"><b>${t}</b><small>${sub}</small></button>`).join('');
   $('#acts').addEventListener('click', (e) => {
@@ -587,11 +595,13 @@
     ['כל ירידה של 25 ב-MPL', 10, 'נמדד אוטומטית'],
   ];
   const SHOP = [
-    { t: 'כרטיס זוגי לסרט שמבכה', c: 300 },
-    { t: '10% הנחה בפרמיה החודשית', c: 500 },
-    { t: 'ארוחת ערב עם אבא · הקופה משלמת', c: 600 },
-    { t: 'שעה עם מטפל', c: 800 },
-    { t: 'יום חופש רגשי מהעבודה', c: 1200 },
+    { t: 'ערב זוגי · מסעדה לשניים', c: 300, n: 'שולחן שקט, בלי מסך' },
+    { t: 'סדנת שליטה בכעסים · 4 מפגשים', c: 400, n: `לפי המדבקה: ${METRICS.find((m) => m.id === 'anger').sub.match(/\d+/)[0]} כעסים נשארו בפנים היום` },
+    { t: 'מנוי חודשי ליוגה או לבריכה', c: 450, n: 'תנועה: 45 מתוך 100 היום' },
+    { t: 'מפגש עם מטפל · 50 דק׳', c: 500, n: 'מהרשימה של קופת רווחה, בלי הפניה' },
+    { t: 'סדנת זוגיות · לדבר בלי לנצח', c: 650, n: 'ערב אחד, שניכם' },
+    { t: 'עיסוי זוגי', c: 700, n: '60 דק׳ · שתי מיטות' },
+    { t: 'יום חופש מהעבודה, בלי להסביר', c: 1200, n: 'המעסיק מקבל אישור, לא סיבה' },
   ];
   const clock = () => { const n = new Date(); return `${n.getHours()}:${String(n.getMinutes()).padStart(2, '0')}`; };
   const renderGain = () => {
@@ -605,7 +615,7 @@
       ? GAIN.led.map(([t, p, at]) => `<li><span class="num l-at">${at}</span><span class="l-t">${t}</span><b class="num l-p">+${p}</b></li>`).join('')
       : '<li class="l-empty">עוד לא הרווחת היום. 12 ימים בלי בכי לא שווים נקודות.</li>';
     $('#earn').innerHTML = EARN.map(([t, p, how]) => `<li><span class="e-t">${t}</span><b class="num e-p">+${p}</b>${['talk', 'group', 'care'].includes(how) ? `<button type="button" class="crew-btn e-go" data-earn="${how}">${how === 'group' ? 'לפתוח' : how === 'talk' ? 'להתקשר' : 'לטפל'}</button>` : `<span class="e-how">${how}</span>`}</li>`).join('');
-    $('#shop').innerHTML = SHOP.map((x, i) => `<li class="${x.done ? 'is-done' : ''}"><span class="s-t">${x.t}</span><span class="num s-c">${x.c}</span><button type="button" class="crew-btn" data-buy="${i}" ${x.done || x.c > GAIN.bal ? 'disabled' : ''}>${x.done ? 'מומש' : 'לממש'}</button></li>`).join('');
+    $('#shop').innerHTML = SHOP.map((x, i) => `<li class="${x.done ? 'is-done' : ''}"><span class="s-t">${x.t}<small>${x.n}</small></span><span class="num s-c">${x.c}</span><button type="button" class="crew-btn" data-buy="${i}" ${x.done || x.c > GAIN.bal ? 'disabled' : ''}>${x.done ? 'מומש' : 'לממש'}</button></li>`).join('');
   };
   const earn = (t, pts) => { GAIN.bal = Math.min(5000, GAIN.bal + pts); GAIN.led.unshift([t, pts, clock()]); renderGain(); };
   $('#screen-gain').addEventListener('click', (e) => {
