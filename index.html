@@ -5,8 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0A0E2E">
 <title>WHEEP · תחזית רגשית</title>
-<link rel="stylesheet" href="style.css?v=24">
-<link rel="stylesheet" href="brutal.css?v=24">
+<link rel="stylesheet" href="style.css?v=25">
+<link rel="stylesheet" href="brutal.css?v=25">
+<link rel="stylesheet" href="riso.css?v=25">
+<script>
+  // ?style=riso or the switch on the caption; remembered between visits
+  (() => { const q = new URLSearchParams(location.search).get('style'); if (q) localStorage.setItem('wheepStyle', q);
+    if ((q || localStorage.getItem('wheepStyle')) === 'riso') document.documentElement.classList.add('riso'); })();
+</script>
 </head>
 <body>
 
@@ -15,6 +21,7 @@
   <p class="exhibit-line">אבטיפוס ספקולטיבי · דצמבר 2026</p>
   <p class="exhibit-text">בלילה של 1 בדצמבר 2026, הצורך הגברי להוכיח את עצמו נמחק. שבועיים אחרי, ככה נראה הבוקר.</p>
   <p class="exhibit-fine">הנתונים, האנשים וקופת רווחה באפליקציה בדיוניים.</p>
+  <div class="style-switch" role="group" aria-label="סגנון תצוגה"><button type="button" data-style="brutal">ניאו-ברוטליסטי</button><button type="button" data-style="riso">ריסו · גזירות נייר</button></div>
 </aside>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -378,6 +385,6 @@
   </div>
 </div>
 
-<script src="app.js?v=24"></script>
+<script src="app.js?v=25"></script>
 </body>
 </html>

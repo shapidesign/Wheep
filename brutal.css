@@ -21,6 +21,7 @@
   --c-pink: #FF7AC6;
   --c-green: #3DDC97;
   --bw: 2.5px;
+  --plate: var(--ink);
   --sh: 4px 4px 0 var(--ink);
   --sh-sm: 3px 3px 0 var(--ink);
   --r: 14px;
@@ -564,3 +565,8 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 .panel, .metric, .alert, .stats div, .mate, .act, .person, .talk, .tabbar button, .emo-pick button, .crew-btn, .ts-lines button, .records, .device-card {
   transition: box-shadow .5s var(--ease), border-radius .5s var(--ease), border-width .5s var(--ease);
 }
+
+/* style switch on the exhibit caption (desktop presentation only) */
+.style-switch { display: flex; gap: 8px; margin-top: 22px; }
+.style-switch button { padding: 8px 14px; font-size: 14px; font-weight: 700; color: var(--ink); background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; box-shadow: 3px 3px 0 var(--ink); }
+.style-switch button[aria-pressed="true"] { background: var(--c-yellow); }
