@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0A0E2E">
 <title>WHEEP · תחזית רגשית</title>
-<link rel="stylesheet" href="style.css?v=29">
-<link rel="stylesheet" href="brutal.css?v=29">
-<link rel="stylesheet" href="aura.css?v=29">
+<link rel="stylesheet" href="style.css?v=30">
+<link rel="stylesheet" href="brutal.css?v=30">
+<link rel="stylesheet" href="aura.css?v=30">
 <script>
   // ?style=aura or the switch on the caption; remembered between visits
   (() => { const q = new URLSearchParams(location.search).get('style'); if (q) localStorage.setItem('wheepStyle', q);
@@ -233,6 +233,11 @@
           </ul>
         </section>
 
+        <section class="panel perks" aria-labelledby="perks-h">
+          <div class="panel-row"><h2 class="panel-h" id="perks-h">ההטבות שלי</h2><span class="panel-meta num" id="perks-n"></span></div>
+          <ul class="my-perks" id="my-perks" aria-live="polite"></ul>
+        </section>
+
         <section class="panel device-card" aria-labelledby="dev-h">
           <svg class="patch" viewBox="0 0 120 80" aria-hidden="true">
             <defs><radialGradient id="g-patch" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#9FE9FF" stop-opacity=".55"/><stop offset="1" stop-color="#5B7CF7" stop-opacity=".15"/></radialGradient></defs>
@@ -367,6 +372,6 @@
   </div>
 </div>
 
-<script src="app.js?v=29"></script>
+<script src="app.js?v=30"></script>
 </body>
 </html>

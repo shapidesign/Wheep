@@ -248,3 +248,13 @@ html.aura .panel-h { text-align: center; }
 html.aura .stepper { border: 0 !important; box-shadow: none !important; background: var(--frost) !important; border-radius: 999px !important; }
 /* in a list, calling is a quiet pill; the glow is kept for the one thing a screen asks for */
 html.aura .mate-acts .crew-btn { background: var(--frost) !important; box-shadow: none !important; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+
+/* v6 micro-interactions in light: the points are a small glowing bead, not a sticker */
+html.aura .fly-pts { border: 0; box-shadow: 0 0 22px 6px var(--f2); background: linear-gradient(120deg, var(--f1), var(--f2)); color: #1E1A17; font-weight: 500; }
+html.aura .is-stamped { animation-name: stamped-aura; }
+@keyframes stamped-aura { 30% { transform: scale(.95); box-shadow: 0 0 40px 10px rgba(79, 203, 138, .45); } }
+html.aura .is-new { animation-name: is-new-aura; }
+@keyframes is-new-aura { from { opacity: 0; transform: translateY(-10px); filter: blur(6px); } }
+html.aura .p-code { border: 0; background: var(--frost); border-radius: 999px; font-weight: 400; }
+html.aura .my-perks li { border-bottom: 1px solid var(--hair); }
+html.aura .acts .act:last-child:nth-child(odd) { grid-column: auto; }

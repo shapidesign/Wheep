@@ -3,6 +3,28 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ── micro-interactions: everything that changes says so, briefly ── */
+  const fx = (el, cls) => { if (!el || reduced) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); el.addEventListener('animationend', () => el.classList.remove(cls), { once: true }); };
+  const countTo = (el, from, to, ms = 700) => {
+    if (!el) return;
+    if (reduced || from === to) { el.textContent = to.toLocaleString('he-IL'); return; }
+    const t0 = performance.now();
+    const step = (t) => { const k = Math.min(1, (t - t0) / ms), e = 1 - (1 - k) ** 4; el.textContent = Math.round(from + (to - from) * e).toLocaleString('he-IL'); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  };
+  // the points fly from where they were earned to the רווחה tab
+  const flyPts = (txt, from) => {
+    if (reduced) return;
+    const ph = document.querySelector('.phone'), box = ph.getBoundingClientRect(), sc = box.width / ph.offsetWidth || 1;
+    const tab = document.querySelector('#tab-gain'), src = (from && from.offsetParent ? from : tab).getBoundingClientRect(), dst = tab.getBoundingClientRect();
+    const el = document.createElement('span');
+    el.className = 'fly-pts num'; el.textContent = txt;
+    el.style.left = `${(src.left + src.width / 2 - box.left) / sc}px`; el.style.top = `${(src.top + src.height / 2 - box.top) / sc}px`;
+    el.style.setProperty('--dx', `${(dst.left + dst.width / 2 - src.left - src.width / 2) / sc}px`);
+    el.style.setProperty('--dy', `${(dst.top + dst.height / 2 - src.top - src.height / 2) / sc}px`);
+    ph.appendChild(el);
+    el.addEventListener('animationend', () => ph.removeChild(el), { once: true });
+  };
   // AURA: the same app as light, not ink. Every shape is a blurred gradient orb on cream;
   // the sharper (kiki) a shape is, the crisper its edge; the rounder (bouba), the more it dissolves into the page.
   const AURA = document.documentElement.classList.contains('aura');
@@ -283,11 +305,13 @@
   ]);
   const composite = () => METRICS.reduce((n, m) => n + m.round(), 0) / METRICS.length;
   const renderMetrics = () => {
+    const prevVals = $$('#metric-grid .metric b').map((b) => b.textContent);
     $('#metric-grid').innerHTML = METRICS.map((m) => `
       <li class="metric">${mini(m.round(), 'mini metric-shape', false, '', m.fill, m.base, m.n, true)}
         <b class="num">${m.val()}</b><span class="m-name">${m.name}</span><small>${m.sub}</small></li>`).join('');
+    if (prevVals.length) $$('#metric-grid .metric').forEach((li, i) => { if (li.querySelector('b').textContent !== prevVals[i]) fx(li, 'is-up'); });
     const m = liveMpl();
-    if (Math.round(shapeDay) === TODAY) { $('#hero-mpl').textContent = m; $('#hero-shape').setAttribute('aria-label', `הצורה של היום: ${stateWord(heroTarget())}, MPL ${m}`); }
+    if (Math.round(shapeDay) === TODAY) { countTo($('#hero-mpl'), +$('#hero-mpl').textContent || m, m); $('#hero-shape').setAttribute('aria-label', `הצורה של היום: ${stateWord(heroTarget())}, MPL ${m}`); }
     setFrame(curTarget());
     // every 25 MPL let go of is worth 10 points
     if (m <= lastMpl - 25) { const steps = Math.floor((lastMpl - m) / 25); earn(`MPL ירד ב-${steps * 25}`, steps * 10); lastMpl -= steps * 25; }
@@ -458,7 +482,7 @@
       NEEDS[0].v = Math.min(100, NEEDS[0].v + 30);
       // a long talk rounds the people on it too: the friend, or the whole crew
       (who.group ? CREW : CREW.filter((f) => f.id === who.id)).forEach((f) => { f.r = Math.min(1, f.r + .15); });
-      earn(who.group ? `שיחה קבוצתית · ${mins} דק׳` : `שיחה עם ${who.name} · ${mins} דק׳`, who.group ? 40 : 30);
+      earn(who.group ? `שיחה קבוצתית · ${mins} דק׳` : `שיחה עם ${who.name} · ${mins} דק׳`, who.group ? 40 : 30, $('#call-end'));
       $('#call-out').textContent += ` +${who.group ? 40 : 30} נקודות רווחה.`;
       renderMetrics(); renderNeeds(); renderCrew();
     } else {
@@ -474,21 +498,32 @@
     ['talk', 'להתקשר לעידו', '20 דק׳ · +30 שיחה', 30],
     ['move', 'הליכה בלי אוזניות', '20 דק׳ · +25 תנועה', 25],
     ['sleep', 'לישון ב-23:00', 'הלילה · +30 שינה', 30],
-    ['release', 'סרט שמבכה', '"השיר שלנו" · +35 שחרור', 35],
   ];
   const renderNeeds = () => {
-    $('#needs').innerHTML = NEEDS.map((x) => `<li class="need" style="--v:${x.v}">${mini(x.v / 100, 'mini need-shape', false, '', x.fill, x.base, x.n)}<span>${x.name}</span><span class="bar"><i style="width:${x.v}%;background:${x.fill}"></i></span><b class="num">${x.v}</b></li>`).join('');
+    const ul = $('#needs');
+    if (ul.children.length) {
+      NEEDS.forEach((x, i) => {
+        const li = ul.children[i], num = li.querySelector('b');
+        if (+num.textContent === x.v) return;
+        li.style.setProperty('--v', x.v); li.querySelector('.bar i').style.width = `${x.v}%`;
+        li.querySelector('.need-shape').outerHTML = mini(x.v / 100, 'mini need-shape', false, '', x.fill, x.base, x.n);
+        countTo(num, +num.textContent, x.v); fx(li, 'is-up');
+      });
+      return;
+    }
+    ul.innerHTML = NEEDS.map((x) => `<li class="need" style="--v:${x.v}">${mini(x.v / 100, 'mini need-shape', false, '', x.fill, x.base, x.n)}<span>${x.name}</span><span class="bar"><i style="width:${x.v}%;background:${x.fill}"></i></span><b class="num">${x.v}</b></li>`).join('');
   };
   $('#acts').innerHTML = ACTS.map(([id, t, sub], i) => `<button type="button" class="act" data-i="${i}"><b>${t}</b><small>${sub}</small></button>`).join('');
   $('#acts').addEventListener('click', (e) => {
     const b = e.target.closest('.act'); if (!b) return;
     const [id, t, , add] = ACTS[+b.dataset.i];
+    fx(b, 'is-pressed');
     if (id === 'talk') return openSheet('ido');               // the talk is a real call, counted only if it is long
     const need = NEEDS.find((x) => x.id === id);
     need.v = Math.min(100, need.v + add);
     renderNeeds(); renderMetrics();
     const low = NEEDS.slice().sort((a, c) => a.v - c.v)[0];
-    earn(t, 15);
+    earn(t, 15, b);
     $('#acts-out').textContent = `${t} · נרשם, +15 נקודות. הוא התעגל קצת. הכי חסר לו עכשיו: ${low.name}.`;
   });
   renderNeeds();
@@ -617,7 +652,13 @@
     $('#earn').innerHTML = EARN.map(([t, p, how]) => `<li><span class="e-t">${t}</span><b class="num e-p">+${p}</b>${['talk', 'group', 'care'].includes(how) ? `<button type="button" class="crew-btn e-go" data-earn="${how}">${how === 'group' ? 'לפתוח' : how === 'talk' ? 'להתקשר' : 'לטפל'}</button>` : `<span class="e-how">${how}</span>`}</li>`).join('');
     $('#shop').innerHTML = SHOP.map((x, i) => `<li class="${x.done ? 'is-done' : ''}"><span class="s-t">${x.t}<small>${x.n}</small></span><span class="num s-c">${x.c}</span><button type="button" class="crew-btn" data-buy="${i}" ${x.done || x.c > GAIN.bal ? 'disabled' : ''}>${x.done ? 'מומש' : 'לממש'}</button></li>`).join('');
   };
-  const earn = (t, pts) => { GAIN.bal = Math.min(5000, GAIN.bal + pts); GAIN.led.unshift([t, pts, clock()]); renderGain(); };
+  const earn = (t, pts, from) => {
+    const was = GAIN.bal;
+    GAIN.bal = Math.min(5000, GAIN.bal + pts); GAIN.led.unshift([t, pts, clock()]); renderGain();
+    countTo($('#gain-bal'), was, GAIN.bal);
+    flyPts(`+${pts}`, from);
+    fx($('#tab-gain'), 'is-bump'); fx($('#ledger li'), 'is-new');
+  };
   $('#screen-gain').addEventListener('click', (e) => {
     const g = e.target.closest('[data-earn]');
     if (g) {
@@ -629,10 +670,24 @@
     const b = e.target.closest('[data-buy]'); if (!b) return;
     const x = SHOP[+b.dataset.buy];
     if (x.done || x.c > GAIN.bal) return;
-    GAIN.bal -= x.c; x.done = true; renderGain();
-    $('#gain-out').textContent = `מומש: ${x.t}. הקוד נשלח לקופת רווחה, שתעדכן את המעסיק שלך.`;
+    const was = GAIN.bal;
+    GAIN.bal -= x.c; x.done = true; x.code = `WHP-${1000 + Math.floor(Math.random() * 9000)}`; x.at = clock();
+    renderGain(); renderPerks();
+    countTo($('#gain-bal'), was, GAIN.bal);
+    fx($(`#shop [data-buy="${SHOP.indexOf(x)}"]`).closest('li'), 'is-stamped');
+    flyPts(`−${x.c}`, b);
+    $('#gain-out').textContent = `מומש: ${x.t}. הקוד ${x.code} נשלח לקופת רווחה, שתעדכן את המעסיק שלך. נשמר ב"ההטבות שלי" בפרופיל.`;
   });
-  renderGain();
+  // the profile keeps what he redeemed
+  const renderPerks = () => {
+    const mine = SHOP.filter((x) => x.done);
+    $('#my-perks').innerHTML = mine.length
+      ? mine.map((x) => `<li><span class="p-t">${x.t}<small>מומש היום ב-<span class="num">${x.at}</span> · בתוקף עד <span class="num">31.1.2027</span></small></span><b class="num p-code">${x.code}</b></li>`).join('')
+      : '<li class="p-empty">עוד לא מימשת כלום. <button type="button" class="link-btn" data-go="gain">לרווחה</button></li>';
+    $('#perks-n').textContent = mine.length ? `${mine.length}` : '';
+  };
+  $('#my-perks').addEventListener('click', (e) => { if (e.target.closest('[data-go]')) show('gain'); });
+  renderGain(); renderPerks();
 
   /* ── trends ── */
   // 16.11 → 15.12 (i = 0…29). Dry since a cry on 14.11, one cry on 3.12 (i = 17), rising every day since.
