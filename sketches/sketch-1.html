@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>סקיצה 1 · האפליקציה מוותרת</title>
+<style>
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductThin.otf) format('opentype'); font-weight: 200; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductRegular.otf) format('opentype'); font-weight: 400; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductBold.otf) format('opentype'); font-weight: 700; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductHeavy.otf) format('opentype'); font-weight: 900; }
+:root {
+  --ink: #121212; --ink-2: #4A4A55; --ground: #E4DBFF; --panel: #FFFFFF;
+  --yellow: #FFD23F; --red: #FF5A36; --cyan: #3FC8F5; --pink: #FF7AC6; --violet: #9B6BFF; --green: #3DDC97;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  /* r = release, 0 → 1. The whole interface reads it. */
+  --r: 0;
+  --bw: calc(3px - var(--r) * 3px);
+  --sh: calc(6px - var(--r) * 6px);
+  --rad: calc(12px + var(--r) * 30px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Leon, system-ui, sans-serif; color: var(--ink); background: #D9D2EE; min-height: 100vh; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 40px; padding: 24px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.num { font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
+
+/* ── the presenter's side ── */
+.notes { justify-self: end; max-width: 300px; display: grid; gap: 14px; }
+.notes h1 { font-size: 40px; font-weight: 900; line-height: 1; }
+.notes .sub { margin-top: -6px; font-size: 22px; font-weight: 700; }
+.notes p { font-size: 16px; line-height: 1.5; }
+.notes ol { list-style: none; display: grid; gap: 8px; font-size: 14px; color: var(--ink-2); }
+.notes ol li { padding-inline-start: 14px; position: relative; transition: color .3s; }
+.notes ol li::before { content: ""; position: absolute; inset-inline-start: 0; top: .55em; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.notes ol li.is-on { color: var(--ink); font-weight: 700; }
+.ctrl { justify-self: start; display: grid; gap: 12px; width: 240px; }
+.ctrl label { font-size: 14px; font-weight: 700; }
+.ctrl input { width: 100%; accent-color: var(--ink); }
+.ctrl .rv { font-size: 40px; font-weight: 200; }
+.ctrl button { min-height: 40px; border: 2px solid var(--ink); background: var(--panel); border-radius: 12px; font-weight: 700; box-shadow: 3px 3px 0 var(--ink); }
+.ctrl button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+
+/* ── the phone ── */
+.phone { position: relative; width: 390px; height: 844px; border-radius: 56px; background: var(--ink); padding: 12px; box-shadow: calc(var(--sh) * 1.6) calc(var(--sh) * 1.6) 0 rgba(18, 18, 18, .9); transition: box-shadow .8s var(--ease); }
+.screen { position: relative; height: 100%; border-radius: 44px; overflow: hidden; background: var(--ground); transition: background 1.2s var(--ease); }
+.phone[data-stage="4"] .screen { background: #F3EFFF; }
+.statusbar { position: absolute; top: 14px; inset-inline: 28px; display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; z-index: 3; direction: ltr; }
+.scroll { position: absolute; inset: 0; overflow: auto; padding: 56px 18px 130px; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+
+/* every piece of interface knows when it is no longer needed: it collapses, loses its colour, then its place */
+.gone { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .9s var(--ease), opacity .6s var(--ease), filter .6s var(--ease), margin .9s var(--ease); }
+.gone > * { min-height: 0; overflow: hidden; }
+.gone.is-gone { grid-template-rows: 0fr; opacity: 0; filter: blur(6px) grayscale(1); margin-block: 0 !important; pointer-events: none; }
+.fading { transition: opacity .8s var(--ease), filter .8s var(--ease); }
+.fading.is-faded { opacity: .35; filter: grayscale(1); }
+
+.card { background: var(--panel); border: var(--bw) solid var(--ink); border-radius: var(--rad); box-shadow: var(--sh) var(--sh) 0 var(--ink); padding: 14px 16px; transition: border-radius .8s var(--ease), box-shadow .8s var(--ease), border-width .8s var(--ease); }
+
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.title { font-size: 40px; font-weight: 900; line-height: 1; padding: 2px 10px 6px; background: var(--yellow); border: var(--bw) solid var(--ink); border-radius: 12px; box-shadow: var(--sh) var(--sh) 0 var(--ink); rotate: calc(-2deg + var(--r) * 2deg); transition: all .8s var(--ease); }
+.date { font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.stars { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 14px; font-weight: 700; background: var(--green); border: 2px solid var(--ink); border-radius: 999px; }
+
+.alert { margin-top: 16px; background: var(--yellow); }
+.alert b { font-size: 16px; }
+.alert p { font-size: 14px; margin-top: 4px; line-height: 1.4; }
+
+.hero { margin-top: 10px; text-align: center; }
+.hero svg { width: 270px; height: 270px; overflow: visible; display: block; margin: 0 auto; }
+.hero svg path.sh { fill: var(--ink); transform: translate(calc(var(--sh) * 1.2), calc(var(--sh) * 1.2)); transition: transform .8s var(--ease); }
+.hero svg path.fg { stroke: var(--ink); stroke-width: calc(3.5px - var(--r) * 2px); stroke-linejoin: round; }
+.readout { position: relative; height: 92px; margin-top: 8px; }
+.readout > * { position: absolute; inset-inline: 0; transition: opacity .8s var(--ease), filter .8s var(--ease), translate .8s var(--ease); }
+.readout .mpl { display: flex; justify-content: center; align-items: baseline; gap: 8px; }
+.readout .mpl b { font-size: 76px; font-weight: 900; line-height: 1; letter-spacing: -.02em; }
+.readout .mpl span { font-size: 18px; font-weight: 700; color: var(--ink-2); }
+.readout .word { font-size: 30px; font-weight: 700; line-height: 1.2; padding-top: 18px; }
+.readout .quiet { font-size: 22px; font-weight: 400; line-height: 1.4; padding-top: 8px; }
+.readout .off { opacity: 0; filter: blur(8px); translate: 0 10px; pointer-events: none; }
+
+.grid { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid li { display: grid; grid-template-columns: 40px 1fr; grid-template-areas: "s v" "s n"; column-gap: 10px; align-items: center; }
+.grid svg { grid-area: s; width: 40px; height: 40px; overflow: visible; }
+.grid b { grid-area: v; font-size: 26px; font-weight: 900; line-height: 1; }
+.grid span { grid-area: n; font-size: 13px; color: var(--ink-2); }
+.grid b.is-word { font-size: 15px; font-weight: 700; }
+
+.acts { display: grid; gap: 10px; }
+.acts h2, .sec-h { font-size: 15px; font-weight: 900; }
+.act { display: flex; justify-content: space-between; align-items: center; gap: 10px; text-align: start; width: 100%; min-height: 54px; padding: 10px 16px; background: var(--panel); border: var(--bw) solid var(--ink); border-radius: var(--rad); box-shadow: var(--sh) var(--sh) 0 var(--ink); transition: all .8s var(--ease); }
+.act small { font-size: 12px; color: var(--ink-2); }
+.act:active { transform: translate(2px, 2px); }
+.act.is-done { opacity: .4; pointer-events: none; text-decoration: line-through; }
+
+.end { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 10px; padding: 40px; opacity: 0; pointer-events: none; transition: opacity 1.4s var(--ease) .6s; }
+.end p { font-size: 13px; color: var(--ink-2); }
+.phone[data-stage="4"] .end { opacity: 1; }
+
+.tabbar { position: absolute; inset-inline: 0; bottom: 0; height: 96px; padding: 10px 14px 24px; display: flex; justify-content: space-around; align-items: center; background: var(--panel); border-top: var(--bw) solid var(--ink); transition: translate 1s var(--ease), opacity 1s var(--ease); }
+.tabbar span { display: grid; justify-items: center; gap: 4px; font-size: 12px; color: var(--ink-2); transition: opacity .6s var(--ease), width .6s var(--ease); }
+.tabbar svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.tabbar span.is-gone { opacity: 0; width: 0; overflow: hidden; }
+.tabbar.is-gone { translate: 0 110%; opacity: 0; }
+
+.toast { position: absolute; top: 52px; inset-inline: 18px; z-index: 5; padding: 10px 14px; font-size: 13px; font-weight: 700; background: var(--ink); color: #fff; border-radius: 14px; opacity: 0; translate: 0 -10px; transition: all .4s var(--ease); pointer-events: none; }
+.toast.is-on { opacity: 1; translate: 0 0; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (max-width: 1100px) { body { grid-template-columns: 1fr; justify-items: center; } .notes, .ctrl { justify-self: center; } }
+@media (max-width: 500px) { body { padding: 0; display: block; } .notes, .ctrl { display: none; } .phone { width: 100vw; height: 100dvh; border-radius: 0; padding: 0; box-shadow: none; } .screen { border-radius: 0; } }
+</style>
+</head>
+<body>
+
+<aside class="notes" aria-label="על הסקיצה">
+  <h1>סקיצה 1</h1>
+  <p class="sub">האפליקציה מוותרת</p>
+  <p>ככל שהוא משחרר, WHEEP מוריד מעצמו פיצ'רים. הצלחה = אפליקציה שלא צריך. ההפך מכל אפליקציה שבנויה על חזרה יומית.</p>
+  <ol id="stages">
+    <li data-s="0">כל המדידה: התראה, מספר, כוכבים, 5 טאבים</li>
+    <li data-s="1">ההתראה נמחקת. המספרים הקטנים הופכים למילים</li>
+    <li data-s="2">ה-MPL הופך למילה. הכוכבים מאבדים צבע. הטאבים מתמעטים</li>
+    <li data-s="3">אין תפריט. אין מספרים. נשארה רק הצורה ודבר אחד לעשות</li>
+    <li data-s="4">"אין מה למדוד היום."</li>
+  </ol>
+</aside>
+
+<div class="phone" id="phone" data-stage="0">
+  <div class="screen">
+    <div class="statusbar" aria-hidden="true"><span class="num">9:41</span><span>WHEEP</span></div>
+    <div class="toast" id="toast" role="status"></div>
+    <div class="scroll">
+
+      <header class="head">
+        <div class="gone" data-until="3"><div><h1 class="title">היום</h1></div></div>
+        <div class="gone" data-until="2"><div><span class="stars fading" data-fade="2"><span class="num" id="stars">340</span> כוכבים</span></div></div>
+      </header>
+      <div class="gone" data-until="3"><div><p class="date">ג׳ <span class="num">15.12</span> · תל אביב-יפו</p></div></div>
+
+      <div class="gone" data-until="1" style="margin-top:16px"><div>
+        <div class="card alert"><b>אזהרת לחץ גבוה · קופת רווחה</b><p>אף אחד מארבעת המדדים לא השתחרר מאז 3 בדצמבר.</p></div>
+      </div></div>
+
+      <section class="hero">
+        <svg viewBox="-12 -12 344 344" role="img" aria-label="הצורה של היום"><path class="sh" id="sh"/><path class="fg" id="fg"/></svg>
+        <div class="readout" aria-live="polite">
+          <p class="mpl" data-show="0,1"><b class="num" id="mpl">775</b><span>MPL</span></p>
+          <p class="word off" data-show="2">הלחץ ירד.</p>
+          <p class="quiet off" data-show="3">עוד משהו אחד, אם בא לך.</p>
+        </div>
+      </section>
+
+      <div class="gone" data-until="3" style="margin-top:14px"><div>
+        <ul class="grid card" id="grid"></ul>
+      </div></div>
+
+      <section class="acts" style="margin-top:18px">
+        <div class="gone" data-until="3"><div><h2>לשחרר עכשיו</h2></div></div>
+        <div id="acts" class="acts"></div>
+      </section>
+    </div>
+
+    <div class="end" aria-live="polite">
+      <p class="num">15.12.2026</p>
+      <h2 style="font-size:28px;font-weight:700">אין מה למדוד היום.</h2>
+      <p>WHEEP לא ישלח התראות עד מחר בבוקר.</p>
+    </div>
+
+    <nav class="tabbar" id="tabbar" aria-label="ניווט">
+      <span data-tab="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2"/></svg>היום</span>
+      <span data-tab="1"><svg viewBox="0 0 24 24"><path d="M5 19.5v-15h6a3.5 3.5 0 0 1 3.5 3.5v6.5"/><path d="M19 4.5v15h-6a3.5 3.5 0 0 1-3.5-3.5V9.5"/></svg>רווחה</span>
+      <span data-tab="2"><svg viewBox="0 0 24 24"><path d="M12 3l8.5 6.2-3.2 10H6.7L3.5 9.2z"/></svg>רגשות</span>
+      <span data-tab="3"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.25"/><path d="M3 19.5c.7-3.2 3-5 6-5s5.3 1.8 6 5"/></svg>החבר'ה</span>
+      <span data-tab="4"><svg viewBox="0 0 24 24"><path d="M3.75 20.25h16.5"/><path d="M4.75 15.5l4.5-4.25 3.75 2.75 5.5-6.5"/></svg>מגמות</span>
+    </nav>
+  </div>
+</div>
+
+<div class="ctrl" aria-label="שליטה למציג">
+  <label for="rel">שחרור · 0 עד 100</label>
+  <p class="rv num" id="rv">0</p>
+  <input type="range" id="rel" min="0" max="100" value="0">
+  <button type="button" id="reset">מההתחלה</button>
+</div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  // the WHEEP outline: spikes while held in, a soft blob when let out
+  const polar = (round, R, c, n, tremble = 0, phase = 0) => {
+    let d = ''; const N = 240, A = lerp(.5, .06, round), K = lerp(2.6, 1, round);
+    for (let j = 0; j < N; j++) {
+      const u = (j / N) * n * 2, tri = Math.abs((u % 2) - 1), soft = (Math.cos(Math.PI * u) + 1) / 2;
+      const w = lerp(tri ** K, soft, round), ang = -Math.PI / 2 + (j / N) * Math.PI * 2;
+      const r = R * (1 - A * (1 - w)) * (1 + tremble * Math.sin(phase + Math.floor((u + 1) / 2) * 1.9) * w);
+      d += `${j ? 'L' : 'M'}${(c + r * Math.cos(ang)).toFixed(1)} ${(c + r * Math.sin(ang)).toFixed(1)}`;
+    }
+    return d + 'Z';
+  };
+  const KB = [[255, 90, 54], [255, 210, 63], [63, 200, 245]];
+  const kb = (t) => { t = Math.max(0, Math.min(1, t)) * 2; const i = Math.min(1, Math.floor(t)), f = t - i; return `rgb(${KB[i].map((x, k) => Math.round(x + (KB[i + 1][k] - x) * f))})`; };
+
+  const M = [
+    { name: 'בכי', fill: '#3FC8F5', v: () => (rel > .3 ? 'יצא' : '0'), n: 7 },
+    { name: 'כעס שנאמר', fill: '#FF5A36', v: () => (rel > .3 ? 'נאמר' : '1/3'), n: 9 },
+    { name: 'הדחקות', fill: '#9B6BFF', v: () => (rel > .3 ? 'פחות' : '9'), n: 8 },
+    { name: 'שיחות עומק', fill: '#FF7AC6', v: () => (rel > .3 ? 'היתה' : '4'), n: 6 },
+  ];
+  const ACTS = [
+    ['להתקשר לעידו', '22 דק׳ · שיחת עומק', .3],
+    ['לבכות ברמזור', 'לא צריך סיבה', .3],
+    ['להגיד לאבא שזה הרגיז אותך', 'כעס שנאמר', .25],
+    ['ללכת לישון', 'לא לבדוק את האפליקציה', .3],
+  ];
+  let rel = 0, cur = 0, stars = 340;
+  const stageOf = (r) => (r >= .98 ? 4 : r >= .7 ? 3 : r >= .45 ? 2 : r >= .2 ? 1 : 0);
+
+  const mini = (round, fill, n) => { const d = polar(round, 17, 20, n); return `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="${d}" fill="#121212" transform="translate(2 2)"/><path d="${d}" fill="${fill}" stroke="#121212" stroke-width="2" stroke-linejoin="round"/></svg>`; };
+  const renderGrid = () => { $('#grid').innerHTML = M.map((m) => `<li>${mini(Math.min(1, rel * 1.3), m.fill, m.n)}<b class="${rel > .3 ? 'is-word' : 'num'}">${m.v()}</b><span>${m.name}</span></li>`).join(''); };
+  $('#acts').innerHTML = ACTS.map(([t, s], i) => `<div class="gone" data-act="${i}"><div><button type="button" class="act" data-i="${i}"><span>${t}</span><small>${s}</small></button></div></div>`).join('');
+
+  const toast = (t) => { const el = $('#toast'); el.textContent = t; el.classList.add('is-on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('is-on'), 1800); };
+
+  const apply = () => {
+    const s = stageOf(rel), ph = $('#phone');
+    if (+ph.dataset.stage !== s && s > +ph.dataset.stage) toast(['', 'ההתראה הוסרה. אין צורך.', 'המספר כבר לא עוזר. הוסר.', 'התפריט הוסר. אין לאן ללכת.', 'זהו.'][s]);
+    ph.dataset.stage = s;
+    document.documentElement.style.setProperty('--r', rel.toFixed(3));
+    $$('[data-until]').forEach((el) => el.classList.toggle('is-gone', s >= +el.dataset.until));
+    $$('[data-fade]').forEach((el) => el.classList.toggle('is-faded', s >= +el.dataset.fade));
+    $$('.readout [data-show]').forEach((el) => el.classList.toggle('off', !el.dataset.show.split(',').map(Number).includes(Math.min(3, s))));
+    $('#mpl').textContent = Math.round(775 - rel * 520);
+    // the tab bar loses a tab per step, then itself
+    $$('#tabbar [data-tab]').forEach((t) => t.classList.toggle('is-gone', +t.dataset.tab > 4 - s * 2 && +t.dataset.tab !== 0));
+    $('#tabbar').classList.toggle('is-gone', s >= 3);
+    // the actions leave too: at the end there is one thing left to do, then none
+    $$('[data-act]').forEach((el) => el.classList.toggle('is-gone', s >= 4 || (s === 3 && +el.dataset.act !== 3)));
+    $$('#stages li').forEach((li) => li.classList.toggle('is-on', +li.dataset.s === s));
+    $('#rel').value = Math.round(rel * 100); $('#rv').textContent = Math.round(rel * 100);
+    renderGrid();
+  };
+
+  $('#acts').addEventListener('click', (e) => {
+    const b = e.target.closest('.act'); if (!b) return;
+    const [t, , add] = ACTS[+b.dataset.i];
+    b.classList.add('is-done');
+    rel = Math.min(1, rel + add);
+    if (rel < .45) { stars += 30; $('#stars').textContent = stars; }
+    apply();
+  });
+  $('#rel').addEventListener('input', (e) => { rel = e.target.value / 100; apply(); });
+  $('#reset').addEventListener('click', () => { rel = 0; $$('.act').forEach((b) => b.classList.remove('is-done')); stars = 340; $('#stars').textContent = stars; apply(); });
+
+  const frame = (t) => {
+    cur += (rel - cur) * (reduced ? 1 : .06);
+    const d = polar(cur, 140, 160, 11, reduced ? 0 : (1 - cur) * .035, t / 120);
+    $('#sh').setAttribute('d', d); $('#fg').setAttribute('d', d); $('#fg').setAttribute('fill', kb(cur));
+    requestAnimationFrame(frame);
+  };
+  apply(); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

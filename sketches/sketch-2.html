@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>סקיצה 2 · קבלה במקום ארנק</title>
+<style>
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductThin.otf) format('opentype'); font-weight: 200; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductRegular.otf) format('opentype'); font-weight: 400; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductBold.otf) format('opentype'); font-weight: 700; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductHeavy.otf) format('opentype'); font-weight: 900; }
+:root {
+  --ink: #121212; --ink-2: #4A4A55; --paper: #F7F4EC; --paper-ink: #2A2724; --paper-2: #6A645C; --stamp: #C8352B;
+  --ground: #E4DBFF; --yellow: #FFD23F; --green: #3DDC97; --ease: cubic-bezier(.16, 1, .3, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Leon, system-ui, sans-serif; color: var(--ink); background: #D9D2EE; min-height: 100vh; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 40px; padding: 24px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.num { font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
+
+.notes { justify-self: end; max-width: 300px; display: grid; gap: 14px; }
+.notes h1 { font-size: 40px; font-weight: 900; line-height: 1; }
+.notes .sub { margin-top: -6px; font-size: 22px; font-weight: 700; }
+.notes p { font-size: 16px; line-height: 1.5; }
+.notes ul { list-style: none; display: grid; gap: 8px; font-size: 14px; color: var(--ink-2); }
+.notes ul li { padding-inline-start: 14px; position: relative; }
+.notes ul li::before { content: ""; position: absolute; inset-inline-start: 0; top: .55em; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.side { justify-self: start; width: 240px; }
+
+.phone { position: relative; width: 390px; height: 844px; border-radius: 56px; background: var(--ink); padding: 12px; box-shadow: 10px 10px 0 rgba(18, 18, 18, .9); }
+.screen { position: relative; height: 100%; border-radius: 44px; overflow: hidden; background: var(--ground); }
+.statusbar { position: absolute; top: 14px; inset-inline: 28px; display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; z-index: 6; direction: ltr; }
+
+/* the printer: a slot the receipt keeps coming out of */
+.printer { position: absolute; top: 44px; inset-inline: 14px; height: 54px; z-index: 4; background: var(--ink); border-radius: 16px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; color: #fff; }
+.printer b { font-size: 15px; font-weight: 900; }
+.printer small { font-size: 12px; color: #B9B4C9; }
+.printer .led { width: 8px; height: 8px; border-radius: 50%; background: #5A5A66; transition: background .2s; }
+.printer.is-printing .led { background: var(--green); }
+.slot { position: absolute; top: 92px; inset-inline: 28px; height: 6px; z-index: 5; background: #050505; border-radius: 3px; }
+
+.scroll { position: absolute; inset: 0; overflow: auto; padding: 96px 30px 210px; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+
+/* thermal paper: off-white, faint grain, a torn zigzag foot */
+.receipt { position: relative; background: var(--paper); color: var(--paper-ink); padding: 22px 18px 30px; box-shadow: 0 10px 24px -10px rgba(40, 30, 60, .35);
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 14px 10px repeat-x;
+          mask: linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 14px 10px repeat-x; }
+.receipt::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .38 0 0 0 0 .34 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.r-head { text-align: center; display: grid; gap: 3px; }
+.r-head b { font-size: 19px; font-weight: 900; letter-spacing: .04em; }
+.r-head span { font-size: 12px; color: var(--paper-2); }
+.rule { border: 0; border-top: 1.5px dashed var(--paper-2); margin: 14px 0; opacity: .7; }
+.meta { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; font-size: 12px; color: var(--paper-2); }
+.meta b { font-weight: 400; color: var(--paper-ink); text-align: end; }
+
+.lines { list-style: none; display: grid; gap: 10px; }
+.line { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; font-size: 14px; }
+.line .t { font-weight: 700; }
+.line .p { font-weight: 900; text-align: end; }
+.line .to { grid-column: 1 / -1; font-size: 12px; color: var(--paper-2); display: flex; gap: 6px; }
+.line .to::before { content: ""; flex: 1; order: 2; border-bottom: 1px dotted var(--paper-2); translate: 0 -4px; }
+.line .to span:last-child { order: 3; }
+.line.is-debit .p { color: var(--stamp); }
+.line.is-new { animation: print .9s steps(9, end) both; }
+@keyframes print { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+
+.total { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; font-weight: 900; }
+.total b { font-size: 34px; font-weight: 900; }
+.fine { font-size: 12px; line-height: 1.5; color: var(--paper-2); text-align: center; }
+.barcode { display: block; width: 100%; height: 46px; margin-top: 12px; }
+
+.stamp { position: absolute; top: 120px; inset-inline-start: 22px; rotate: -12deg; padding: 4px 10px; font-size: 15px; font-weight: 900; color: var(--stamp); border: 2.5px solid var(--stamp); border-radius: 8px; opacity: 0; scale: 1.6; mix-blend-mode: multiply; transition: opacity .25s, scale .35s cubic-bezier(.3, 1.6, .5, 1); }
+.stamp.is-on { opacity: .85; scale: 1; }
+
+/* coupons: tear-off stubs under the receipt */
+.coupons { list-style: none; display: grid; gap: 0; margin-top: 18px; }
+.coupon { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 14px 18px; background: var(--paper); color: var(--paper-ink); border-top: 2px dashed var(--paper-2); transition: translate .6s var(--ease), rotate .6s var(--ease), opacity .6s var(--ease); }
+.coupon:first-child { border-top: 0; }
+.coupon .ct { font-size: 14px; font-weight: 700; }
+.coupon .cw { grid-column: 1; font-size: 12px; color: var(--paper-2); }
+.coupon .cc { grid-row: 1 / 3; grid-column: 2; display: grid; justify-items: center; gap: 6px; }
+.coupon .cc b { font-size: 20px; font-weight: 900; }
+.coupon button { min-height: 40px; min-width: 76px; padding: 4px 12px; font-size: 13px; font-weight: 900; background: transparent; border: 2px solid var(--paper-ink); border-radius: 8px; }
+.coupon button.is-armed { background: var(--paper-ink); color: var(--paper); }
+.coupon button:disabled { opacity: .35; cursor: default; }
+.coupon.is-torn { translate: -110% 40px; rotate: -8deg; opacity: 0; }
+
+/* the dock: what he can do now, each one prints */
+.dock { position: absolute; inset-inline: 0; bottom: 0; z-index: 6; padding: 14px 16px 26px; background: var(--ground); border-top: 3px solid var(--ink); display: grid; gap: 8px; }
+.dock p { font-size: 12px; font-weight: 700; color: var(--ink-2); }
+.dock .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dock button { min-height: 48px; padding: 6px 10px; text-align: start; background: #fff; border: 2px solid var(--ink); border-radius: 12px; box-shadow: 3px 3px 0 var(--ink); display: grid; gap: 1px; }
+.dock button b { font-size: 14px; }
+.dock button small { font-size: 12px; color: var(--ink-2); }
+.dock button:active { translate: 2px 2px; box-shadow: 1px 1px 0 var(--ink); }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media (max-width: 1100px) { body { grid-template-columns: 1fr; justify-items: center; } .notes { justify-self: center; } .side { display: none; } }
+@media (max-width: 500px) { body { padding: 0; display: block; } .notes { display: none; } .phone { width: 100vw; height: 100dvh; border-radius: 0; padding: 0; box-shadow: none; } .screen { border-radius: 0; } }
+</style>
+</head>
+<body>
+
+<aside class="notes" aria-label="על הסקיצה">
+  <h1>סקיצה 2</h1>
+  <p class="sub">קבלה במקום ארנק</p>
+  <p>הכוכבים לא נאספים בארנק חגיגי. כל מה שהוא שחרר מודפס כשורה בקבלה של קופת רווחה, ולצד כל שורה כתוב למי זה נמסר. הסאטירה היא הטופס עצמו, לא הודעה אחרי המעשה.</p>
+  <ul>
+    <li>כל פעולה מדפיסה שורה: מה, כמה כוכבים, ומי קיבל את המידע</li>
+    <li>ההטבות הן תלושים לתלישה. מימוש = חותמת אדומה ושורת חיוב</li>
+    <li>אין יתרה גדולה בראש המסך. הסכום מופיע רק בתחתית, כמו בכל קבלה</li>
+  </ul>
+</aside>
+
+<div class="phone">
+  <div class="screen">
+    <div class="statusbar" aria-hidden="true"><span class="num">9:41</span><span>WHEEP</span></div>
+    <div class="printer" id="printer"><span><b>קופת רווחה</b> <small>· מדפיס לך</small></span><span class="led" aria-hidden="true"></span></div>
+    <div class="slot" aria-hidden="true"></div>
+
+    <div class="scroll" id="scroll">
+      <article class="receipt" aria-label="קבלה">
+        <div class="stamp" id="stamp" aria-hidden="true">מומש · נמסר למעסיק</div>
+        <header class="r-head">
+          <b>קופת רווחה</b>
+          <span>מחלקת גבריות · סניף דיגיטלי</span>
+          <span>עוסק מורשה 51-447120-8</span>
+        </header>
+        <hr class="rule">
+        <dl class="meta">
+          <dt>קבלה מס׳</dt><dd><b class="num">0047-1215</b></dd>
+          <dt>תאריך</dt><dd><b class="num">15.12.2026</b></dd>
+          <dt>מבוטח</dt><dd><b>ת.ז. <span class="num">****231</span></b></dd>
+          <dt>מכשיר</dt><dd><b>Patch 2 · מתחת לעין שמאל</b></dd>
+        </dl>
+        <hr class="rule">
+        <ol class="lines" id="lines" aria-live="polite"></ol>
+        <hr class="rule">
+        <p class="total"><span>יתרת כוכבים</span><b class="num" id="total">0</b></p>
+        <hr class="rule">
+        <p class="fine">הנתונים בשורות שסומנו "מעסיק" הועברו בהתאם לסעיף 4ב בהסכם. בכי שלא אומת יודפס לאחר אימות ידני (עד 14 ימי עסקים). אין החזרות.</p>
+        <svg class="barcode" id="barcode" viewBox="0 0 300 46" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <p class="fine num" style="margin-top:4px">WHP 0047 1215 0941</p>
+      </article>
+
+      <ul class="coupons" id="coupons" aria-label="תלושי הטבה"></ul>
+    </div>
+
+    <div class="dock">
+      <p>כל פעולה מדפיסה שורה</p>
+      <div class="row" id="dock">
+        <button type="button" data-do="talk"><b>שיחה עם עידו</b><small>24 דק׳ · שיחת עומק</small></button>
+        <button type="button" data-do="anger"><b>להגיד שזה הרגיז</b><small>ישיבת צוות · כעס שנאמר</small></button>
+        <button type="button" data-do="cry"><b>בכי ברמזור</b><small>11 דק׳ · ממתין לאימות</small></button>
+        <button type="button" data-do="care"><b>הליכה בלי אוזניות</b><small>20 דק׳ · תנועה</small></button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="side" aria-hidden="true"></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let tick = 0, total = 0;
+  const clock = () => { const m = 41 + tick++ * 4; return `${9 + Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+  // what each act sells, and who is told
+  const DO = {
+    talk: ['שיחת עומק · עידו · 24 דק׳', 30, 'קופה, עידו'],
+    anger: ['כעס שנאמר · ישיבת צוות', 20, 'קופה, מעסיק'],
+    cry: ['בכי · 11 דק׳ · ממתין לאימות', 0, 'קופה, מאמת ידני'],
+    care: ['הליכה בלי אוזניות · 20 דק׳', 15, 'קופה'],
+  };
+  const SHOP = [
+    { t: 'ערב זוגי · מסעדה לשניים', c: 60, w: 'נמסר: בת הזוג, הקופה' },
+    { t: 'שליטה בכעסים · 4 מפגשים', c: 90, w: 'נמסר: המעסיק, לפי מדד הכעס' },
+    { t: 'מפגש עם מטפל · 50 דק׳', c: 120, w: 'נמסר: הקופה. המטפל מקבל את הקבלה' },
+    { t: 'יום חופש, בלי להסביר', c: 200, w: 'נמסר: המעסיק. אישור, תאריך, לא סיבה' },
+  ];
+
+  const line = (t, p, to, debit = false, at = '') => {
+    const li = document.createElement('li');
+    li.className = `line${debit ? ' is-debit' : ''}${reduced ? '' : ' is-new'}`;
+    li.innerHTML = `<span class="t">${t}</span><span class="p num">${p > 0 ? '+' : ''}${p}</span><span class="to"><span class="num">${at || clock()}</span><span>נמסר: ${to}</span></span>`;
+    $('#lines').appendChild(li);
+    total += p; $('#total').textContent = total;
+    const pr = $('#printer'); pr.classList.add('is-printing'); clearTimeout(line.t); line.t = setTimeout(() => pr.classList.remove('is-printing'), 900);
+    renderShop();
+    line.last = li;
+    const sc = $('#scroll'); sc.scrollTo({ top: Math.max(0, li.offsetTop + li.closest('.receipt').offsetTop - sc.clientHeight / 2), behavior: reduced || !at ? (reduced ? 'auto' : 'smooth') : 'auto' });
+  };
+
+  const renderShop = () => {
+    $('#coupons').innerHTML = SHOP.map((x, i) => x.gone ? '' : `<li class="coupon" data-i="${i}"><span class="ct">${x.t}</span><span class="cw">${x.w}</span><span class="cc"><b class="num">${x.c}</b><button type="button" data-buy="${i}" ${x.c > total ? 'disabled' : ''}>לתלוש</button></span></li>`).join('');
+  };
+
+  $('#dock').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-do]'); if (!b) return;
+    const [t, p, to] = DO[b.dataset.do];
+    line(t, p, to);
+    if (b.dataset.do === 'cry') b.disabled = true;
+  });
+  $('#coupons').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-buy]'); if (!b) return;
+    const x = SHOP[+b.dataset.buy];
+    if (!b.classList.contains('is-armed')) {           // first tap names who gets told
+      $$('#coupons .is-armed').forEach((o) => { o.classList.remove('is-armed'); o.textContent = 'לתלוש'; });
+      b.classList.add('is-armed'); b.textContent = 'לאשר';
+      return;
+    }
+    const li = b.closest('.coupon'); li.classList.add('is-torn');
+    setTimeout(() => {
+      x.gone = true;
+      line(`מימוש · ${x.t}`, -x.c, x.w.replace('נמסר: ', ''), true);
+      const st = $('#stamp'); st.style.top = `${line.last.offsetTop - 18}px`; st.classList.remove('is-on'); void st.offsetWidth; st.classList.add('is-on');
+    }, reduced ? 0 : 450);
+  });
+
+  // a barcode that is really the week: one bar per hour he held something in
+  const bars = []; let x = 0, k = 7;
+  while (x < 300) { k = (k * 9301 + 49297) % 233280; const w = 1 + (k % 4); if (k % 3) bars.push(`<rect x="${x}" width="${w}" height="46" fill="#2A2724"/>`); x += w + 1 + (k % 2); }
+  $('#barcode').innerHTML = bars.join('');
+
+  // the receipt starts with what was already sold this week
+  line('בכי מאומת · 11 דק׳', 50, 'קופה, מעסיק', false, '3.12');
+  line('שיחת עומק · אבא · 21 דק׳', 30, 'קופה', false, '9.12');
+  line('MPL ירד ב-25', 10, 'קופה, מבטח', false, '14.12');
+  $('#scroll').scrollTop = 0;
+})();
+</script>
+</body>
+</html>
