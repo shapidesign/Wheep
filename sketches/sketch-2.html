@@ -11,8 +11,11 @@
 .map .lobe:active { cursor: grabbing; }
 .map .lobe:focus-visible { stroke: var(--ink); stroke-width: 3; stroke-dasharray: 6 5; }
 .map text { font-family: Leon, system-ui, sans-serif; fill: var(--ink); text-anchor: middle; pointer-events: none; transition: opacity .3s var(--ease); }
-.map .lb { font-size: 16px; font-weight: 900; }
-.map .ls { font-size: 12px; fill: var(--ink-2); }
+.map .lb { font-size: 14px; font-weight: 900; }
+.map .in { font-size: 17px; font-weight: 900; direction: ltr; }
+.map .in-big { font-size: 46px; font-weight: 900; direction: ltr; letter-spacing: -.02em; }
+.map .in-unit { font-size: 13px; font-weight: 700; direction: ltr; }
+.map .me { font-size: 18px; font-weight: 900; }
 .map.is-open text { opacity: 0; }
 
 .home-top { position: absolute; z-index: 3; top: 56px; inset-inline: 22px; display: flex; justify-content: space-between; align-items: baseline; transition: opacity .3s var(--ease); }
@@ -71,7 +74,7 @@
   <aside class="notes" aria-label="על הסקיצה">
     <h1>סקיצה 2</h1>
     <p class="sub">הצורה היא התפריט</p>
-    <p>אין שורת טאבים. הצורה בנויה מחמש אונות, אחת לכל יבשת באטלס הרגשות, ולכל אחת צורה אורגנית משלה. מושכים אונה החוצה, והיא נפתחת לתת-הרגשות שלה, מהקל לעז. המרכז הוא היום. חוזרים דרך הצורה הקטנה בפינה.</p>
+    <p>אין שורת טאבים. במרכז, גדולה ומעל הכל: הצורה שלך. סביבה מקיפות חמש צורות קטנות, אחת לכל יבשת באטלס הרגשות, ולכל אחת צורה אורגנית משלה. מושכים אונה החוצה, והיא נפתחת לתת-הרגשות שלה, מהקל לעז. המרכז הוא היום. חוזרים דרך הצורה הקטנה בפינה.</p>
     <ul>
       <li>פחד: גלגל שמתפתל · כעס: התזה · עצב: טיפה כבדה · גועל: איקס שנרתע · הנאה: פרח</li>
       <li>ככל שהרגש חזק יותר השבוע, האונה גדולה יותר ורועדת יותר</li>
@@ -138,9 +141,10 @@
     { id: 'joy', name: 'הנאה', v: 41, fill: '#FFD23F', ang: 198, trig: 'ארוחת שישי. צחק פעמיים.',
       st: [['הנאה חושית', 2], ['שעשוע', 3], ['הקלה', 2], ['שלווה', 0], ['חמלה', 1], ['נחת', 1], ['גאווה', 1], ['התרגשות', 1], ['השתאות', 0], ['אקסטזה', 0]] },
   ];
-  const C = { x: 183, y: 384 }, D = 96, RC = 56;
+  const C = { x: 183, y: 390 }, RX = 138, RY = 214, RC = 104;
+  const orbit = (l, extra = 0) => { const a = l.ang * Math.PI / 180; return [C.x + (RX + extra) * Math.cos(a), C.y + (RY + extra) * Math.sin(a)]; };
   // a stronger week = a bigger lobe that trembles more
-  L.forEach((l) => { l.pull = 0; l.hover = 0; if (!l.center) { l.R = 46 + l.v * .26; l.tr = l.v / 100 * .05; l.sub = `${l.v} השבוע`; } });
+  L.forEach((l) => { l.pull = 0; l.hover = 0; if (!l.center) { l.R = 30 + l.v * .14; l.tr = l.v / 100 * .05; l.sub = `${l.v} השבוע`; } });
   let open = null, prog = 0, goal = 0;
 
   const mk = (tag, attrs) => { const el = document.createElementNS('http://www.w3.org/2000/svg', tag); Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v)); return el; };
@@ -149,13 +153,13 @@
     l.sh = $('#g-shadow').appendChild(mk('path', { fill: '#121212' }));
     l.ln = $('#g-line').appendChild(mk('path', { fill: '#121212', stroke: '#121212', 'stroke-width': 7, 'stroke-linejoin': 'round' }));
     l.fg = $('#g-fill').appendChild(mk('path', { class: 'lobe', tabindex: 0, role: 'button', 'aria-label': `${l.name}: ${l.sub}` }));
-    let x = C.x, y = C.y + 214;
-    if (!l.center) {      // labels above the upper lobes and below the lower ones, never on a shape
-      const a = l.ang * Math.PI / 180, lx = C.x + D * Math.cos(a), ly = C.y + D * Math.sin(a);
-      x = Math.max(46, Math.min(320, lx + 14 * Math.sign(Math.round(Math.cos(a) * 10)))); y = Math.sin(a) < .2 ? ly - l.R - 34 : ly + l.R + 26;
+    const t = $('#g-text').appendChild(mk('g', {}));
+    if (l.center) {
+      t.innerHTML = `<text class="in-big num" x="${C.x}" y="${C.y + 10}">775</text><text class="in-unit" x="${C.x}" y="${C.y + 32}">MPL</text><text class="lb" x="${C.x}" y="${C.y - 46}">היום</text>`;
+    } else {
+      const [x, y] = orbit(l);
+      t.innerHTML = `<text class="in num" x="${x}" y="${y + 6}">${l.v}</text><text class="lb" x="${x}" y="${y + l.R + 22}">${l.name}</text>`;
     }
-    const t = $('#g-text').appendChild(mk('text', { x, y }));
-    t.innerHTML = `<tspan class="lb" x="${x}">${l.name}</tspan><tspan class="ls" x="${x}" dy="17">${l.sub}</tspan>`;
   });
 
   const draw = (t) => {
@@ -163,7 +167,8 @@
     L.forEach((l) => {
       const isOpen = open === l;
       let cx = C.x, cy = C.y, R = l.center ? RC : l.R;
-      if (!l.center) { const a = l.ang * Math.PI / 180, dd = D + l.pull * 44 + l.hover * 8; cx += dd * Math.cos(a); cy += dd * Math.sin(a); R += l.pull * 12 + l.hover * 4; }
+      if (!l.center) { [cx, cy] = orbit(l, l.pull * 30 + l.hover * 6); R += l.pull * 10 + l.hover * 3; }
+      else R *= 1 + (reduced ? 0 : .015 * Math.sin(t / 700));      // the centre breathes
       if (open) {
         if (isOpen) { cx = lerp(cx, C.x, k); cy = lerp(cy, 420, k); R = lerp(R, l.center ? 640 : 520, k); }
         else { R = lerp(R, 0, k); cx = lerp(cx, C.x, k); cy = lerp(cy, C.y, k); }
@@ -180,9 +185,9 @@
 
   const miniMap = () => {
     const ps = order.map((l) => {
-      if (l.center) return [polar({ round: l.round, R: 10, cx: 29, cy: 29, n: 11, N: 120 }), kb(l.round)];
+      if (l.center) return [polar({ round: l.round, R: 15, cx: 29, cy: 29, n: 11, N: 120 }), kb(l.round)];
       const a = l.ang * Math.PI / 180;
-      return [silPath(SIL[l.id], 29 + 15 * Math.cos(a), 29 + 15 * Math.sin(a), l.R / 9, a + Math.PI / 2, 0, 0, 90), l.fill];
+      return [silPath(SIL[l.id], 29 + 21 * Math.cos(a), 29 + 23 * Math.sin(a), l.R / 8, a + Math.PI / 2, 0, 0, 90), l.fill];
     });
     return `<svg viewBox="0 0 58 58" aria-hidden="true"><g transform="translate(2.5 2.5)">${ps.map(([d]) => `<path d="${d}" fill="#121212"/>`).join('')}</g>${ps.map(([d]) => `<path d="${d}" fill="#121212" stroke="#121212" stroke-width="4" stroke-linejoin="round"/>`).join('')}${ps.map(([d, f]) => `<path d="${d}" fill="${f}"/>`).join('')}</svg>`;
   };
