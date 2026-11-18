@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0A0E2E">
 <title>WHEEP · תחזית רגשית</title>
-<link rel="stylesheet" href="style.css?v=32">
-<link rel="stylesheet" href="brutal.css?v=32">
-<link rel="stylesheet" href="aura.css?v=32">
+<link rel="stylesheet" href="style.css?v=33">
+<link rel="stylesheet" href="brutal.css?v=33">
+<link rel="stylesheet" href="aura.css?v=33">
 <script>
   // ?style=aura or the switch on the caption; remembered between visits
   (() => { const q = new URLSearchParams(location.search).get('style'); if (q) localStorage.setItem('wheepStyle', q);
@@ -21,7 +21,7 @@
   <p class="exhibit-line">אבטיפוס ספקולטיבי · דצמבר 2026</p>
   <p class="exhibit-text">בלילה של 1 בדצמבר 2026, הצורך הגברי להוכיח את עצמו נמחק. שבועיים אחרי, ככה נראה הבוקר.</p>
   <p class="exhibit-fine">הנתונים, האנשים וקופת רווחה באפליקציה בדיוניים.</p>
-  <div class="style-switch" role="group" aria-label="סגנון תצוגה"><button type="button" data-style="brutal">ניאו-ברוטליסטי</button><button type="button" data-style="aura">הילה · אור מטושטש</button></div>
+  <a class="exhibit-link" href="sketches/sketch-1.html">שלוש סקיצות</a>
 </aside>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -272,14 +272,6 @@
             <p>הנחה בפרמיה החודשית. השיתוף יתחיל ב-<span class="num">1.1.2027</span>.</p>
           </div>
         </section>
-        <section class="panel records is-archive" aria-labelledby="rec-h">
-          <div class="panel-row"><h2 class="panel-h" id="rec-h">ארכיון WHOOP</h2><span class="panel-meta num">נסגר 30.11.2026</span></div>
-          <p class="rec-sub-note">נמדד לפני 1.12. כבר לא נספר.</p>
-          <ul class="rec-list">
-            <li class="rec"><span class="rec-name"><svg class="medal" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14.5" r="5.25"/><path d="M9.25 3.75l1.75 5.6M14.75 3.75L13 9.35"/></svg>רצף ארוך ביותר בלי שחרור</span><span class="rec-val"><b class="num">19</b> ימים</span><span class="rec-date num">14.10–1.11.2026</span></li>
-            <li class="rec"><span class="rec-name"><svg class="medal" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14.5" r="5.25"/><path d="M9.25 3.75l1.75 5.6M14.75 3.75L13 9.35"/></svg>שיא בכי</span><span class="rec-val"><b class="num">23</b> דק׳</span><span class="rec-date num">17.1.2026</span></li>
-          </ul>
-        </section>
       </section>
     </main>
 
@@ -333,28 +325,8 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.75"/><path d="M12 11v5.25"/><circle cx="12" cy="7.75" r="1" class="fill"/></svg>
     </button>
 
-    <!-- Opening: a performance tracker turns into WHEEP at midnight on 1.12.2026, then explains itself. -->
-    <section class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="ab-h">
-      <div class="intro-stage" id="intro-stage" aria-hidden="true">
-        <p class="iw-brand"><span class="lt">W</span><span class="lt">H</span><span class="lt swap"><b>O</b><i>E</i></span><span class="lt swap"><b>O</b><i>E</i></span><span class="lt">P</span></p>
-        <p class="iw-clock num"><span class="t-before">30.11.2026 · 23:59</span><span class="t-after">1.12.2026 · 00:00</span></p>
-        <svg class="iw-ring" viewBox="0 0 200 200">
-          <circle cx="100" cy="100" r="78" class="iw-track"/>
-          <path id="iw-sh" class="iw-sh" d="" transform="translate(4 4)"/>
-          <path id="iw-shape" class="iw-shape" d="" pathLength="100"/>
-        </svg>
-        <div class="iw-center">
-          <p class="iw-num num"><span class="t-before">18.4</span><span class="t-after">0.0</span></p>
-          <p class="iw-label"><span class="t-before">מאמץ</span><span class="t-after">שחרור</span></p>
-        </div>
-        <ul class="iw-stats">
-          <li><b class="num">41%</b><span>התאוששות</span></li>
-          <li><b class="num">192</b><span>דופק מקסימלי</span></li>
-          <li><b class="num">5:12</b><span>שינה</span></li>
-        </ul>
-        <p class="iw-goal">יעד מחר: לדחוף חזק יותר.</p>
-      </div>
-      <button class="intro-skip" type="button" id="intro-skip">דלג</button>
+    <!-- "מה זה WHEEP": opened from the info button -->
+    <section class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="ab-h" hidden>
 
       <div class="about" id="about">
         <h1 class="ab-title" id="ab-h">מה זה WHEEP</h1>
@@ -366,13 +338,16 @@
           <svg class="kb kb-c" viewBox="0 0 48 48" aria-hidden="true"><path/></svg>
           <p>נשאר בפנים · באמצע · יצא</p>
         </div>
-        <p class="ab-quiet">השיאים הקודמים שלך נשמרו בארכיון.</p>
         <button class="ab-go" type="button" id="ab-go">המשך</button>
       </div>
     </section>
   </div>
 </div>
 
-<script src="app.js?v=32"></script>
+<button class="style-toggle" type="button" role="switch" aria-checked="false" aria-label="סגנון הילה (אור מטושטש)">
+  <span class="st-a">ניאו-ברוטליסטי</span><i aria-hidden="true"></i><span class="st-b">הילה</span>
+</button>
+
+<script src="app.js?v=33"></script>
 </body>
 </html>

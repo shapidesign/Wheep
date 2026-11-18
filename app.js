@@ -45,9 +45,13 @@
       + `<path d="${d}" fill="url(#${id}g)" filter="url(#${id}e)"/></g></svg>`;
   };
   const rf = (arr) => { if (AURA) arr.forEach((x) => { x.fill = R(x.fill); }); return arr; };
-  $$('[data-style]').forEach((b) => {
-    b.setAttribute('aria-pressed', String((b.dataset.style === 'aura') === AURA));
-    b.addEventListener('click', () => { localStorage.setItem('wheepStyle', b.dataset.style); location.reload(); });
+  // one switch between the two skins; the open screen survives the reload
+  const styleBtn = $('.style-toggle');
+  styleBtn.setAttribute('aria-checked', String(AURA));
+  styleBtn.addEventListener('click', () => {
+    localStorage.setItem('wheepStyle', AURA ? 'brutal' : 'aura');
+    sessionStorage.setItem('wheepTab', ($('.screen:not([hidden])')?.id || 'screen-today').replace('screen-', ''));
+    location.replace(location.pathname);
   });
 
   /* ── device scaling (desktop presentation) ── */
@@ -208,63 +212,27 @@
   const setSky = () => {};                                // the brutalist ground stays flat
   const wetness = (d) => Math.max(0, Math.min(1, (flowAt(d) - .08) / .55));
 
-  /* ── opening: the strain ring becomes the pressure shape at midnight, 1.12.2026 ── */
-  const intro = $('#intro'), shapeEl = $('#iw-shape');
-  const ease = (t) => (t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
-  let introTimers = [], morphRaf = 0;
-  const PACE = Math.max(.2, +new URLSearchParams(location.search).get('pace') || 1);   // ?pace=2 slows the opening for film.html
-  const setShape = (t) => {
-    const d = polar({ R: lerp(78, 88, t), cx: 100, cy: 100, n: 11, amp: .5 * t, k: 2.6, N: 264, lobes: t });
-    shapeEl.setAttribute('d', d); $('#iw-sh').setAttribute('d', d);
-    shapeEl.style.strokeDasharray = `${88 + 12 * t} 100`;   // the strain ring at 88% closes into a whole shape
-  };
-  const clearIntro = () => { introTimers.forEach(clearTimeout); introTimers = []; cancelAnimationFrame(morphRaf); };
-  const showAbout = () => {
-    clearIntro();
-    setShape(1);
-    intro.classList.add('is-midnight', 'is-about');
+  /* ── "מה זה WHEEP": the info button opens the explanation ── */
+  const intro = $('#intro');
+  const openInfo = () => {
+    intro.hidden = false;
+    intro.classList.add('is-info', 'is-midnight', 'is-about');
     $('#ab-go').focus({ preventScroll: true });
   };
-  const runIntro = () => {
-    clearIntro();
-    intro.hidden = false;
-    intro.classList.remove('is-midnight', 'is-about', 'is-info');
-    setShape(0);
-    if (reduced) return showAbout();
-    introTimers.push(setTimeout(() => {
-      intro.classList.add('is-midnight');
-      const t0 = performance.now();
-      const step = (t) => {
-        const k = Math.min(1, (t - t0) / (1500 * PACE));
-        setShape(ease(k));
-        if (k < 1) morphRaf = requestAnimationFrame(step);
-      };
-      morphRaf = requestAnimationFrame(step);
-    }, 1500 * PACE));
-    introTimers.push(setTimeout(showAbout, 3800 * PACE));
-  };
-  const openInfo = () => {                                  // the info button opens the explanation directly
-    intro.hidden = false;
-    intro.classList.add('is-info');
-    showAbout();
-  };
   const closeIntro = () => {
-    clearIntro();
     intro.hidden = true;
     intro.classList.remove('is-info');
-    if (location.hash === '#intro' || location.hash === '#about') history.replaceState(null, '', location.pathname + location.search);
+    if (location.hash === '#about') history.replaceState(null, '', location.pathname + location.search);
     $('.screen:not([hidden])').focus({ preventScroll: true });
   };
-  $('#intro-skip').addEventListener('click', showAbout);
   $('#ab-go').addEventListener('click', closeIntro);
   intro.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeIntro(); });
   $('#info-btn').addEventListener('click', openInfo);
   [['.kb-a', 0], ['.kb-b', .5], ['.kb-c', 1]].forEach(([sel, r]) => { $(sel).outerHTML = mini(r, 'mini kb-row'); });
 
-  // deep links for presenting and recording: #shape, #trends, #profile, #intro (replay), #about
+  // deep links for presenting and recording: #trends, #profile, #about
   const fromHash = () => {
     const h = location.hash.slice(1);
-    if (h === 'intro') return runIntro();
     if (h === 'about') return openInfo();
     if (tabs.some((t) => t.dataset.tab === h)) show(h);
   };
@@ -885,7 +853,8 @@
   };
   stepBtns.forEach((b) => b.addEventListener('click', () => { goal.value = String(Math.max(0, Math.min(7, +goal.value + +b.dataset.step))); syncGoal(); }));
   syncGoal();
-  // the app opens on the WHOOP → WHEEP transition, unless a deep link asks for a specific tab
-  const tabHash = tabs.some((t) => `#${t.dataset.tab}` === location.hash);
-  if (tabHash) { intro.hidden = true; fromHash(); } else if (location.hash === '#about') openInfo(); else runIntro();
+  // the app opens on Today, or where a deep link or the style switch left it
+  const back = sessionStorage.getItem('wheepTab'); sessionStorage.removeItem('wheepTab');
+  if (back && $(`#screen-${back}`)) show(back);
+  else fromHash();
 })();

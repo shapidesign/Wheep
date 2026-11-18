@@ -232,12 +232,8 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 
 /* info opens the explanation at once: no fade from the opening, no ghost of the WHOOP screen */
 .intro.is-info::before { transition: none; opacity: 1; }
-.intro.is-info .intro-stage { display: none; }
 
 /* the opening is the old black performance screen: its own light ink */
-.intro-stage { color: #F2F4FF; }
-.intro-skip { color: #C9CDDB; }
-.intro-skip:hover { color: #fff; }
 
 /* the ground lives on the screens themselves, so every text sits on a real, measurable surface */
 .screens { background: var(--ground); }
@@ -469,18 +465,6 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 
 
 /* ── opening: at midnight the strain ring lands in the WHEEP world (ink outline, flat fill, the number below the shape) ── */
-.iw-sh { fill: var(--ink); opacity: 0; transition: opacity .6s var(--ease) .9s; }
-.iw-shape { fill: transparent; transition: stroke 1.2s var(--ease), stroke-width 1.2s var(--ease), fill .6s var(--ease) .9s; }
-.intro.is-midnight .iw-sh { opacity: 1; }
-.intro.is-midnight .iw-shape { stroke: var(--ink); stroke-width: 3.5; fill: var(--c-red); }
-.intro-stage { transition: opacity .7s var(--ease), translate .7s var(--ease), color .8s var(--ease); }
-.intro.is-midnight .intro-stage { color: var(--ink); }
-.intro.is-midnight .iw-clock, .intro.is-midnight .iw-label { color: var(--ink-2); }
-.iw-num, .iw-label { transition: top .9s var(--ease) .4s, color .8s var(--ease); }
-.intro.is-midnight .iw-num { top: 26px; }
-.intro.is-midnight .iw-label { top: 88px; }
-.iw-num .t-after { font-weight: 900; }
-.intro.is-midnight .intro-skip { color: var(--ink-2); }
 
 /* ── trends: MPL as one line ── */
 .panel-h small { display: block; margin: 3px 0 0; }
@@ -569,9 +553,6 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 }
 
 /* style switch on the exhibit caption (desktop presentation only) */
-.style-switch { display: flex; gap: 8px; margin-top: 22px; }
-.style-switch button { padding: 8px 14px; font-size: 14px; font-weight: 700; color: var(--ink); background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; box-shadow: 3px 3px 0 var(--ink); }
-.style-switch button[aria-pressed="true"] { background: var(--c-yellow); }
 
 .ed { display: none; }
 
@@ -618,7 +599,6 @@ input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 2.5
 /* v5 */
 .s-t small { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: var(--ink-2); line-height: 1.35; }
 .exhibit-line { margin-top: 14px; }
-.iw-clock { margin-top: 18px; }
 
 /* v6 · micro-interactions: one short answer for every change, all off under reduced motion */
 .acts .act:last-child:nth-child(odd) { grid-column: 1 / -1; }
@@ -661,3 +641,6 @@ button:not(:disabled):active { transition: transform .08s; }
 .records.is-archive .medal { display: none; }
 .e-go, .shop .crew-btn { min-height: 40px; }
 .crew-btn.is-armed { background: var(--ink); color: #fff; }
+
+.style-toggle { border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+.style-toggle:active { translate: 2px 2px; box-shadow: 1px 1px 0 var(--ink); }

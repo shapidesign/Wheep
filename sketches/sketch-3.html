@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>סקיצה 3 · החבר'ה, משני הצדדים</title>
+<link rel="stylesheet" href="sketch.css">
+<style>
+.stage { grid-template-columns: 300px auto; justify-content: center; }
+.side { display: grid; gap: 26px; align-content: center; }
+.side .notes, .side .ctrl { justify-self: stretch; max-width: none; width: auto; }
+.pair { display: flex; gap: 28px; align-items: flex-start; }
+.who { display: grid; gap: 10px; justify-items: center; }
+.who > p { font-size: 15px; font-weight: 900; zoom: var(--fit); }
+.who > p span { font-weight: 400; color: var(--ink-2); }
+
+.me-shape { display: grid; grid-template-columns: 84px 1fr; gap: 14px; align-items: center; margin-top: 16px; }
+.me-shape svg { transition: transform .6s var(--pop); }
+.me-shape b { font-size: 15px; }
+.me-shape p { font-size: 13px; color: var(--ink-2); line-height: 1.4; margin-top: 2px; }
+.me-shape.is-eased svg { transform: rotate(-12deg) scale(1.06); }
+
+.friends { margin-top: 16px; }
+.friends h2 { font-size: 15px; font-weight: 900; }
+.friends > p { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+.f-list { list-style: none; display: grid; margin-top: 8px; }
+.f-list li { display: grid; grid-template-columns: 40px 1fr auto auto; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid rgba(18, 18, 18, .12); }
+.f-list li:last-child { border-bottom: 0; }
+.av { width: 40px; height: 40px; display: grid; place-items: center; font-size: 17px; font-weight: 900; background: var(--panel); border: 2px solid var(--ink); border-radius: 50%; }
+.f-list .name { font-size: 16px; font-weight: 700; }
+.f-list .btn { min-height: 40px; padding: 4px 10px; font-size: 13px; }
+
+/* what arrives: a nudge from the sensor, or a thought from a friend */
+.in { margin-top: 16px; display: grid; grid-template-rows: 0fr; transition: grid-template-rows .6s var(--ease); }
+.in > div { min-height: 0; overflow: hidden; }
+.in.is-on { grid-template-rows: 1fr; }
+.in .card { margin: 2px 6px 8px 2px; background: var(--yellow); }
+.in .card.is-thought { background: var(--pink); }
+.in h3 { font-size: 17px; font-weight: 900; line-height: 1.25; }
+.in p { font-size: 13.5px; line-height: 1.45; margin-top: 4px; }
+.in .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.in .btn { min-height: 40px; font-size: 13px; padding: 6px 12px; }
+.in.is-on .card { animation: arrive .7s var(--pop); }
+@keyframes arrive { from { transform: translateY(-14px) rotate(-2deg); } }
+
+/* the call: both phones at once */
+.call { position: absolute; z-index: 9; inset: 0; display: grid; align-content: center; justify-items: center; gap: 14px; padding: 40px; text-align: center; color: #fff; background: var(--ink); opacity: 0; pointer-events: none; transition: opacity .4s var(--ease); }
+.call.is-on { opacity: 1; pointer-events: auto; }
+.call .av { width: 96px; height: 96px; font-size: 40px; color: var(--ink); border-width: 3px; }
+.call .c-name { font-size: 26px; font-weight: 900; }
+.call .c-time { font-size: 48px; font-weight: 200; }
+.call .c-out { min-height: 3em; font-size: 15px; line-height: 1.45; color: #E6E2F2; }
+.call .btn { background: var(--red); color: var(--ink); box-shadow: 3px 3px 0 #fff; border-color: #fff; }
+
+/* a thought, travelling from one phone to the other */
+.flyer { position: fixed; z-index: 50; top: 0; left: 0; width: 46px; height: 46px; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<nav class="sk-nav" aria-label="סקיצות">
+  <a class="sk-home" href="../index.html">WHEEP</a>
+  <a href="sketch-1.html">סקיצה 1 · מרפה</a>
+  <a href="sketch-2.html">סקיצה 2 · הצורה היא התפריט</a>
+  <a href="sketch-3.html" aria-current="page">סקיצה 3 · החבר'ה, משני הצדדים</a>
+</nav>
+
+<main class="stage">
+  <div class="side">
+    <aside class="notes" aria-label="על הסקיצה">
+      <h1>סקיצה 3</h1>
+      <p class="sub">החבר'ה, משני הצדדים</p>
+      <p>אף אחד לא רואה את הצורה של אף אחד. כל טלפון מראה רק את הצורה של בעליו. החיישן לא מדווח לחברים מה המצב, רק מזיז מישהו אחד לפנות. מה שעובר בין הטלפונים זו פנייה: "חושב עליך", או שיחה.</p>
+      <ol id="steps">
+        <li data-s="0">החיישן של אורי: 4 ימים בלי שיחה</li>
+        <li data-s="1">עידו מקבל דחיפה לפנות. לא סיבה</li>
+        <li data-s="2">"חושב עליך" עובר לטלפון של אורי</li>
+        <li data-s="3">שיחה. נרשמת אצל שניהם</li>
+        <li data-s="4">כל אחד רואה רק את הצורה שלו מתרככת</li>
+      </ol>
+    </aside>
+    <aside class="ctrl" aria-label="שליטה למציג">
+      <button type="button" id="nudge" class="is-warn">החיישן של אורי<small>4 ימים בלי שיחת עומק</small></button>
+      <button type="button" id="reset">מההתחלה</button>
+      <p class="readout" id="readout" aria-live="polite">אפשר גם לפנות מכל אחד מהטלפונים, לכל כיוון.</p>
+    </aside>
+  </div>
+
+  <div class="pair">
+    <div class="who">
+      <p>הטלפון של עידו</p>
+      <div class="phone" id="ph-ido"></div>
+    </div>
+    <div class="who">
+      <p>הטלפון של אורי <span>· המשתמש</span></p>
+      <div class="phone" id="ph-ori"></div>
+    </div>
+  </div>
+</main>
+
+<script src="shape.js"></script>
+<script>
+(() => {
+  const { mini, fit, kb, reduced } = WHEEP;
+  const $ = (s, r = document) => r.querySelector(s);
+  fit(414 * 2 + 28 + 340, 900);
+  const P = {
+    ori: { name: 'אורי', round: .1, friends: ['עידו', 'דורון', 'אלון', 'אבא'] },
+    ido: { name: 'עידו', round: .45, friends: ['אורי', 'דורון', 'אלון'] },
+  };
+  const other = (k) => (k === 'ori' ? 'ido' : 'ori');
+  const keyOf = (name) => Object.keys(P).find((k) => P[k].name === name);
+  const step = (s) => document.querySelectorAll('#steps li').forEach((li) => li.classList.toggle('is-on', +li.dataset.s === s));
+
+  const build = (k) => {
+    const p = P[k];
+    $(`#ph-${k}`).innerHTML = `<div class="screen">
+      <div class="statusbar" aria-hidden="true"><span class="num">9:41</span><span>WHEEP</span></div>
+      <div class="toast" role="status"></div>
+      <div class="scroll">
+        <h1 class="sticker">החבר'ה</h1>
+        <section class="in" aria-live="polite"><div></div></section>
+        <section class="me-shape card"><span class="ms">${mini(p.round, kb(p.round), 11, 84)}</span><div><b>הצורה שלך</b><p class="ms-t">רק אתה רואה אותה. לחבר'ה היא לא נשלחת.</p></div></section>
+        <section class="friends card"><h2>לפנות</h2><p>שמות בלבד. בלי צורות, בלי מצבים.</p>
+          <ul class="f-list">${p.friends.map((f) => `<li><span class="av">${f[0]}</span><span class="name">${f}</span>${keyOf(f) ? `<button class="btn" type="button" data-think="${f}">חושב עליך</button>` : '<span></span>'}<button class="btn is-ink" type="button" data-call="${f}">להתקשר</button></li>`).join('')}</ul>
+        </section>
+      </div>
+      <div class="call"><span class="av"></span><p class="c-name"></p><p class="c-time num">00:00</p><p class="c-out"></p><button class="btn" type="button" data-end>לסיים</button></div>
+    </div>`;
+    p.el = $(`#ph-${k}`);
+  };
+
+  const toast = (k, t) => { const el = $('.toast', P[k].el); el.textContent = t; el.classList.add('is-on'); clearTimeout(el.t); el.t = setTimeout(() => el.classList.remove('is-on'), 2400); };
+  const card = (k, html, thought = false) => {
+    const box = $('.in', P[k].el);
+    box.firstElementChild.innerHTML = `<div class="card${thought ? ' is-thought' : ''}">${html}</div>`;
+    box.classList.remove('is-on'); void box.offsetWidth; box.classList.add('is-on');
+    $('.scroll', P[k].el).scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+  };
+  const clearCard = (k) => $('.in', P[k].el).classList.remove('is-on');
+
+  // a soft shape crosses the gap between the phones
+  const fly = (fromEl, toK, done) => {
+    if (reduced) return done();
+    const a = fromEl.getBoundingClientRect(), b = $('.in', P[toK].el).getBoundingClientRect();
+    const el = document.createElement('div'); el.className = 'flyer'; el.innerHTML = mini(.95, '#FF7AC6', 7, 46);
+    document.body.appendChild(el);
+    const x0 = a.left + a.width / 2 - 23, y0 = a.top + a.height / 2 - 23, x1 = b.left + b.width / 2 - 23, y1 = b.top + 30;
+    const anim = el.animate([
+      { transform: `translate(${x0}px, ${y0}px) scale(.4) rotate(0deg)` },
+      { transform: `translate(${(x0 + x1) / 2}px, ${Math.min(y0, y1) - 140}px) scale(1.3) rotate(-90deg)`, offset: .5 },
+      { transform: `translate(${x1}px, ${y1}px) scale(.8) rotate(-200deg)` },
+    ], { duration: 1100, easing: 'cubic-bezier(.45, 0, .2, 1)' });
+    anim.onfinish = () => { el.remove(); done(); };
+  };
+
+  const think = (fromK, btn) => {
+    const toK = other(fromK), from = P[fromK];
+    clearCard(fromK);
+    toast(fromK, `נשלח ל${P[toK].name}. לא תדע אם הוא ראה.`);
+    fly(btn, toK, () => {
+      card(toK, `<h3>${from.name} חושב עליך.</h3><p>בלי סיבה, ובלי לשאול מה קרה.</p><div class="acts"><button class="btn is-ink" type="button" data-call="${from.name}">להתקשר ל${from.name}</button><button class="btn" type="button" data-later>אחר כך</button></div>`, true);
+      step(2);
+    });
+  };
+
+  // the call rings on both phones; 1 second here = 1 minute there
+  let timer = 0, mins = 0;
+  const call = (aK) => {
+    const bK = other(aK);
+    clearCard(aK); clearCard(bK);
+    [[aK, bK], [bK, aK]].forEach(([k, o]) => {
+      const c = $('.call', P[k].el);
+      $('.av', c).textContent = P[o].name[0]; $('.c-name', c).textContent = P[o].name; $('.c-out', c).textContent = ''; $('.c-time', c).textContent = '00:00';
+      $('[data-end]', c).hidden = false; c.classList.add('is-on');
+    });
+    step(3); mins = 0; clearInterval(timer);
+    timer = setInterval(() => {
+      mins++;
+      document.querySelectorAll('.call.is-on .c-time').forEach((t) => { t.textContent = `${String(mins).padStart(2, '0')}:00`; });
+      if (mins >= 22) end();
+    }, reduced ? 40 : 180);
+  };
+  const end = () => {
+    clearInterval(timer);
+    const deep = mins >= 20;
+    Object.keys(P).forEach((k) => {
+      const c = $('.call', P[k].el);
+      $('[data-end]', c).hidden = true;
+      $('.c-out', c).textContent = deep ? `שיחה של ${mins} דק׳. נרשמה אצל שניכם. +30 כוכבים.` : `שיחה של ${mins} דק׳. קצרה מדי כדי להיחשב כשיחת עומק.`;
+      if (deep) {
+        P[k].round = Math.min(.95, P[k].round + (k === 'ori' ? .5 : .25));
+        $('.ms', P[k].el).innerHTML = mini(P[k].round, kb(P[k].round), 11, 84);
+        $('.me-shape', P[k].el).classList.add('is-eased');
+        $('.ms-t', P[k].el).textContent = 'השתחררה קצת אחרי השיחה. רק אתה רואה את זה.';
+      }
+      setTimeout(() => c.classList.remove('is-on'), 2600);
+    });
+    if (deep) step(4);
+  };
+
+  ['ido', 'ori'].forEach(build);
+
+  document.querySelector('.pair').addEventListener('click', (e) => {
+    const k = e.target.closest('.phone')?.id.slice(3); if (!k) return;
+    const t = e.target.closest('[data-think]'), c = e.target.closest('[data-call]');
+    if (t) think(k, t);
+    else if (c) call(k);
+    else if (e.target.closest('[data-end]')) end();
+    else if (e.target.closest('[data-later]')) { clearCard(k); toast(k, 'בסדר. אין תזכורת.'); }
+  });
+
+  // the sensor never tells the friends how he is. It moves one of them to reach out.
+  document.getElementById('nudge').addEventListener('click', () => {
+    card('ido', '<h3>אורי לא דיבר עם אף אחד 4 ימים.</h3><p>WHEEP לא מספר לך יותר מזה, ולא מספר לו שקיבלת את זה.</p><div class="acts"><button class="btn" type="button" data-think="אורי">לשלוח "חושב עליך"</button><button class="btn is-ink" type="button" data-call="אורי">להתקשר</button></div>');
+    step(1);
+  });
+  document.getElementById('reset').addEventListener('click', () => { clearInterval(timer); P.ori.round = .1; P.ido.round = .45; ['ido', 'ori'].forEach(build); step(0); });
+  step(0);
+})();
+</script>
+</body>
+</html>

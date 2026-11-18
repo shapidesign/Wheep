@@ -140,8 +140,6 @@ html.aura .ts-close { border: 0; background: var(--frost); box-shadow: none; }
 html.aura .call { background: radial-gradient(70% 50% at 50% 30%, rgba(61, 139, 224, .55), transparent), var(--ground); }
 
 /* ── opening ── */
-html.aura .intro.is-midnight .iw-shape { stroke: transparent; fill: #F0504A; filter: blur(1.5px) drop-shadow(0 0 18px rgba(247, 197, 49, .7)); }
-html.aura .iw-sh { display: none; }
 
 html.aura ::selection { background: rgba(247, 197, 49, .6); color: var(--ink); }
 html.aura .days li { border-bottom: 1px solid var(--hair) !important; }
@@ -267,3 +265,6 @@ html.aura .k-now::before { background: linear-gradient(90deg, #5B5BD6, #F7C531, 
 html.aura .k-prev::before { border-radius: 50%; }
 html.aura .records.is-archive { background: none !important; }
 html.aura .crew-btn.is-armed { background: var(--ink) !important; color: #FFFDF8; box-shadow: none !important; }
+
+html.aura .style-toggle { border: 0 !important; background: rgba(255, 253, 249, .55); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 8px 24px rgba(80, 52, 30, .14) !important; }
+html.aura .style-toggle i { background: linear-gradient(90deg, #F0504A, #F7C531); }
