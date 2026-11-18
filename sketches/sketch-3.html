@@ -41,6 +41,10 @@
 .in .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .in .btn { min-height: 40px; font-size: 13px; padding: 6px 12px; }
 .in.is-on .card { animation: arrive .7s var(--pop); }
+.openers { display: grid; gap: 8px; margin-top: 12px; }
+.openers button { min-height: 40px; padding: 8px 12px; text-align: start; font-size: 14px; font-weight: 700; background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; }
+.openers button[aria-checked="true"] { background: var(--ink); color: #fff; }
+.bubble { display: inline-block; margin-top: 8px; padding: 10px 14px; font-size: 16px; font-weight: 700; line-height: 1.35; background: var(--panel); border: 2px solid var(--ink); border-radius: 16px 16px 16px 4px; }
 @keyframes arrive { from { transform: translateY(-14px) rotate(-2deg); } }
 
 /* the call: both phones at once */
@@ -70,12 +74,12 @@
     <aside class="notes" aria-label="על הסקיצה">
       <h1>סקיצה 3</h1>
       <p class="sub">החבר'ה, משני הצדדים</p>
-      <p>אף אחד לא רואה את הצורה של אף אחד. כל טלפון מראה רק את הצורה של בעליו. החיישן לא מדווח לחברים מה המצב, רק מזיז מישהו אחד לפנות. מה שעובר בין הטלפונים זו פנייה: "חושב עליך", או שיחה.</p>
+      <p>אף אחד לא רואה את הצורה של אף אחד. כל טלפון מראה רק את הצורה של בעליו. החיישן לא מדווח לחברים מה המצב, רק מזיז מישהו אחד לפנות. מה שעובר בין הטלפונים זו פנייה במילים שלו: הוא כותב לחבר בעצמו, או מתקשר. שיחת עומק היא מעל 5 דקות.</p>
       <ol id="steps">
         <li data-s="0">החיישן של אורי: 4 ימים בלי שיחה</li>
         <li data-s="1">עידו מקבל דחיפה לפנות. לא סיבה</li>
-        <li data-s="2">"חושב עליך" עובר לטלפון של אורי</li>
-        <li data-s="3">שיחה. נרשמת אצל שניהם</li>
+        <li data-s="2">עידו כותב לו בעצמו. ההודעה עוברת לאורי</li>
+        <li data-s="3">שיחה של מעל 5 דקות. נרשמת אצל שניהם</li>
         <li data-s="4">כל אחד רואה רק את הצורה שלו מתרככת</li>
       </ol>
     </aside>
@@ -122,7 +126,7 @@
         <section class="in" aria-live="polite"><div></div></section>
         <section class="me-shape card"><span class="ms">${mini(p.round, kb(p.round), 11, 84)}</span><div><b>הצורה שלך</b><p class="ms-t">רק אתה רואה אותה. לחבר'ה היא לא נשלחת.</p></div></section>
         <section class="friends card"><h2>לפנות</h2><p>שמות בלבד. בלי צורות, בלי מצבים.</p>
-          <ul class="f-list">${p.friends.map((f) => `<li><span class="av">${f[0]}</span><span class="name">${f}</span>${keyOf(f) ? `<button class="btn" type="button" data-think="${f}">חושב עליך</button>` : '<span></span>'}<button class="btn is-ink" type="button" data-call="${f}">להתקשר</button></li>`).join('')}</ul>
+          <ul class="f-list">${p.friends.map((f) => `<li><span class="av">${f[0]}</span><span class="name">${f}</span>${keyOf(f) ? `<button class="btn" type="button" data-write="${f}">לכתוב</button>` : '<span></span>'}<button class="btn is-ink" type="button" data-call="${f}">להתקשר</button></li>`).join('')}</ul>
         </section>
       </div>
       <div class="call"><span class="av"></span><p class="c-name"></p><p class="c-time num">00:00</p><p class="c-out"></p><button class="btn" type="button" data-end>לסיים</button></div>
@@ -154,12 +158,19 @@
     anim.onfinish = () => { el.remove(); done(); };
   };
 
-  const think = (fromK, btn) => {
+  // he says it himself: three openers, his pick, his name on it
+  const OPENERS = ['חשבתי עליך היום.', 'מה איתך באמת?', 'בא לך לדבר הערב?'];
+  const compose = (fromK) => {
+    const to = P[other(fromK)].name;
+    card(fromK, `<h3>לכתוב ל${to}</h3><p>במילים שלך. WHEEP רק מעביר.</p><div class="openers" role="radiogroup" aria-label="פתיחה">${OPENERS.map((o, i) => `<button type="button" role="radio" aria-checked="${i === 0}" data-op="${i}">${o}</button>`).join('')}</div><div class="acts"><button class="btn is-ink" type="button" data-send>לשלוח</button></div>`);
+  };
+  const send = (fromK, btn) => {
     const toK = other(fromK), from = P[fromK];
+    const text = OPENERS[+(P[fromK].el.querySelector('[data-op][aria-checked="true"]')?.dataset.op || 0)];
     clearCard(fromK);
-    toast(fromK, `נשלח ל${P[toK].name}. לא תדע אם הוא ראה.`);
+    toast(fromK, `נשלח ל${P[toK].name}.`);
     fly(btn, toK, () => {
-      card(toK, `<h3>${from.name} חושב עליך.</h3><p>בלי סיבה, ובלי לשאול מה קרה.</p><div class="acts"><button class="btn is-ink" type="button" data-call="${from.name}">להתקשר ל${from.name}</button><button class="btn" type="button" data-later>אחר כך</button></div>`, true);
+      card(toK, `<h3>${from.name} כתב לך</h3><p class="bubble">${text}</p><div class="acts"><button class="btn is-ink" type="button" data-call="${from.name}">להתקשר ל${from.name}</button><button class="btn" type="button" data-write="${from.name}">לענות</button></div>`, true);
       step(2);
     });
   };
@@ -178,12 +189,12 @@
     timer = setInterval(() => {
       mins++;
       document.querySelectorAll('.call.is-on .c-time').forEach((t) => { t.textContent = `${String(mins).padStart(2, '0')}:00`; });
-      if (mins >= 22) end();
-    }, reduced ? 40 : 180);
+      if (mins >= 12) end();
+    }, reduced ? 40 : 320);
   };
   const end = () => {
     clearInterval(timer);
-    const deep = mins >= 20;
+    const deep = mins > 5;                                // a deep talk: more than 5 minutes
     Object.keys(P).forEach((k) => {
       const c = $('.call', P[k].el);
       $('[data-end]', c).hidden = true;
@@ -203,8 +214,10 @@
 
   document.querySelector('.pair').addEventListener('click', (e) => {
     const k = e.target.closest('.phone')?.id.slice(3); if (!k) return;
-    const t = e.target.closest('[data-think]'), c = e.target.closest('[data-call]');
-    if (t) think(k, t);
+    const w = e.target.closest('[data-write]'), c = e.target.closest('[data-call]'), op = e.target.closest('[data-op]'), snd = e.target.closest('[data-send]');
+    if (op) op.parentElement.querySelectorAll('[data-op]').forEach((b) => b.setAttribute('aria-checked', String(b === op)));
+    else if (snd) send(k, snd);
+    else if (w) compose(k);
     else if (c) call(k);
     else if (e.target.closest('[data-end]')) end();
     else if (e.target.closest('[data-later]')) { clearCard(k); toast(k, 'בסדר. אין תזכורת.'); }
@@ -212,7 +225,7 @@
 
   // the sensor never tells the friends how he is. It moves one of them to reach out.
   document.getElementById('nudge').addEventListener('click', () => {
-    card('ido', '<h3>אורי לא דיבר עם אף אחד 4 ימים.</h3><p>WHEEP לא מספר לך יותר מזה, ולא מספר לו שקיבלת את זה.</p><div class="acts"><button class="btn" type="button" data-think="אורי">לשלוח "חושב עליך"</button><button class="btn is-ink" type="button" data-call="אורי">להתקשר</button></div>');
+    card('ido', '<h3>אורי לא דיבר עם אף אחד 4 ימים.</h3><p>WHEEP לא מספר לך יותר מזה, ולא מספר לו שקיבלת את זה.</p><div class="acts"><button class="btn" type="button" data-write="אורי">לכתוב לו</button><button class="btn is-ink" type="button" data-call="אורי">להתקשר</button></div>');
     step(1);
   });
   document.getElementById('reset').addEventListener('click', () => { clearInterval(timer); P.ori.round = .1; P.ido.round = .45; ['ido', 'ori'].forEach(build); step(0); });

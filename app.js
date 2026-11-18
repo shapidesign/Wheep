@@ -269,7 +269,7 @@
     { id: 'cry', name: 'בכי', base: 'drop', n: 7, fill: '#3FC8F5', val: () => '0', sub: '1 לא מאומת', round: () => .08 },
     { id: 'anger', name: 'כעס שנאמר', base: 'burst', n: 9, fill: '#FF5A36', val: () => '1/3', sub: '2 נשארו בפנים', round: () => .3 },
     { id: 'press', name: 'הדחקות', base: 'box', n: 8, fill: '#9B6BFF', val: () => String(state.press), sub: '"הכל טוב"', round: () => Math.max(0, 1 - state.press / 11) },
-    { id: 'talk', name: 'שיחות עומק', base: 'bubble', n: 6, fill: '#FF7AC6', val: () => String(state.talks), sub: 'מעל 20 דק׳', round: () => Math.min(1, state.talks / 6) },
+    { id: 'talk', name: 'שיחות עומק', base: 'bubble', n: 6, fill: '#FF7AC6', val: () => String(state.talks), sub: 'מעל 5 דק׳', round: () => Math.min(1, state.talks / 6) },
   ]);
   const composite = () => METRICS.reduce((n, m) => n + m.round(), 0) / METRICS.length;
   const renderMetrics = () => {
@@ -444,7 +444,7 @@
     clearTimeout(callStart); clearInterval(callTimer);
     const mins = Math.floor(callSecs / 60);
     call.classList.add('is-done');
-    if (mins >= 20) {
+    if (mins > 5) {                                        // a deep talk: more than 5 minutes
       state.talks += 1; state.press = Math.max(0, state.press - 1);
       $('#call-out').textContent = `שיחה של ${mins} דק׳ נרשמה. שיחות עומק +1 · הדחקות −1.`;
       NEEDS[0].v = Math.min(100, NEEDS[0].v + 30);
@@ -592,7 +592,7 @@
   const GAIN = { bal: 340, led: [] };
   const EARN = [
     ['בכי מאומת', 50, 'נמדד אוטומטית'],
-    ['שיחת עומק · 20 דק׳ ומעלה', 30, 'talk'],
+    ['שיחת עומק · מעל 5 דק׳', 30, 'talk'],
     ['שיחה קבוצתית', 40, 'group'],
     ['טיפול ב"מה הוא צריך"', 15, 'care'],
     ['כל ירידה של 25 ב-MPL', 10, 'נמדד אוטומטית'],

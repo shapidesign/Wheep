@@ -32,20 +32,30 @@
 .p-head h1 { font-size: 34px; font-weight: 900; line-height: 1; }
 .p-head p { font-size: 13px; font-weight: 700; margin-top: 4px; }
 .page .card + .card { margin-top: 14px; }
+.sec-h { font-size: 15px; font-weight: 900; }
+.sec-s { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
 .big { display: flex; align-items: baseline; gap: 8px; }
 .big b { font-size: 64px; font-weight: 900; line-height: .9; }
 .big span { font-size: 16px; font-weight: 700; color: var(--ink-2); }
-.list { list-style: none; display: grid; }
+.list { list-style: none; display: grid; margin-top: 6px; }
 .list li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(18, 18, 18, .12); font-size: 15px; }
 .list li:last-child { border-bottom: 0; }
-.list small { display: block; font-size: 12px; color: var(--ink-2); }
 .list b.num { font-weight: 900; }
-.sec-h { font-size: 15px; font-weight: 900; margin-bottom: 6px; }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
 .row2 .btn { text-align: start; font-size: 14px; display: grid; gap: 2px; }
 .row2 .btn small { font-size: 12px; font-weight: 400; color: var(--ink-2); }
-.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 12px; font-weight: 700; color: var(--ink-2); }
-.week div { display: grid; justify-items: center; gap: 4px; }
+
+/* the atlas: sub-emotions from the mildest to the most intense */
+.states { list-style: none; display: grid; margin-top: 10px; }
+.states li { display: grid; grid-template-columns: 1fr 92px 34px; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(18, 18, 18, .12); font-size: 15px; }
+.states li:last-child { border-bottom: 0; }
+.states li.is-zero { color: var(--ink-2); }
+.states .lvl { position: relative; height: 8px; border: 2px solid var(--ink); border-radius: 5px; background: var(--panel); }
+.states .lvl i { position: absolute; top: -5px; width: 14px; height: 14px; margin-inline-start: -7px; border: 2px solid var(--ink); border-radius: 50%; background: var(--c); }
+.states li.is-zero .lvl i { background: var(--panel); }
+.states b { text-align: end; font-weight: 900; }
+.states li.is-zero b { font-weight: 400; }
+.scale { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; font-weight: 700; color: var(--ink-2); }
 </style>
 </head>
 <body>
@@ -61,12 +71,11 @@
   <aside class="notes" aria-label="על הסקיצה">
     <h1>סקיצה 2</h1>
     <p class="sub">הצורה היא התפריט</p>
-    <p>אין שורת טאבים. הצורה בנויה מאונות, וכל אונה היא מקום באפליקציה. האונה עצמה מראה את המצב שלו: קוצנית כשמשהו שם נשאר בפנים, רכה כשהוא יצא. מושכים אונה החוצה, והיא נפתחת והופכת לרקע של העמוד. חוזרים דרך הצורה הקטנה בפינה.</p>
+    <p>אין שורת טאבים. הצורה בנויה מחמש אונות, אחת לכל יבשת באטלס הרגשות, ולכל אחת צורה אורגנית משלה. מושכים אונה החוצה, והיא נפתחת לתת-הרגשות שלה, מהקל לעז. המרכז הוא היום. חוזרים דרך הצורה הקטנה בפינה.</p>
     <ul>
-      <li>החבר'ה: אונה קוצנית. 9 ימים בלי שיחה</li>
-      <li>רווחה: אונה רכה. אין מה לעשות שם עכשיו</li>
-      <li>ארבע אונות ומרכז: אותם חמישה מקומות של שורת הטאבים</li>
-      <li>המרכז הוא היום. הוא מושך את כל האונות אליו</li>
+      <li>פחד: גלגל שמתפתל · כעס: התזה · עצב: טיפה כבדה · גועל: איקס שנרתע · הנאה: פרח</li>
+      <li>ככל שהרגש חזק יותר השבוע, האונה גדולה יותר ורועדת יותר</li>
+      <li>תת-הרגשות לפי אטלס הרגשות של פול ואיב אקמן</li>
     </ul>
   </aside>
 
@@ -74,13 +83,13 @@
     <div class="screen" id="screen">
       <div class="statusbar" aria-hidden="true"><span class="num">9:41</span><span>WHEEP</span></div>
       <div class="home-top"><b>ה׳ <span class="num" style="font-size:15px;color:inherit">15.12</span></b><span>תל אביב-יפו</span></div>
-      <svg class="map" id="map" viewBox="0 0 366 820" role="group" aria-label="הצורה: כל אונה פותחת מקום באפליקציה">
+      <svg class="map" id="map" viewBox="0 0 366 820" role="group" aria-label="הצורה: כל אונה היא רגש, ופותחת את תת-הרגשות שלו">
         <g id="g-shadow" transform="translate(6 6)"></g>
         <g id="g-line"></g>
         <g id="g-fill"></g>
         <g id="g-text"></g>
       </svg>
-      <p class="hint" id="hint">משכו אונה החוצה כדי לפתוח</p>
+      <p class="hint">משכו אונה החוצה כדי לפתוח</p>
       <section class="page" id="page" aria-live="polite"></section>
     </div>
   </div>
@@ -94,87 +103,107 @@
 <script src="shape.js"></script>
 <script>
 (() => {
-  const { polar, kb, mini, fit, lerp, clamp, reduced } = WHEEP;
+  const { polar, kb, fit, lerp, clamp, reduced } = WHEEP;
   const $ = (s) => document.querySelector(s);
   fit();
-  const C = { x: 183, y: 380 };
-  // the places in the app, as lobes. round = how much has come out there.
+  const TAU = Math.PI * 2;
+  // five silhouettes, one per continent (radius factor by angle). Organic, never a person.
+  const SIL = {
+    fear: (a) => { const u = (((a * 6) / TAU) % 1 + 1) % 1; return .5 + .5 * Math.sin(Math.PI * u ** .55) ** 2.2; },          // a pinwheel that twists
+    anger: (a) => { const k = Math.round((a * 7) / TAU), amp = [1, .78, 1, .7, .95, .84, 1][((k % 7) + 7) % 7]; return .48 + .52 * amp * ((1 + Math.cos(7 * a)) / 2) ** 3; },   // a splat
+    sadness: (a) => .62 + .3 * Math.sin(a) - .1 * Math.cos(2 * a),                                                                    // a heavy drop, weight at the bottom
+    disgust: (a) => .5 + .5 * ((1 + Math.cos(4 * a - Math.PI)) / 2) ** 1.3,                                                           // an X that recoils
+    joy: (a) => .58 + .42 * ((1 + Math.cos(5 * a)) / 2) ** 1.6,                                                                       // a flower
+  };
+  const silPath = (B, cx, cy, R, rot = 0, tremble = 0, phase = 0, N = 180) => {
+    let d = '';
+    for (let j = 0; j < N; j++) {
+      const a = (j / N) * TAU, r = R * B(a - rot) * (1 + tremble * Math.sin(phase + a * 9));
+      d += `${j ? 'L' : 'M'}${(cx + r * Math.cos(a)).toFixed(1)} ${(cy + r * Math.sin(a)).toFixed(1)}`;
+    }
+    return `${d}Z`;
+  };
+
+  // Atlas of Emotions (Ekman): each continent's states, mildest first. The number is moments the patch mapped this week.
   const L = [
-    { id: 'today', name: 'היום', sub: '775 MPL', fill: null, round: .25, n: 11, ang: null, center: true },
-    { id: 'emo', name: 'רגשות', sub: 'פחד 82', fill: '#9B6BFF', round: .3, n: 8, ang: -45 },
-    { id: 'crew', name: "החבר'ה", sub: '9 ימים בלי שיחה', fill: '#FF7AC6', round: .08, n: 9, ang: -135 },
-    { id: 'trends', name: 'מגמות', sub: 'עולה 12 ימים', fill: '#3FC8F5', round: .2, n: 7, ang: 135 },
-    { id: 'gain', name: 'רווחה', sub: '340 כוכבים', fill: '#3DDC97', round: .85, n: 6, ang: 45 },
+    { id: 'today', name: 'היום', sub: '775 MPL', center: true, round: .25 },
+    { id: 'fear', name: 'פחד', v: 82, fill: '#9B6BFF', ang: -90, trig: 'שיחה עם הבנק, 11:10. לא נאמר לאף אחד.',
+      st: [['חשש', 4], ['עצבנות', 6], ['חרדה', 3], ['אימה מתמשכת', 1], ['ייאוש', 0], ['בהלה', 1], ['זוועה', 0], ['אימה', 0]] },
+    { id: 'anger', name: 'כעס', v: 64, fill: '#FF5A36', ang: -18, trig: 'ישיבת צוות, 14:20. נשאר בפנים.',
+      st: [['רוגז', 7], ['תסכול', 5], ['חוסר סבלנות', 2], ['ויכוחיות', 1], ['מרירות', 2], ['נקמנות', 0], ['זעם', 1]] },
+    { id: 'sadness', name: 'עצב', v: 48, fill: '#3FC8F5', ang: 54, trig: 'אבא שאל מה נשמע. "סבבה".',
+      st: [['אכזבה', 3], ['רפיון ידיים', 2], ['מצוקה', 1], ['השלמה', 2], ['חוסר אונים', 1], ['חוסר תקווה', 0], ['סבל', 0], ['ייאוש', 0], ['יגון', 0], ['אבל', 0]] },
+    { id: 'disgust', name: 'גועל', v: 30, fill: '#3DDC97', ang: 126, trig: 'המראה בחדר הכושר. בוז עצמי.',
+      st: [['אי-חיבה', 3], ['רתיעה', 2], ['סלידה', 2], ['דחייה', 1], ['בחילה', 0], ['תיעוב', 0], ['שנאה', 0]] },
+    { id: 'joy', name: 'הנאה', v: 41, fill: '#FFD23F', ang: 198, trig: 'ארוחת שישי. צחק פעמיים.',
+      st: [['הנאה חושית', 2], ['שעשוע', 3], ['הקלה', 2], ['שלווה', 0], ['חמלה', 1], ['נחת', 1], ['גאווה', 1], ['התרגשות', 1], ['השתאות', 0], ['אקסטזה', 0]] },
   ];
-  const D = 84, RP = 62, RC = 82;
-  L.forEach((l) => { l.pull = 0; l.hover = 0; l.cx = C.x; l.cy = C.y; l.R = l.center ? RC : RP; });
+  const C = { x: 183, y: 384 }, D = 96, RC = 56;
+  // a stronger week = a bigger lobe that trembles more
+  L.forEach((l) => { l.pull = 0; l.hover = 0; if (!l.center) { l.R = 46 + l.v * .26; l.tr = l.v / 100 * .05; l.sub = `${l.v} השבוע`; } });
   let open = null, prog = 0, goal = 0;
 
-  // build the layers once; the frame loop only rewrites the paths
   const mk = (tag, attrs) => { const el = document.createElementNS('http://www.w3.org/2000/svg', tag); Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v)); return el; };
-  const order = [...L.filter((l) => !l.center), L[0]];          // the centre draws last, over the lobes
+  const order = [...L.filter((l) => !l.center), L[0]];
   order.forEach((l) => {
     l.sh = $('#g-shadow').appendChild(mk('path', { fill: '#121212' }));
     l.ln = $('#g-line').appendChild(mk('path', { fill: '#121212', stroke: '#121212', 'stroke-width': 7, 'stroke-linejoin': 'round' }));
     l.fg = $('#g-fill').appendChild(mk('path', { class: 'lobe', tabindex: 0, role: 'button', 'aria-label': `${l.name}: ${l.sub}` }));
-    if (!l.center) {
-      // labels sit above the upper lobes and below the lower ones, never on the shape
+    let x = C.x, y = C.y + 214;
+    if (!l.center) {      // labels above the upper lobes and below the lower ones, never on a shape
       const a = l.ang * Math.PI / 180, lx = C.x + D * Math.cos(a), ly = C.y + D * Math.sin(a);
-      const x = lx + 22 * Math.sign(Math.cos(a)), y = Math.sin(a) < 0 ? ly - RP - 46 : ly + RP + 30;
-      const t = $('#g-text').appendChild(mk('text', { x, y }));
-      t.innerHTML = `<tspan class="lb" x="${x}">${l.name}</tspan><tspan class="ls" x="${x}" dy="18">${l.sub}</tspan>`;
-    } else {
-      const t = $('#g-text').appendChild(mk('text', { x: C.x, y: C.y + 260 }));
-      t.innerHTML = `<tspan class="lb" x="${C.x}">היום</tspan><tspan class="ls" x="${C.x}" dy="18">775 MPL · מרכז הצורה</tspan>`;
+      x = Math.max(46, Math.min(320, lx + 14 * Math.sign(Math.round(Math.cos(a) * 10)))); y = Math.sin(a) < .2 ? ly - l.R - 34 : ly + l.R + 26;
     }
+    const t = $('#g-text').appendChild(mk('text', { x, y }));
+    t.innerHTML = `<tspan class="lb" x="${x}">${l.name}</tspan><tspan class="ls" x="${x}" dy="17">${l.sub}</tspan>`;
   });
 
-  const fillOf = (l, round) => l.fill || kb(round);
   const draw = (t) => {
-    const e = reduced ? goal : (prog += (goal - prog) * .12);
-    const k = e < .001 ? 0 : e;
+    const k = reduced ? goal : (prog += (goal - prog) * .12);
     L.forEach((l) => {
       const isOpen = open === l;
-      let cx = C.x, cy = C.y, R = l.center ? RC : RP;
-      if (!l.center) { const a = l.ang * Math.PI / 180, dd = D + l.pull * 46 + l.hover * 8; cx += dd * Math.cos(a); cy += dd * Math.sin(a); R += l.pull * 14 + l.hover * 4; }
+      let cx = C.x, cy = C.y, R = l.center ? RC : l.R;
+      if (!l.center) { const a = l.ang * Math.PI / 180, dd = D + l.pull * 44 + l.hover * 8; cx += dd * Math.cos(a); cy += dd * Math.sin(a); R += l.pull * 12 + l.hover * 4; }
       if (open) {
-        if (isOpen) { cx = lerp(cx, C.x, k); cy = lerp(cy, 420, k); R = lerp(R, 560, k); }
+        if (isOpen) { cx = lerp(cx, C.x, k); cy = lerp(cy, 420, k); R = lerp(R, l.center ? 640 : 520, k); }
         else { R = lerp(R, 0, k); cx = lerp(cx, C.x, k); cy = lerp(cy, C.y, k); }
       }
-      const round = isOpen ? lerp(l.round, Math.max(.75, l.round), k) : l.round;
-      const d = R < .5 ? '' : polar({ round, R, cx, cy, n: l.n, tremble: reduced ? 0 : (1 - round) * .045, phase: t / 120 + l.n, N: 200 });
+      let d = '';
+      if (R > .5) d = l.center
+        ? polar({ round: l.round, R, cx, cy, n: 11, tremble: reduced ? 0 : .04, phase: t / 120, N: 200 })
+        : silPath(SIL[l.id], cx, cy, R, l.ang * Math.PI / 180 + Math.PI / 2, reduced || isOpen ? 0 : l.tr, t / 260 + l.v);
       l.sh.setAttribute('d', d); l.ln.setAttribute('d', d); l.fg.setAttribute('d', d);
-      l.fg.setAttribute('fill', fillOf(l, round));
+      l.fg.setAttribute('fill', l.center ? kb(l.round) : l.fill);
     });
     requestAnimationFrame(draw);
   };
 
-  // pages: what each lobe opens onto
-  const homeBtn = () => `<button class="p-home" type="button" id="p-home" aria-label="חזרה לצורה">${miniMap()}</button>`;
   const miniMap = () => {
-    const s = (l) => { if (l.center) return polar({ round: l.round, R: 13, cx: 29, cy: 29, n: l.n, N: 120 }); const a = l.ang * Math.PI / 180; return polar({ round: l.round, R: 10, cx: 29 + 13 * Math.cos(a), cy: 29 + 13 * Math.sin(a), n: l.n, N: 90 }); };
-    const ps = order.map((l) => [s(l), fillOf(l, l.round)]);
+    const ps = order.map((l) => {
+      if (l.center) return [polar({ round: l.round, R: 10, cx: 29, cy: 29, n: 11, N: 120 }), kb(l.round)];
+      const a = l.ang * Math.PI / 180;
+      return [silPath(SIL[l.id], 29 + 15 * Math.cos(a), 29 + 15 * Math.sin(a), l.R / 9, a + Math.PI / 2, 0, 0, 90), l.fill];
+    });
     return `<svg viewBox="0 0 58 58" aria-hidden="true"><g transform="translate(2.5 2.5)">${ps.map(([d]) => `<path d="${d}" fill="#121212"/>`).join('')}</g>${ps.map(([d]) => `<path d="${d}" fill="#121212" stroke="#121212" stroke-width="4" stroke-linejoin="round"/>`).join('')}${ps.map(([d, f]) => `<path d="${d}" fill="${f}"/>`).join('')}</svg>`;
   };
-  const PAGES = {
-    today: () => `<div class="card"><p class="big"><b class="num">775</b><span>MPL</span></p><p style="margin-top:6px;font-size:14px;color:var(--ink-2)">12 ימים בלי שחרור באף מדד</p></div>
-      <div class="card"><p class="sec-h">ארבעת המדדים</p><ul class="list">${[['בכי', '#3FC8F5', 7, '0', .08], ['כעס שנאמר', '#FF5A36', 9, '1/3', .3], ['הדחקות', '#9B6BFF', 8, '9', .15], ['שיחות עומק', '#FF7AC6', 6, '4', .6]].map(([n, f, k, v, r]) => `<li>${mini(r, f, k, 32)}<span>${n}</span><b class="num">${v}</b></li>`).join('')}</ul></div>
-      <div class="row2"><button class="btn" type="button"><span>להתקשר לעידו</span><small>20 דק׳ · שיחת עומק</small></button><button class="btn" type="button"><span>הליכה בלי אוזניות</span><small>20 דק׳ · תנועה</small></button></div>`,
-    emo: () => `<div class="card"><p class="sec-h">חמש היבשות · השבוע</p><ul class="list">${[['פחד', 82, '#9B6BFF', .2], ['כעס', 64, '#FF5A36', .25], ['עצב', 48, '#3FC8F5', .45], ['הנאה', 41, '#FFD23F', .8], ['גועל', 30, '#3DDC97', .6]].map(([n, v, f, r]) => `<li>${mini(r, f, 8, 32)}<span>${n}</span><b class="num">${v}</b></li>`).join('')}</ul></div>
-      <div class="card"><p class="sec-h">פחד · מה הדליק</p><p style="font-size:14px;line-height:1.45">שיחה עם הבנק, 11:10. לא נאמר לאף אחד.</p></div>`,
-    crew: () => `<div class="card"><p class="sec-h">9 ימים בלי שיחת עומק</p><ul class="list">${['עידו', 'דורון', 'אלון', 'אבא'].map((n) => `<li><span class="num" style="font-weight:900;font-size:17px">${n[0]}</span><span>${n}</span><button class="btn" type="button" style="min-height:40px;padding:4px 12px;font-size:13px">להתקשר</button></li>`).join('')}</ul></div>
-      <button class="btn is-ink" type="button" style="width:100%;margin-top:14px">שיחה קבוצתית</button>`,
-    trends: () => `<div class="card"><p class="sec-h">7 ימים</p><div class="week">${[.5, .4, .35, .3, .25, .2, .15].map((r, i) => `<div>${mini(r, '', 9, 34)}<span class="num">${9 + i}.12</span></div>`).join('')}</div></div>
-      <div class="card"><p class="big"><b class="num">+475</b><span>MPL ב-30 יום</span></p></div>`,
-    gain: () => `<div class="card"><p class="big"><b class="num">340</b><span>כוכבים</span></p></div>
-      <div class="card"><p class="sec-h">לממש</p><ul class="list">${[['ערב זוגי · מסעדה לשניים', 300], ['שליטה בכעסים · 4 מפגשים', 400], ['מפגש עם מטפל', 500]].map(([n, c]) => `<li><span></span><span>${n}</span><b class="num">${c}</b></li>`).join('')}</ul></div>`,
+  const emoPage = (l) => {
+    const n = l.st.length, total = l.st.reduce((s, x) => s + x[1], 0);
+    return `<div class="card"><p class="sec-h">תת-הרגשות · מהקל לעז</p><p class="sec-s">${total} רגעים שהמדבקה מיפתה השבוע</p>
+      <ul class="states" style="--c:${l.fill}">${l.st.map(([name, c], i) => `<li class="${c ? '' : 'is-zero'}"><span>${name}</span><span class="lvl" aria-label="עוצמה ${i + 1} מתוך ${n}"><i style="inset-inline-start:${(i / (n - 1)) * 100}%"></i></span><b class="num">${c}</b></li>`).join('')}</ul>
+      <p class="scale"><span>קל</span><span>עז</span></p></div>
+      <div class="card"><p class="sec-h">מה הדליק השבוע</p><p style="font-size:14px;line-height:1.45;margin-top:4px">${l.trig}</p></div>`;
   };
+  const icon = (l, s = 34) => { const d = silPath(SIL[l.id], s / 2, s / 2, s * .41, 0); return `<svg viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" aria-hidden="true" style="overflow:visible"><path d="${d}" fill="#121212" transform="translate(2 2)"/><path d="${d}" fill="${l.fill}" stroke="#121212" stroke-width="2"/></svg>`; };
+  const todayPage = () => `<div class="card"><p class="big"><b class="num">775</b><span>MPL</span></p><p style="margin-top:6px;font-size:14px;color:var(--ink-2)">12 ימים בלי שחרור באף מדד</p></div>
+    <div class="card"><p class="sec-h">חמש היבשות · השבוע</p><ul class="list">${L.filter((l) => !l.center).map((l) => `<li>${icon(l)}<span>${l.name}</span><b class="num">${l.v}</b></li>`).join('')}</ul></div>
+    <div class="row2"><button class="btn" type="button"><span>להתקשר לעידו</span><small>מעל 5 דק׳ · שיחת עומק</small></button><button class="btn" type="button"><span>הליכה בלי אוזניות</span><small>20 דק׳ · תנועה</small></button></div>`;
 
   const openLobe = (l) => {
     if (open) return;
     open = l; goal = 1;
     $('#map').classList.add('is-open'); $('#phone').classList.add('is-page');
-    $('#page').innerHTML = `<header class="p-head">${homeBtn()}<div><h1>${l.name}</h1><p>${l.sub}</p></div></header>${PAGES[l.id]()}`;
+    $('#page').innerHTML = `<header class="p-head"><button class="p-home" type="button" id="p-home" aria-label="חזרה לצורה">${miniMap()}</button><div><h1>${l.name}</h1><p>${l.center ? l.sub : `${l.v} השבוע · לפי אטלס הרגשות`}</p></div></header>${l.center ? todayPage() : emoPage(l)}`;
+    $('#page').scrollTop = 0;
     $('#p-home').addEventListener('click', closeLobe);
     setTimeout(() => $('#p-home')?.focus({ preventScroll: true }), 400);
   };

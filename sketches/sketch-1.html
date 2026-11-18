@@ -20,7 +20,7 @@
 .fold > * { min-height: 0; overflow: hidden; padding: 6px 10px 10px 6px; margin: -6px -10px -10px -6px; }
 .fold.is-folded { grid-template-rows: 0fr; opacity: 0; filter: blur(6px) grayscale(1); margin-block: 0 !important; pointer-events: none; }
 /* waking up is not gentle: everything comes back at once */
-.phone.is-waking .fold, .phone.is-waking .card, .phone.is-waking .tabbar, .phone.is-waking .tabbar span { transition-duration: .28s; transition-timing-function: var(--pop); }
+.phone.is-waking .fold, .phone.is-waking .card, .phone.is-waking .tabbar, .phone.is-waking .tabbar button, .phone.is-waking .tabbar button span { transition-duration: .28s; transition-timing-function: var(--pop); }
 
 .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
 .date { margin-top: 10px; font-size: 14px; font-weight: 700; color: var(--ink-2); }
@@ -69,17 +69,21 @@
 .phone.is-free .free { opacity: 1; translate: 0 0; }
 .free h2 { font-size: 26px; font-weight: 700; line-height: 1.2; }
 .free p { font-size: 14px; color: var(--ink-2); line-height: 1.45; }
-.sensor { position: absolute; z-index: 7; bottom: 34px; inset-inline: 0; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--ink-2); opacity: 0; transition: opacity 1s var(--ease) .8s; }
+.sensor { position: absolute; z-index: 7; bottom: 88px; inset-inline: 0; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--ink-2); opacity: 0; transition: opacity 1s var(--ease) .8s; }
 .sensor i { width: 9px; height: 9px; border-radius: 50%; background: var(--ink); animation: listen 2.6s ease-in-out infinite; }
 @keyframes listen { 50% { transform: scale(.55); opacity: .45; } }
 .phone.is-free .sensor { opacity: 1; }
 
-.tabbar { position: absolute; z-index: 6; inset-inline: 0; bottom: 0; height: 92px; padding: 10px 12px 22px; display: flex; justify-content: space-around; align-items: center; background: var(--panel); border-top: 3px solid var(--ink); transition: translate 1s var(--ease), opacity 1s var(--ease); }
-.tabbar span { display: grid; justify-items: center; gap: 4px; width: 64px; font-size: 12px; color: var(--ink-2); transition: opacity .6s var(--ease), width .8s var(--ease); overflow: hidden; }
-.tabbar span.is-on { color: var(--ink); font-weight: 700; }
+.tabbar { position: absolute; z-index: 6; inset-inline: 0; bottom: 0; height: 92px; transition: height .8s var(--ease), background .8s var(--ease), border-color .8s var(--ease), padding .8s var(--ease); padding: 10px 12px 22px; display: flex; justify-content: space-around; align-items: center; background: var(--panel); border-top: 3px solid var(--ink); transition: translate 1s var(--ease), opacity 1s var(--ease); }
+.tabbar button { display: grid; justify-items: center; gap: 4px; width: 64px; min-height: 52px; font-size: 12px; color: var(--ink-2); border-radius: 12px; transition: color .6s var(--ease), gap .6s var(--ease); }
+.tabbar button.is-on { color: var(--ink); font-weight: 700; }
+.tabbar button span { display: block; overflow: hidden; max-height: 1.4em; transition: max-height .6s var(--ease), opacity .6s var(--ease); }
+/* quiet: no names, thin line, no fill; still five ways in */
+.tabbar.is-quiet { height: 70px; padding-bottom: 14px; background: transparent; border-top-width: 1px; border-top-color: rgba(18, 18, 18, .18); }
+.tabbar.is-quiet button { gap: 0; color: rgba(18, 18, 18, .55); }
+.tabbar.is-quiet button span { max-height: 0; opacity: 0; }
+.tabbar.is-quiet button:hover, .tabbar.is-quiet button:focus-visible { color: var(--ink); }
 .tabbar svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
-.tabbar span.is-folded { opacity: 0; width: 0; }
-.tabbar.is-folded { translate: 0 110%; opacity: 0; }
 .scroll { padding-bottom: 120px; }
 
 /* the wake: a hard red flash through the screen */
@@ -103,13 +107,13 @@
   <aside class="notes" aria-label="על הסקיצה">
     <h1>סקיצה 1</h1>
     <p class="sub">WHEEP מרפה</p>
-    <p>כל יום ברצף שבו ארבעת המדדים השתחררו, האפליקציה מרפה ממנו עוד קצת. אחרי 7 ימים היא שותקת: בלי מספרים, בלי התראות, בלי תפריט. רק החיישן ממשיך להקשיב. כעס שנשאר בפנים מעיר אותה.</p>
+    <p>כל יום ברצף שבו ארבעת המדדים השתחררו, האפליקציה מרפה ממנו עוד קצת. אחרי 7 ימים היא שותקת: בלי מספרים ובלי התראות. הטאבים נשארים, שקטים: אפשר להיכנס, היא לא מזמינה. רק החיישן ממשיך להקשיב. כעס שנשאר בפנים מעיר אותה.</p>
     <ol id="steps">
       <li data-s="0">יום 0: כל המדידה. התראה, מספר, מדדים, פעולות, 5 טאבים</li>
       <li data-s="2">ימים 1–2: ההתראות כבות. האזהרה נעלמת</li>
-      <li data-s="4">ימים 3–4: אין פעולות לעשות. הטאבים מתמעטים</li>
+      <li data-s="4">ימים 3–4: אין פעולות לעשות. הטאבים נשארים, בלי שמות</li>
       <li data-s="6">ימים 5–6: אין מספרים. אין מדדים</li>
-      <li data-s="7">יום 7: WHEEP מרפה. רק החיישן</li>
+      <li data-s="7">יום 7: WHEEP מרפה. הצורה, החיישן, וחמש דרכים פנימה</li>
     </ol>
   </aside>
 
@@ -167,11 +171,11 @@
       <p class="sensor"><i aria-hidden="true"></i>החיישן מקשיב · מתחת לעין שמאל</p>
 
       <nav class="tabbar" id="tabbar" aria-label="ניווט">
-        <span class="is-on" data-tab="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2"/></svg>היום</span>
-        <span data-tab="1"><svg viewBox="0 0 24 24"><path d="M5 19.5v-15h6a3.5 3.5 0 0 1 3.5 3.5v6.5"/><path d="M19 4.5v15h-6a3.5 3.5 0 0 1-3.5-3.5V9.5"/></svg>רווחה</span>
-        <span data-tab="2"><svg viewBox="0 0 24 24"><path d="M12 3l8.5 6.2-3.2 10H6.7L3.5 9.2z"/></svg>רגשות</span>
-        <span data-tab="3"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.25"/><path d="M3 19.5c.7-3.2 3-5 6-5s5.3 1.8 6 5"/></svg>החבר'ה</span>
-        <span data-tab="4"><svg viewBox="0 0 24 24"><path d="M3.75 20.25h16.5"/><path d="M4.75 15.5l4.5-4.25 3.75 2.75 5.5-6.5"/></svg>מגמות</span>
+        <button type="button" class="is-on" data-tab="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2"/></svg><span>היום</span></button>
+        <button type="button" data-tab="1"><svg viewBox="0 0 24 24"><path d="M5 19.5v-15h6a3.5 3.5 0 0 1 3.5 3.5v6.5"/><path d="M19 4.5v15h-6a3.5 3.5 0 0 1-3.5-3.5V9.5"/></svg><span>רווחה</span></button>
+        <button type="button" data-tab="2"><svg viewBox="0 0 24 24"><path d="M12 3l8.5 6.2-3.2 10H6.7L3.5 9.2z"/></svg><span>רגשות</span></button>
+        <button type="button" data-tab="3"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.25"/><path d="M3 19.5c.7-3.2 3-5 6-5s5.3 1.8 6 5"/></svg><span>החבר'ה</span></button>
+        <button type="button" data-tab="4"><svg viewBox="0 0 24 24"><path d="M3.75 20.25h16.5"/><path d="M4.75 15.5l4.5-4.25 3.75 2.75 5.5-6.5"/></svg><span>מגמות</span></button>
       </nav>
     </div>
   </div>
@@ -210,8 +214,7 @@
     ph.classList.toggle('is-free', free);
     $$('[data-until]').forEach((el) => el.classList.toggle('is-folded', streak >= +el.dataset.until));
     // the tab bar lets go a tab at a time, then itself
-    $$('#tabbar [data-tab]').forEach((t) => t.classList.toggle('is-folded', +t.dataset.tab > 4 - Math.floor(streak / 1.5) && +t.dataset.tab !== 0));
-    $('#tabbar').classList.toggle('is-folded', streak >= 6);
+    $('#tabbar').classList.toggle('is-quiet', streak >= 4);
     $('#streak-n').textContent = streak;
     $('#date').textContent = DATES[Math.min(7, streak)];
     $('#mpl').textContent = Math.round(775 - r * 560);
@@ -221,7 +224,7 @@
     $('#day-btn').disabled = free;
     $('#readout').textContent = free ? 'האפליקציה שותקת. רק כעס שנשאר בפנים יעיר אותה.' : `רצף: ${streak} מתוך 7.`;
     $('#hero').setAttribute('aria-label', free ? 'הצורה, שקטה' : `הצורה של היום, רצף ${streak} מתוך 7`);
-    if (streak > last && last >= 0) toast(['', 'ההתראות כבו. לא צריך אותן.', 'אזהרת הלחץ נמחקה.', 'אין יותר פעולות לעשות.', 'פחות טאבים. אין לאן ללכת.', 'המספר הוסר.', 'המדדים הוסרו.', 'WHEEP מרפה.'][streak]);
+    if (streak > last && last >= 0) toast(['', 'ההתראות כבו. לא צריך אותן.', 'אזהרת הלחץ נמחקה.', 'אין יותר פעולות לעשות.', 'הטאבים שקטים. אפשר להיכנס, WHEEP לא מזמין.', 'המספר הוסר.', 'המדדים הוסרו.', 'WHEEP מרפה.'][streak]);
     last = streak;
   };
 
@@ -232,6 +235,11 @@
     streak = 0; cur = 0; ph.classList.add('is-waking'); render();
     toast(was >= 7 ? 'WHEEP התעורר. החיישן קלט כעס שנשאר בפנים · ישיבת צוות, 14:20. הרצף התאפס.' : 'החיישן קלט כעס שנשאר בפנים · ישיבת צוות, 14:20. הרצף התאפס.', 3600);
     setTimeout(() => ph.classList.remove('is-waking'), 900);
+  });
+  $('#tabbar').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-tab]'); if (!b) return;
+    $$('#tabbar [data-tab]').forEach((t) => t.classList.toggle('is-on', t === b));
+    if (streak >= 7) toast(`${b.textContent.trim()} · הכל נמדד גם עכשיו. WHEEP רק לא מציג את זה בעצמו.`);
   });
   $('#reset-btn').addEventListener('click', () => { streak = 0; last = -1; cur = target = .12; render(); });
 
