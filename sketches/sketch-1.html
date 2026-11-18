@@ -16,7 +16,8 @@
 
 /* anything the app no longer needs folds away: height, colour, then place */
 .fold { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .9s var(--ease), opacity .6s var(--ease), filter .6s var(--ease), margin .9s var(--ease); }
-.fold > * { min-height: 0; overflow: hidden; }
+/* room for the hard shadows (right, down) and the tilted sticker, so the clip never bites them */
+.fold > * { min-height: 0; overflow: hidden; padding: 6px 10px 10px 6px; margin: -6px -10px -10px -6px; }
 .fold.is-folded { grid-template-rows: 0fr; opacity: 0; filter: blur(6px) grayscale(1); margin-block: 0 !important; pointer-events: none; }
 /* waking up is not gentle: everything comes back at once */
 .phone.is-waking .fold, .phone.is-waking .card, .phone.is-waking .tabbar, .phone.is-waking .tabbar span { transition-duration: .28s; transition-timing-function: var(--pop); }
