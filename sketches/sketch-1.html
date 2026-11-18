@@ -97,6 +97,10 @@
 .tp-list li:last-child { border-bottom: 0; }
 .tp-list b { font-weight: 900; }
 .tp-list .btn { min-height: 40px; padding: 4px 12px; font-size: 13px; }
+.tp-key { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--ink-2); }
+.tp-key span { width: 16px; height: 10px; border: 2px solid var(--ink); border-radius: 3px; margin-inline-start: 8px; }
+.tp-key .k-now { background: var(--yellow); margin-inline-start: 0; }
+.tp-key .k-prev { border-style: dashed; }
 .tabbar button span { display: block; overflow: hidden; max-height: 1.4em; transition: max-height .6s var(--ease), opacity .6s var(--ease); }
 /* quiet: no names, thin line, no fill; still five ways in */
 .tabbar svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
@@ -258,10 +262,31 @@
     setTimeout(() => ph.classList.remove('is-waking'), 900);
   });
   // the pages behind the tabs, for as long as the tabs are there
+  // רגשות: the FIFA-style player card of the week. This week filled, last week dashed.
+  const radarPage = () => {
+    const E = [['פחד', 82 - streak * 8, 70, '#9B6BFF', 9], ['כעס', 64 - streak * 6, 58, '#FF5A36', 9], ['עצב', 48 - streak * 3, 52, '#3FC8F5', 7], ['גועל', 30 - streak * 2, 34, '#3DDC97', 8], ['הנאה', 41 + streak * 5, 38, '#FFD23F', 6]];
+    const cx = 165, cy = 162, R = 96;
+    const pt = (i, v) => { const a = -Math.PI / 2 + i * (2 * Math.PI / 5); return [cx + Math.cos(a) * R * v / 99, cy + Math.sin(a) * R * v / 99]; };
+    const poly = (vals) => vals.map((v, i) => pt(i, v).map((n) => n.toFixed(1)).join(',')).join(' ');
+    let g = '';
+    [20, 40, 60, 80, 99].forEach((v) => { g += `<polygon points="${poly(E.map(() => v))}" fill="none" stroke="#121212" stroke-opacity=".16" stroke-width="1.2"/>`; });
+    E.forEach((_, i) => { const [x, y] = pt(i, 99); g += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#121212" stroke-opacity=".16" stroke-width="1.2"/>`; });
+    const now = poly(E.map((e) => e[1]));
+    g += `<polygon points="${now}" transform="translate(3 3)" fill="#121212"/><polygon points="${now}" fill="#FFD23F" stroke="#121212" stroke-width="2.6" stroke-linejoin="round"/>`;
+    g += `<polygon points="${poly(E.map((e) => e[2]))}" fill="none" stroke="#121212" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`;
+    E.forEach(([n, v, , f, k], i) => {
+      const [x, y] = pt(i, v), [lx, ly] = pt(i, 128);
+      g += `<circle cx="${x}" cy="${y}" r="5.5" fill="${f}" stroke="#121212" stroke-width="2"/>`;
+      g += `<g transform="translate(${lx.toFixed(1)} ${(ly - 10).toFixed(1)})"><g transform="translate(-14 -30)">${mini(Math.min(1, .25 + streak / 9), f, k, 28)}</g><text y="14" text-anchor="middle" font-size="14" font-weight="900" font-family="Leon, system-ui, sans-serif">${n} <tspan direction="ltr">${v}</tspan></text></g>`;
+    });
+    return `<h1 class="sticker">רגשות</h1><div class="card"><p class="tp-h">חמש היבשות · עוצמה 0–99</p>
+      <p class="tp-key"><span class="k-now"></span>השבוע<span class="k-prev"></span>לפני הרצף</p>
+      <svg viewBox="0 0 330 320" role="img" aria-label="עוצמת הרגשות השבוע: ${E.map((e) => `${e[0]} ${e[1]}`).join(', ')}" style="width:100%;height:auto;overflow:visible;margin-top:6px">${g}</svg></div>`;
+  };
   const PAGES = {
     1: () => `<h1 class="sticker">רווחה</h1><div class="card"><p class="tp-big"><b class="num">${340 + streak * 30}</b><span>כוכבים</span></p></div>
       <div class="card"><p class="tp-h">לממש</p><ul class="tp-list">${[['ערב זוגי · מסעדה לשניים', 300], ['שליטה בכעסים · 4 מפגשים', 400], ['מפגש עם מטפל · 50 דק׳', 500]].map(([t, c]) => `<li><span></span><span>${t}</span><b class="num">${c}</b></li>`).join('')}</ul></div>`,
-    2: () => `<h1 class="sticker">רגשות</h1><div class="card"><p class="tp-h">חמש היבשות · השבוע</p><ul class="tp-list">${[['פחד', 82 - streak * 8, '#9B6BFF'], ['כעס', 64 - streak * 6, '#FF5A36'], ['עצב', 48 - streak * 3, '#3FC8F5'], ['גועל', 30 - streak * 2, '#3DDC97'], ['הנאה', 41 + streak * 5, '#FFD23F']].map(([n, v, f]) => `<li>${mini(Math.min(1, .2 + streak / 8), f, 8, 32)}<span>${n}</span><b class="num">${v}</b></li>`).join('')}</ul></div>`,
+    2: () => radarPage(),
     3: () => `<h1 class="sticker">החבר'ה</h1><div class="card"><p class="tp-h">${streak ? `${streak} ימים עם שיחה` : '9 ימים בלי שיחת עומק'}</p><ul class="tp-list">${['עידו', 'דורון', 'אלון', 'אבא'].map((n) => `<li><span style="font-weight:900">${n[0]}</span><span>${n}</span><button class="btn" type="button">להתקשר</button></li>`).join('')}</ul></div>`,
     4: () => `<h1 class="sticker">מגמות</h1><div class="card"><p class="tp-h">MPL · 7 ימים</p><ul class="tp-list">${DATES.slice(0, 7).map((d, i) => `<li>${i < streak ? mini(.95, '#3FC8F5', 9, 28) : mini(.25, '', 9, 28)}<span class="num">${d}</span><b class="num">${i < streak ? 775 - (i + 1) * 80 : 775}</b></li>`).join('')}</ul></div>`,
   };
