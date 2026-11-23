@@ -13,14 +13,13 @@ window.WHEEP = (() => {
     }
     return `${d}Z`;
   };
-  const KB = [[255, 90, 54], [255, 210, 63], [63, 200, 245]];
-  const kb = (t) => { t = clamp(t) * 2; const i = Math.min(1, Math.floor(t)), f = t - i; return `rgb(${KB[i].map((x, k) => Math.round(x + (KB[i + 1][k] - x) * f))})`; };
-  // a small brutalist shape: hard ink shadow, outline, flat fill
+  // the app's three palette steps: held in (violet) / between (grey) / let out (green)
+  const kb = (t) => (t < .34 ? '#9B6BFF' : t < .67 ? '#ABA6BC' : '#3DDC97');
+  // a small flat shape in its colour
   const mini = (round, fill = kb(round), n = 9, size = 40, dashed = false) => {
     const c = size / 2, d = polar({ round, R: c * .84, cx: c, cy: c, n });
     return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" aria-hidden="true" style="overflow:visible">`
-      + (dashed ? `<path d="${d}" fill="none" stroke="#121212" stroke-width="1.5" stroke-dasharray="3 3"/>`
-        : `<path d="${d}" fill="#121212" transform="translate(2 2)"/><path d="${d}" fill="${fill}" stroke="#121212" stroke-width="2" stroke-linejoin="round"/>`)
+      + (dashed ? `<path d="${d}" fill="${fill}" opacity=".35"/>` : `<path d="${d}" fill="${fill}"/>`)
       + '</svg>';
   };
   // fit the phone(s) to the window on desktop

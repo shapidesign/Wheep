@@ -24,9 +24,9 @@
 .friends h2 { font-size: 15px; font-weight: 900; }
 .friends > p { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
 .f-list { list-style: none; display: grid; margin-top: 8px; }
-.f-list li { display: grid; grid-template-columns: 40px 1fr auto auto; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid rgba(18, 18, 18, .12); }
+.f-list li { display: grid; grid-template-columns: 40px 1fr auto auto; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .f-list li:last-child { border-bottom: 0; }
-.av { width: 40px; height: 40px; display: grid; place-items: center; font-size: 17px; font-weight: 900; background: var(--panel); border: 2px solid var(--ink); border-radius: 50%; }
+.av { width: 40px; height: 40px; display: grid; place-items: center; font-size: 17px; font-weight: 900; background: var(--panel); border: 1px solid var(--line); border-radius: 50%; }
 .f-list .name { font-size: 16px; font-weight: 700; }
 .f-list .btn { min-height: 40px; padding: 4px 10px; font-size: 13px; }
 
@@ -42,19 +42,19 @@
 .in .btn { min-height: 40px; font-size: 13px; padding: 6px 12px; }
 .in.is-on .card { animation: arrive .7s var(--pop); }
 .openers { display: grid; gap: 8px; margin-top: 12px; }
-.openers button { min-height: 40px; padding: 8px 12px; text-align: start; font-size: 14px; font-weight: 700; background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; }
-.openers button[aria-checked="true"] { background: var(--ink); color: #fff; }
-.bubble { display: inline-block; margin-top: 8px; padding: 10px 14px; font-size: 16px; font-weight: 700; line-height: 1.35; background: var(--panel); border: 2px solid var(--ink); border-radius: 16px 16px 16px 4px; }
+.openers button { min-height: 40px; padding: 8px 12px; text-align: start; font-size: 14px; font-weight: 700; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.openers button[aria-checked="true"] { background: var(--ink); color: var(--on-ink); }
+.bubble { display: inline-block; margin-top: 8px; padding: 10px 14px; font-size: 16px; font-weight: 700; line-height: 1.35; background: var(--panel); border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; }
 @keyframes arrive { from { transform: translateY(-14px) rotate(-2deg); } }
 
 /* the call: both phones at once */
-.call { position: absolute; z-index: 9; inset: 0; display: grid; align-content: center; justify-items: center; gap: 14px; padding: 40px; text-align: center; color: #fff; background: var(--ink); opacity: 0; pointer-events: none; transition: opacity .4s var(--ease); }
+.call { position: absolute; z-index: 9; inset: 0; display: grid; align-content: center; justify-items: center; gap: 14px; padding: 40px; text-align: center; color: var(--ink); background: #000; opacity: 0; pointer-events: none; transition: opacity .4s var(--ease); }
 .call.is-on { opacity: 1; pointer-events: auto; }
-.call .av { width: 96px; height: 96px; font-size: 40px; color: var(--ink); border-width: 3px; }
+.call .av { width: 96px; height: 96px; font-size: 40px; color: var(--ink); background: var(--panel-2); }
 .call .c-name { font-size: 26px; font-weight: 900; }
 .call .c-time { font-size: 48px; font-weight: 200; }
-.call .c-out { min-height: 3em; font-size: 15px; line-height: 1.45; color: #E6E2F2; }
-.call .btn { background: var(--red); color: var(--ink); box-shadow: 3px 3px 0 #fff; border-color: #fff; }
+.call .c-out { min-height: 3em; font-size: 15px; line-height: 1.45; color: var(--ink-2); }
+.call .btn { background: var(--red); color: var(--on-ink); border: 0; }
 
 /* a thought, travelling from one phone to the other */
 .flyer { position: fixed; z-index: 50; top: 0; left: 0; width: 46px; height: 46px; pointer-events: none; }

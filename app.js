@@ -25,11 +25,8 @@
     ph.appendChild(el);
     el.addEventListener('animationend', () => ph.removeChild(el), { once: true });
   };
-  // AURA: the same app as light, not ink. Every shape is a blurred gradient orb on cream;
-  // the sharper (kiki) a shape is, the crisper its edge; the rounder (bouba), the more it dissolves into the page.
-  const AURA = document.documentElement.classList.contains('aura');
   // WHEEP palette. Colour means a measure or a feeling, never decoration; UI, people and stars stay neutral.
-  // Mirrored as --m-* in track.css.
+  // Mirrored as --m-* in wheep.css.
   const PAL = {
     cry: '#3FC8F5',      // בכי
     anger: '#FF5A36',    // כעס
@@ -43,23 +40,6 @@
     silence: '#ABA6BC',  // שתיקה: grey on purpose, nothing came out
     person: '#2E2A3A',   // avatars: people are not measures
   };
-  const RMAP = { '#3FC8F5': '#3D8BE0', '#FF5A36': '#F0504A', '#9B6BFF': '#8C7BE8', '#FF7AC6': '#F27BC4', '#FFD23F': '#F7C531', '#3DDC97': '#4FCB8A' };
-  const R = (hex) => (AURA && hex ? RMAP[hex] || hex : hex);
-  // the halo hue around each core: neighbours on the colour wheel, so every orb carries two lights
-  const HALO = { '#3D8BE0': '#F27BC4', '#F0504A': '#F7C531', '#8C7BE8': '#3D8BE0', '#F27BC4': '#F7A23B', '#F7C531': '#FF8A3D', '#4FCB8A': '#D6E35A' };
-  const haloOf = (c) => HALO[c] || '#F7C531';
-  let gseq = 0;
-  const auraSvg = (d, f, round, cls, attrs, dim = false) => {
-    const id = `au${++gseq}`, r = Math.max(0, Math.min(1, round)), h = haloOf(f);
-    const glow = (1.2 + r * 3.6).toFixed(2), edge = (.12 + r * .5).toFixed(2), sc = (1.04 + r * .14).toFixed(3);
-    return `<svg class="${cls} aura-orb" viewBox="0 0 48 48"${attrs}><defs>`
-      + `<radialGradient id="${id}g" cx="40%" cy="36%" r="72%"><stop offset="0" stop-color="${h}"/><stop offset=".55" stop-color="${f}"/><stop offset="1" stop-color="${f}"/></radialGradient>`
-      + `<filter id="${id}h" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="${glow}"/></filter>`
-      + `<filter id="${id}e" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${edge}"/></filter></defs>`
-      + `<g${dim ? ' opacity=".42"' : ''}><path d="${d}" fill="${h}" opacity="${(.35 + r * .3).toFixed(2)}" filter="url(#${id}h)" transform="translate(24 24) scale(${sc}) translate(-24 -24)"/>`
-      + `<path d="${d}" fill="url(#${id}g)" filter="url(#${id}e)"/></g></svg>`;
-  };
-  const rf = (arr) => { if (AURA) arr.forEach((x) => { x.fill = R(x.fill); }); return arr; };
   // the shape set drawn in Figma (wheep-shapes): one file per measure and per emotion, white, recoloured here
   const FIG = { fear: ['pachad', 116, 114], anger: ['kaas', 155.846, 155.846], sad: ['bechi', 123, 173], shame: ['hadhaka', 138.656, 138.656],
     joy: ['hanaa', 126, 126], talk: ['hanaa', 126, 126], release: ['shichrur', 134.1, 149], press: ['hadhaka', 138.656, 138.656], cry: ['bechi', 123, 173] };
@@ -69,17 +49,6 @@
     const pos = x == null ? '' : ` x="${x}" y="${y}" width="${size}" height="${size}"`;
     return `<svg class="${cls}" viewBox="0 0 ${size} ${size}"${pos} aria-hidden="true"><mask id="${id}"><image href="shapes/${f}.svg" x="${((size - iw) / 2).toFixed(2)}" y="${((size - ih) / 2).toFixed(2)}" width="${iw.toFixed(2)}" height="${ih.toFixed(2)}"/></mask><rect width="${size}" height="${size}" fill="${color}" mask="url(#${id})"/></svg>`;
   };
-  // one switch between the two skins; the open screen survives the reload
-  const SKIN = AURA ? 'aura' : document.documentElement.classList.contains('track') ? 'track' : 'brutal';
-  $$('.skin-switch button').forEach((b) => {
-    b.setAttribute('aria-checked', String(b.dataset.skin === SKIN));
-    b.addEventListener('click', () => {
-      if (b.dataset.skin === SKIN) return;
-      localStorage.setItem('wheepSkin', b.dataset.skin);
-      sessionStorage.setItem('wheepTab', ($('.screen:not([hidden])')?.id || 'screen-today').replace('screen-', ''));
-      location.replace(location.pathname);
-    });
-  });
 
   /* ── device scaling (desktop presentation) ── */
   const device = $('#device');
@@ -131,8 +100,7 @@
   const polar = ({ round = 0, R = 20, cx = 24, cy = 24, n = 9, amp, k, tremble = 0, phase = 0, N = 180, base = 'burst', lobes = 1 }) => {
     const B = BASE[base], S = SHARP[base];
     cy += (OFF[base] || 0) * R;
-    const A = (amp ?? lerp(.5, .07, round)) * S * (AURA ? .78 : 1), K = k ?? lerp(2.6, 1, round);
-    const ph = AURA ? base.length * 1.37 + n * .41 : 0;   // each silhouette gets its own organic lobes
+    const A = (amp ?? lerp(.5, .07, round)) * S, K = k ?? lerp(2.6, 1, round);
     let d = '';
     for (let j = 0; j < N; j++) {
       const u = (j / N) * n * 2;                          // two units per spike
@@ -141,20 +109,16 @@
       const w = lerp(tri ** K, soft, round);
       const spike = Math.floor((u + 1) / 2);
       const ang = -Math.PI / 2 + (j / N) * Math.PI * 2;
-      const lobe = AURA ? 1 + lobes * (.06 * Math.sin(3 * ang + ph) + .03 * Math.sin(5 * ang + ph * 1.7) + .02 * Math.sin(2 * ang + ph * .6)) : 1;
-      const r = R * B(ang) * lobe * (1 - A * (1 - w)) * (1 + tremble * Math.sin(phase + spike * 1.9) * w);
+      const r = R * B(ang) * (1 - A * (1 - w)) * (1 + tremble * Math.sin(phase + spike * 1.9) * w);
       d += `${j ? 'L' : 'M'}${(cx + r * Math.cos(ang)).toFixed(2)} ${(cy + r * Math.sin(ang)).toFixed(2)}`;
     }
     return d + 'Z';
   };
-  // flat three-stop scale: kiki red → tense yellow → bouba cyan (a colour per state, never a gradient)
-  const KB = AURA ? [[240, 80, 74], [247, 197, 49], [61, 139, 224]] : [[255, 90, 54], [255, 210, 63], [63, 200, 245]];
+  // three palette steps: held in / between / let out
   const kbColor = (round) => (round < .34 ? PAL.press : round < .67 ? PAL.silence : PAL.release);
-  // neo-brutalist shape: flat fill, thick ink outline, hard offset shadow (a second path)
-  const INK = '#121212';
+  // a flat shape in its measure's colour
   const mini = (round, cls = 'mini', dashed = false, label = '', fill, base = 'burst', n = 9, shadow = false) => {
     const d = polar({ round, R: 18, base, n });
-    if (AURA) return auraSvg(d, R(fill) || kbColor(round), round, cls, ` ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}`, dashed);
     return `<svg class="${cls}" viewBox="0 0 48 48" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}><path d="${d}" fill="${fill || kbColor(round)}"${dashed ? ' opacity=".4"' : ''}/></svg>`;
   };
 
@@ -216,7 +180,6 @@
       $('.phone').classList.toggle('on-today', name === 'today');
       $('.phone').classList.toggle('on-profile', name === 'profile');
     });
-    setFrame(curTarget());
     if (name === 'trends') drawTrends();
   };
   tabs.forEach((t) => t.addEventListener('click', () => show(t.dataset.tab)));
@@ -227,13 +190,6 @@
   });
   $$('[data-go]').forEach((b) => b.addEventListener('click', () => show(b.dataset.go)));
 
-  /* ── sky: the screen's ground follows the weather of the scrubbed day ── */
-  const DRY = ['#0A0E2E', '#15195A', '#12406A', '#0C5A66'];
-  const WET = ['#071C2C', '#0B3D57', '#0E5F6E', '#11806F'];
-  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-  const mix = (a, b, t) => `rgb(${hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * t)).join(',')})`;
-  const phoneEl = $('.phone');
-  const setSky = () => {};                                // the brutalist ground stays flat
   const wetness = (d) => Math.max(0, Math.min(1, (flowAt(d) - .08) / .55));
 
   /* ── "מה זה WHEEP": the info button opens the explanation ── */
@@ -265,7 +221,7 @@
   $$('.screen').forEach((sc) => sc.addEventListener('scroll', () => $('.phone').classList.toggle('is-scrolled', sc.scrollTop > 24), { passive: true }));
 
   /* ── what the man inside needs (said in the third person on purpose: the app keeps him like a pet) ── */
-  const NEEDS = rf([
+  const NEEDS = ([
     { id: 'talk', name: 'שיחה', base: 'bubble', n: 6, fill: PAL.talk, v: 20 },
     { id: 'move', name: 'תנועה', base: 'blob', n: 7, fill: PAL.joy, v: 45 },
     { id: 'sleep', name: 'שינה', base: 'bean', n: 6, fill: PAL.press, v: 35 },
@@ -275,21 +231,10 @@
   const NEEDS0 = needsAvg();
   const care = () => Math.max(0, needsAvg() - NEEDS0) * .6;
 
-  // the frame is the variable: as the shape softens, the ink thins, the shadows drop and the corners round.
-  // Today's sharp shape (~.3) keeps the full brutal frame; the round day after a cry (~.86) has almost none.
-  const setFrame = (round) => {
-    if (AURA || document.documentElement.classList.contains('track')) return;   // only the brutalist skin breathes its frame
-    const k = Math.max(0, Math.min(1, (round - .3) / .5)), ph = $('.phone').style, o = (6 * (1 - k)).toFixed(1), o2 = (4 * (1 - k)).toFixed(1);
-    ph.setProperty('--sh', `${o}px ${o}px 0 var(--plate)`);
-    ph.setProperty('--sh-sm', `${o2}px ${o2}px 0 var(--plate)`);
-    ph.setProperty('--bw', `${(3 - 1.8 * k).toFixed(2)}px`);
-    ph.setProperty('--r', `${Math.round(14 + 16 * k)}px`);
-    $('.phone').dataset.frame = k > .66 ? 'round' : k > .2 ? 'mid' : 'sharp';
-  };
 
   /* ── four measures, each its own Bouba/Kiki shape; the hero is their average ── */
   const state = { press: 9, talks: 4 };
-  const METRICS = rf([
+  const METRICS = ([
     { id: 'cry', name: 'בכי', base: 'drop', n: 7, fill: PAL.cry, val: () => '0', sub: '1 לא מאומת', goal: 'יעד: 1', round: () => .08 },
     { id: 'anger', name: 'כעס שנאמר', base: 'burst', n: 9, fill: PAL.anger, val: () => '1/3', sub: '2 נשארו בפנים', goal: 'יעד: 3/3', round: () => .3 },
     { id: 'press', name: 'הדחקות', base: 'box', n: 8, fill: PAL.press, val: () => String(state.press), sub: '"הכל טוב"', goal: 'יעד: 3 ומטה', round: () => Math.max(0, 1 - state.press / 11) },
@@ -306,7 +251,6 @@
     if (prevVals.length) $$('#metric-grid .metric').forEach((li, i) => { if (li.querySelector('b').textContent !== prevVals[i]) fx(li, 'is-up'); });
     const m = liveMpl();
     if (isToday()) { paintDialNums(true); coachLine(); }
-    setFrame(curTarget());
     // every 25 MPL let go of is worth 10 points
     if (m <= lastMpl - 25) { const steps = Math.floor((lastMpl - m) / 25); earn(`MPL ירד ב-${steps * 25}`, steps * 10); lastMpl -= steps * 25; }
   };
@@ -394,7 +338,6 @@
       D.arc.setAttribute('d', d); D.ol.setAttribute('d', d);
     });
     else dialEls.forEach((D) => { D.cur = D.g.round(); D.fr = D.g.frac(); });
-    if (AURA) { const c = kbColor(dialEls[0].cur), ph = $('.phone').style; ph.setProperty('--f1', c); ph.setProperty('--f2', haloOf(c)); }
     requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
@@ -466,7 +409,6 @@
     paintDialNums();
     coachLine();
     strip.querySelectorAll('.sday').forEach((b) => b.classList.toggle('is-sel', +b.dataset.i === i));
-    setFrame(curTarget());
   };
   dayInput.addEventListener('input', () => { stopPlay(); setDay(+dayInput.value); });
   strip.addEventListener('click', (e) => { const b = e.target.closest('.sday'); if (!b) return; stopPlay(); dayInput.value = b.dataset.i; setDay(+b.dataset.i); });
@@ -495,7 +437,7 @@
   $('#ab-map').innerHTML = METRICS.map((m) => `<li>${mini(.25, 'mini ab-mini', false, '', m.fill, m.base, m.n, true)}<span>${m.name}</span></li>`).join('');
 
   /* ── talk now: the quick fix is a conversation (and WHEEP still counts it) ── */
-  const PEOPLE = rf([
+  const PEOPLE = ([
     { id: 'ido', name: 'עידו', rel: 'חבר מהצבא', init: 'ע', fill: PAL.person },
     { id: 'shiri', name: 'שירי', rel: 'בת זוג', init: 'ש', fill: PAL.person },
     { id: 'dad', name: 'אבא', rel: 'לא דיברתם 9 ימים', init: 'א', fill: PAL.person },
@@ -613,7 +555,7 @@
   renderNeeds();
 
   /* ── emotions: the patch maps Ekman's five continents; a radar like a player card, without a score ── */
-  const EMO = rf([
+  const EMO = ([
     { id: 'fear', name: 'פחד', base: 'shiver', n: 13, fill: PAL.fear, v: 82, prev: 70, out: .18,
       states: [['דאגה', 8], ['חרדה', 5], ['בהלה', 1]], trigger: 'הכסף לחתונה', did: 'אמרת "הכל טוב"' },
     { id: 'anger', name: 'כעס', base: 'flare', n: 9, fill: PAL.anger, v: 64, prev: 71, out: .3,
@@ -671,7 +613,7 @@
   renderEmo();
 
   /* ── the crew: a shared shape, no ranks; you can see who is sharp and reach him ── */
-  const CREW = rf([
+  const CREW = ([
     { id: 'ido', name: 'עידו', init: 'ע', fill: PAL.person, r: .22, last: 'שקט 4 ימים. גם ה-MPL שלו עולה.' },
     { id: 'doron', name: 'דורון', init: 'ד', fill: PAL.person, r: .7, last: 'דיבר עם אבא שלו אתמול, 40 דק׳.' },
     { id: 'alon', name: 'אלון', init: 'א', fill: PAL.person, r: .5, last: 'שלח "בוא נדבר" בקבוצה. אף אחד לא ענה.' },
@@ -1041,13 +983,18 @@
     }
     (step.querySelector('button:not(:disabled), input') || step).focus({ preventScroll: true });
   };
-  const openSetup = () => { setup.hidden = false; suGo(0); };
+  // setup opens on the logo crying once, then the first step
+  const openSetup = () => {
+    setup.hidden = false; suGo(0);
+    const sp = $('#su-splash'); sp.hidden = false; sp.classList.remove('is-out');
+    setTimeout(() => sp.classList.add('is-out'), reduced ? 600 : 2600);
+    setTimeout(() => { sp.hidden = true; }, reduced ? 900 : 3100);
+  };
   const banner = $('#banner');
   let bannerT = 0;
   const closeSetup = () => {
     setup.hidden = true;
     clearTimeout(pairT); clearTimeout(calT); cancelAnimationFrame(calRaf);
-    localStorage.setItem('wheepSetup', 'done');
     if (location.hash === '#setup') history.replaceState(null, '', location.pathname + location.search);
     show('today');
     // the first thing the new tracker does is notice something
@@ -1070,10 +1017,9 @@
     $('.myday').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
   });
 
-  // the app opens on Today, or where a deep link or the style switch left it; the first visit opens setup
+  // the app opens on setup, or where the style switch left it
   const back = sessionStorage.getItem('wheepTab'); sessionStorage.removeItem('wheepTab');
   if (back && $(`#screen-${back}`)) show(back);
-  else if (location.hash === '#setup' || (!location.hash && !localStorage.getItem('wheepSetup'))) openSetup();
-  else fromHash();
+  else openSetup(); // every refresh recalibrates; only the style switch skips it
   addEventListener('hashchange', () => { if (location.hash === '#setup') openSetup(); });
 })();

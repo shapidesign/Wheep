@@ -8,15 +8,11 @@
 <style>
 /* r = how far the app has let go, 0 → 1 (one seventh per day of the streak) */
 :root { --r: 0; }
-.phone { box-shadow: calc(10px - var(--r) * 10px) calc(10px - var(--r) * 10px) 0 rgba(18, 18, 18, .9); transition: box-shadow 1s var(--ease); }
 .screen { transition: background 1.4s var(--ease); }
-.phone.is-free .screen { background: #F1ECFF; }
-.card, .sticker, .btn { border-width: calc(3px - var(--r) * 2px); transition: border-width 1s var(--ease), box-shadow 1s var(--ease), border-radius 1s var(--ease); }
-.card { box-shadow: calc(5px - var(--r) * 5px) calc(5px - var(--r) * 5px) 0 var(--ink); border-radius: calc(14px + var(--r) * 18px); }
+.phone.is-free .screen { background: #000; }
 
 /* anything the app no longer needs folds away: height, colour, then place */
 .fold { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .9s var(--ease), opacity .6s var(--ease), filter .6s var(--ease), margin .9s var(--ease); }
-/* room for the hard shadows (right, down) and the tilted sticker, so the clip never bites them */
 .fold > * { min-height: 0; overflow: hidden; padding: 6px 10px 10px 6px; margin: -6px -10px -10px -6px; }
 .fold.is-folded { grid-template-rows: 0fr; opacity: 0; filter: blur(6px) grayscale(1); margin-block: 0 !important; pointer-events: none; }
 /* waking up is not gentle: everything comes back at once */
@@ -24,7 +20,7 @@
 
 .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
 .date { margin-top: 10px; font-size: 14px; font-weight: 700; color: var(--ink-2); }
-.notif { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px; font-weight: 700; background: var(--panel); border: 2px solid var(--ink); border-radius: 999px; }
+.notif { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px; font-weight: 700; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; }
 .notif i { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
 
 .streak { margin-top: 16px; }
@@ -46,8 +42,8 @@
 .hero svg { display: block; width: 250px; height: 250px; margin: 0 auto; overflow: visible; transition: width 1.2s var(--ease), height 1.2s var(--ease); }
 .phone.is-free .hero { margin-top: 150px; }
 .phone.is-free .hero svg { width: 170px; height: 170px; }
-.hero .sh { fill: var(--ink); transform: translate(calc(7px - var(--r) * 7px), calc(7px - var(--r) * 7px)); transition: transform 1s var(--ease); }
-.hero .fg { stroke: var(--ink); stroke-width: calc(4px - var(--r) * 2.5px); stroke-linejoin: round; }
+.hero .sh { display: none; }
+.hero .fg { stroke: none; }
 .mpl { display: flex; justify-content: center; align-items: baseline; gap: 8px; margin-top: 8px; }
 .mpl b { font-size: 72px; font-weight: 900; line-height: 1; letter-spacing: -.02em; }
 .mpl span { font-size: 18px; font-weight: 700; color: var(--ink-2); }
@@ -74,7 +70,7 @@
 @keyframes listen { 50% { transform: scale(.55); opacity: .45; } }
 .phone.is-free .sensor { opacity: 1; }
 
-.tabbar { position: absolute; z-index: 6; inset-inline: 0; bottom: 0; height: 92px; transition: translate 1s var(--ease), opacity 1s var(--ease); padding: 10px 12px 22px; display: flex; justify-content: space-around; align-items: center; background: var(--panel); border-top: 3px solid var(--ink); transition: translate 1s var(--ease), opacity 1s var(--ease); }
+.tabbar { position: absolute; z-index: 6; inset-inline: 0; bottom: 0; height: 92px; transition: translate 1s var(--ease), opacity 1s var(--ease); padding: 10px 12px 22px; display: flex; justify-content: space-around; align-items: center; background: var(--panel); border-top: 1px solid var(--line); transition: translate 1s var(--ease), opacity 1s var(--ease); }
 .tabbar button { display: grid; justify-items: center; gap: 4px; width: 64px; min-height: 52px; font-size: 12px; color: var(--ink-2); border-radius: 12px; transition: color .6s var(--ease), gap .6s var(--ease); }
 .tabbar button.is-on { color: var(--ink); font-weight: 700; }
 .tabbar button { overflow: hidden; transition: color .6s var(--ease), opacity .6s var(--ease), width .8s var(--ease); }
@@ -93,13 +89,13 @@
 .tp-big b { font-size: 60px; font-weight: 900; line-height: .9; }
 .tp-big span { font-size: 16px; font-weight: 700; color: var(--ink-2); }
 .tp-list { list-style: none; display: grid; margin-top: 6px; }
-.tp-list li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(18, 18, 18, .12); font-size: 15px; }
+.tp-list li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
 .tp-list li:last-child { border-bottom: 0; }
 .tp-list b { font-weight: 900; }
 .tp-list .btn { min-height: 40px; padding: 4px 12px; font-size: 13px; }
 .tp-key { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--ink-2); }
-.tp-key span { width: 16px; height: 10px; border: 2px solid var(--ink); border-radius: 3px; margin-inline-start: 8px; }
-.tp-key .k-now { background: var(--yellow); margin-inline-start: 0; }
+.tp-key span { width: 16px; height: 10px; border: 1px solid var(--line); border-radius: 3px; margin-inline-start: 8px; }
+.tp-key .k-now { background: rgba(243, 241, 248, .2); border-color: var(--ink); margin-inline-start: 0; }
 .tp-key .k-prev { border-style: dashed; }
 .tabbar button span { display: block; overflow: hidden; max-height: 1.4em; transition: max-height .6s var(--ease), opacity .6s var(--ease); }
 /* quiet: no names, thin line, no fill; still five ways in */
@@ -264,20 +260,20 @@
   // the pages behind the tabs, for as long as the tabs are there
   // רגשות: the FIFA-style player card of the week. This week filled, last week dashed.
   const radarPage = () => {
-    const E = [['פחד', 82 - streak * 8, 70, '#9B6BFF', 9], ['כעס', 64 - streak * 6, 58, '#FF5A36', 9], ['עצב', 48 - streak * 3, 52, '#3FC8F5', 7], ['בושה', 57 - streak * 2, 34, '#3DDC97', 8], ['הנאה', 41 + streak * 5, 38, '#FFD23F', 6]];
+    const E = [['פחד', 82 - streak * 8, 70, '#C8FF3D', 9], ['כעס', 64 - streak * 6, 58, '#FF5A36', 9], ['עצב', 48 - streak * 3, 52, '#3D6BFF', 7], ['בושה', 57 - streak * 2, 34, '#FF9F1C', 8], ['הנאה', 41 + streak * 5, 38, '#FFD23F', 6]];
     const cx = 165, cy = 162, R = 96;
     const pt = (i, v) => { const a = -Math.PI / 2 + i * (2 * Math.PI / 5); return [cx + Math.cos(a) * R * v / 99, cy + Math.sin(a) * R * v / 99]; };
     const poly = (vals) => vals.map((v, i) => pt(i, v).map((n) => n.toFixed(1)).join(',')).join(' ');
     let g = '';
-    [20, 40, 60, 80, 99].forEach((v) => { g += `<polygon points="${poly(E.map(() => v))}" fill="none" stroke="#121212" stroke-opacity=".16" stroke-width="1.2"/>`; });
-    E.forEach((_, i) => { const [x, y] = pt(i, 99); g += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#121212" stroke-opacity=".16" stroke-width="1.2"/>`; });
+    [20, 40, 60, 80, 99].forEach((v) => { g += `<polygon points="${poly(E.map(() => v))}" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="1.2"/>`; });
+    E.forEach((_, i) => { const [x, y] = pt(i, 99); g += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#fff" stroke-opacity=".14" stroke-width="1.2"/>`; });
     const now = poly(E.map((e) => e[1]));
-    g += `<polygon points="${now}" transform="translate(3 3)" fill="#121212"/><polygon points="${now}" fill="#FFD23F" stroke="#121212" stroke-width="2.6" stroke-linejoin="round"/>`;
-    g += `<polygon points="${poly(E.map((e) => e[2]))}" fill="none" stroke="#121212" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`;
+    g += `<polygon points="${now}" fill="#F3F1F8" fill-opacity=".16" stroke="#F3F1F8" stroke-width="2" stroke-linejoin="round"/>`;
+    g += `<polygon points="${poly(E.map((e) => e[2]))}" fill="none" stroke="#ABA6BC" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="round"/>`;
     E.forEach(([n, v, , f, k], i) => {
       const [x, y] = pt(i, v), [lx, ly] = pt(i, 128);
-      g += `<circle cx="${x}" cy="${y}" r="5.5" fill="${f}" stroke="#121212" stroke-width="2"/>`;
-      g += `<g transform="translate(${lx.toFixed(1)} ${(ly - 10).toFixed(1)})"><g transform="translate(-14 -30)">${mini(Math.min(1, .25 + streak / 9), f, k, 28)}</g><text y="14" text-anchor="middle" font-size="14" font-weight="900" font-family="Leon, system-ui, sans-serif">${n} <tspan direction="ltr">${v}</tspan></text></g>`;
+      g += `<circle cx="${x}" cy="${y}" r="5.5" fill="${f}"/>`;
+      g += `<g transform="translate(${lx.toFixed(1)} ${(ly - 10).toFixed(1)})"><g transform="translate(-14 -30)">${mini(Math.min(1, .25 + streak / 9), f, k, 28)}</g><text y="14" text-anchor="middle" font-size="14" font-weight="900" font-family="Leon, system-ui, sans-serif" fill="#F3F1F8">${n} <tspan direction="ltr">${v}</tspan></text></g>`;
     });
     return `<h1 class="sticker">רגשות</h1><div class="card"><p class="tp-h">חמש היבשות · עוצמה 0–99</p>
       <p class="tp-key"><span class="k-now"></span>השבוע<span class="k-prev"></span>לפני הרצף</p>

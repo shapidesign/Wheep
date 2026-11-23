@@ -41,7 +41,7 @@
 .big b { font-size: 64px; font-weight: 900; line-height: .9; }
 .big span { font-size: 16px; font-weight: 700; color: var(--ink-2); }
 .list { list-style: none; display: grid; margin-top: 6px; }
-.list li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(18, 18, 18, .12); font-size: 15px; }
+.list li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
 .list li:last-child { border-bottom: 0; }
 .list b.num { font-weight: 900; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
@@ -50,11 +50,11 @@
 
 /* the atlas: sub-emotions from the mildest to the most intense */
 .states { list-style: none; display: grid; margin-top: 10px; }
-.states li { display: grid; grid-template-columns: 1fr 92px 34px; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(18, 18, 18, .12); font-size: 15px; }
+.states li { display: grid; grid-template-columns: 1fr 92px 34px; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
 .states li:last-child { border-bottom: 0; }
 .states li.is-zero { color: var(--ink-2); }
-.states .lvl { position: relative; height: 8px; border: 2px solid var(--ink); border-radius: 5px; background: var(--panel); }
-.states .lvl i { position: absolute; top: -5px; width: 14px; height: 14px; margin-inline-start: -7px; border: 2px solid var(--ink); border-radius: 50%; background: var(--c); }
+.states .lvl { position: relative; height: 8px; border: 1px solid var(--line); border-radius: 5px; background: var(--panel); }
+.states .lvl i { position: absolute; top: -5px; width: 14px; height: 14px; margin-inline-start: -7px; border: 1px solid var(--line); border-radius: 50%; background: var(--c); }
 .states li.is-zero .lvl i { background: var(--panel); }
 .states b { text-align: end; font-weight: 900; }
 .states li.is-zero b { font-weight: 400; }
@@ -130,13 +130,13 @@
   // Atlas of Emotions (Ekman): each continent's states, mildest first. The number is moments the patch mapped this week.
   const L = [
     { id: 'today', name: 'היום', sub: '775 MPL', center: true, round: .25 },
-    { id: 'fear', name: 'פחד', v: 82, fill: '#9B6BFF', ang: -90, trig: 'שיחה עם הבנק, 11:10. לא נאמר לאף אחד.',
+    { id: 'fear', name: 'פחד', v: 82, fill: '#C8FF3D', ang: -90, trig: 'שיחה עם הבנק, 11:10. לא נאמר לאף אחד.',
       st: [['חשש', 4], ['עצבנות', 6], ['חרדה', 3], ['אימה מתמשכת', 1], ['ייאוש', 0], ['בהלה', 1], ['זוועה', 0], ['אימה', 0]] },
     { id: 'anger', name: 'כעס', v: 64, fill: '#FF5A36', ang: -18, trig: 'ישיבת צוות, 14:20. נשאר בפנים.',
       st: [['רוגז', 7], ['תסכול', 5], ['חוסר סבלנות', 2], ['ויכוחיות', 1], ['מרירות', 2], ['נקמנות', 0], ['זעם', 1]] },
-    { id: 'sadness', name: 'עצב', v: 48, fill: '#3FC8F5', ang: 54, trig: 'אבא שאל מה נשמע. "סבבה".',
+    { id: 'sadness', name: 'עצב', v: 48, fill: '#3D6BFF', ang: 54, trig: 'אבא שאל מה נשמע. "סבבה".',
       st: [['אכזבה', 3], ['רפיון ידיים', 2], ['מצוקה', 1], ['השלמה', 2], ['חוסר אונים', 1], ['חוסר תקווה', 0], ['סבל', 0], ['ייאוש', 0], ['יגון', 0], ['אבל', 0]] },
-    { id: 'disgust', name: 'בושה', v: 57, fill: '#FF7AC6', ang: 126, trig: 'ביקש עזרה בעבודה. צחק על זה.',
+    { id: 'disgust', name: 'בושה', v: 57, fill: '#FF9F1C', ang: 126, trig: 'ביקש עזרה בעבודה. צחק על זה.',
       st: [['מבוכה', 4], ['אי-נוחות', 3], ['השפלה', 2], ['חוסר ערך', 1], ['כלימה', 0]] },
     { id: 'joy', name: 'הנאה', v: 41, fill: '#FFD23F', ang: 198, trig: 'ארוחת שישי. צחק פעמיים.',
       st: [['הנאה חושית', 2], ['שעשוע', 3], ['הקלה', 2], ['שלווה', 0], ['חמלה', 1], ['נחת', 1], ['גאווה', 1], ['התרגשות', 1], ['השתאות', 0], ['אקסטזה', 0]] },
@@ -150,8 +150,8 @@
   const mk = (tag, attrs) => { const el = document.createElementNS('http://www.w3.org/2000/svg', tag); Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v)); return el; };
   const order = [...L.filter((l) => !l.center), L[0]];
   order.forEach((l) => {
-    l.sh = $('#g-shadow').appendChild(mk('path', { fill: '#121212' }));
-    l.ln = $('#g-line').appendChild(mk('path', { fill: '#121212', stroke: '#121212', 'stroke-width': 7, 'stroke-linejoin': 'round' }));
+    l.sh = $('#g-shadow').appendChild(mk('path', { fill: 'none' }));
+    l.ln = $('#g-line').appendChild(mk('path', { fill: '#0B0A10', stroke: '#0B0A10', 'stroke-width': 7, 'stroke-linejoin': 'round' }));   // a gap of ground between lobes, not an ink line
     l.fg = $('#g-fill').appendChild(mk('path', { class: 'lobe', tabindex: 0, role: 'button', 'aria-label': `${l.name}: ${l.sub}` }));
     const t = $('#g-text').appendChild(mk('g', {}));
     if (l.center) {
@@ -189,7 +189,7 @@
       const a = l.ang * Math.PI / 180;
       return [silPath(SIL[l.id], 29 + 21 * Math.cos(a), 29 + 23 * Math.sin(a), l.R / 8, a + Math.PI / 2, 0, 0, 90), l.fill];
     });
-    return `<svg viewBox="0 0 58 58" aria-hidden="true"><g transform="translate(2.5 2.5)">${ps.map(([d]) => `<path d="${d}" fill="#121212"/>`).join('')}</g>${ps.map(([d]) => `<path d="${d}" fill="#121212" stroke="#121212" stroke-width="4" stroke-linejoin="round"/>`).join('')}${ps.map(([d, f]) => `<path d="${d}" fill="${f}"/>`).join('')}</svg>`;
+    return `<svg viewBox="0 0 58 58" aria-hidden="true">${ps.map(([d]) => `<path d="${d}" fill="#16141D" stroke="#16141D" stroke-width="4" stroke-linejoin="round"/>`).join('')}${ps.map(([d, f]) => `<path d="${d}" fill="${f}"/>`).join('')}</svg>`;
   };
   const emoPage = (l) => {
     const n = l.st.length, total = l.st.reduce((s, x) => s + x[1], 0);
@@ -198,7 +198,7 @@
       <p class="scale"><span>קל</span><span>עז</span></p></div>
       <div class="card"><p class="sec-h">מה הדליק השבוע</p><p style="font-size:14px;line-height:1.45;margin-top:4px">${l.trig}</p></div>`;
   };
-  const icon = (l, s = 34) => { const d = silPath(SIL[l.id], s / 2, s / 2, s * .41, 0); return `<svg viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" aria-hidden="true" style="overflow:visible"><path d="${d}" fill="#121212" transform="translate(2 2)"/><path d="${d}" fill="${l.fill}" stroke="#121212" stroke-width="2"/></svg>`; };
+  const icon = (l, s = 34) => { const d = silPath(SIL[l.id], s / 2, s / 2, s * .41, 0); return `<svg viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" aria-hidden="true" style="overflow:visible"><path d="${d}" fill="${l.fill}"/></svg>`; };
   const todayPage = () => `<div class="card"><p class="big"><b class="num">775</b><span>MPL</span></p><p style="margin-top:6px;font-size:14px;color:var(--ink-2)">12 ימים בלי שחרור באף מדד</p></div>
     <div class="card"><p class="sec-h">חמש היבשות · השבוע</p><ul class="list">${L.filter((l) => !l.center).map((l) => `<li>${icon(l)}<span>${l.name}</span><b class="num">${l.v}</b></li>`).join('')}</ul></div>
     <div class="row2"><button class="btn" type="button"><span>להתקשר לעידו</span><small>מעל 5 דק׳ · שיחת עומק</small></button><button class="btn" type="button"><span>הליכה בלי אוזניות</span><small>20 דק׳ · תנועה</small></button></div>`;
