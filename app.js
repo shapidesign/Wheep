@@ -1033,7 +1033,11 @@
         calRaf = requestAnimationFrame(spin);
       };
       if (reduced) spin(t0 + 400), cancelAnimationFrame(calRaf); else calRaf = requestAnimationFrame(spin);
-      calT = setTimeout(() => { $('#su-cal').textContent = 'לילה 1 · לא נמצאו נתונים לכיול. ממשיך לנסות.'; }, 2600);
+      // a short calibration: the line at 1.6s, into the app at 2.8s
+      calT = setTimeout(() => {
+        $('#su-cal').textContent = 'לילה 1 · לא נמצאו נתונים לכיול. ממשיך לנסות.';
+        calT = setTimeout(closeSetup, 1200);
+      }, 1600);
     }
     (step.querySelector('button:not(:disabled), input') || step).focus({ preventScroll: true });
   };
