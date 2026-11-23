@@ -1590,21 +1590,29 @@ html.track #gain-bar { background: var(--m-release); }   /* progress toward the 
 .su-splash[hidden] { display: none; }
 .su-splash.is-out { opacity: 0; pointer-events: none; }
 .wheep-logo { width: 240px; height: auto; overflow: visible; fill: var(--ink); }
-.wheep-logo .lg-eye { fill: var(--ground); transform-box: fill-box; transform-origin: 30% 50%; animation: lg-well 2.4s var(--ease) .3s both; }
-.wheep-logo .lg-tear { fill: var(--m-cry); opacity: 0; transform: translate(494px, 44px) scale(0); animation: lg-fall 2.4s cubic-bezier(.55, 0, .85, .45) .3s both; }
+.wheep-logo .lg-eye { fill: var(--ground); animation: lg-well 2.4s var(--ease) .3s both; }
+.wheep-logo .lg-tear { fill: var(--m-cry); opacity: 0; animation: lg-fall 2.4s cubic-bezier(.55, 0, .85, .45) .3s both; }
+/* the tear in the P fills from nothing, swells, then the drop itself slips out and falls; the P is left wet */
 @keyframes lg-well {
-  0%   { fill: var(--ground); transform: scale(1); }
-  40%  { fill: var(--m-cry); transform: scale(1.06); }
-  55%  { fill: var(--m-cry); transform: scale(.96, 1.08); }
-  70%  { fill: var(--m-cry); transform: scale(1); }
+  0%   { fill: var(--ground); }
+  35%  { fill: var(--m-cry); }
   100% { fill: var(--m-cry); }
 }
 @keyframes lg-fall {
-  0%, 48% { opacity: 0; transform: translate(494px, 40px) scale(0); }
-  58%     { opacity: 1; transform: translate(494px, 48px) scale(1.9, 2.1); }
-  100%    { opacity: 0; transform: translate(494px, 190px) scale(1.6, 2.2); }
+  0%, 45% { opacity: 0; transform: translateY(0); }
+  50%     { opacity: 1; transform: translateY(2px); }
+  100%    { opacity: 0; transform: translateY(110px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .wheep-logo .lg-eye { animation: none; fill: var(--m-cry); }
   .wheep-logo .lg-tear { animation: none; }
 }
+
+/* the small mark: the P on a tile, where iOS shows an app icon */
+.app-ic { display: inline-grid; place-items: center; width: 20px; height: 20px; flex: none; border-radius: 5px; background: var(--ground); border: 1px solid var(--line); vertical-align: middle; margin-inline-end: 6px; }
+.app-ic img { height: 13px; width: auto; }
+.banner .bn-app { display: flex; align-items: center; }
+.su-alert > .app-ic { width: 44px; height: 44px; border-radius: 11px; margin: 18px auto 2px; display: grid; }
+.su-alert > .app-ic img { height: 28px; }
+.ab-title .app-ic { width: 30px; height: 30px; border-radius: 8px; }
+.ab-title .app-ic img { height: 20px; }
