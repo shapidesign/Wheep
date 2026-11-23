@@ -7,7 +7,7 @@
 <title>WHEEP · תחזית רגשית</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="favicon.svg">
-<link rel="stylesheet" href="wheep.css?v=55">
+<link rel="stylesheet" href="wheep.css?v=58">
 <script>document.documentElement.classList.add('track');   // one skin: the dark tracker</script>
 </head>
 <body>
@@ -43,7 +43,7 @@
       <section class="screen is-active" id="screen-today" role="tabpanel" aria-labelledby="tab-today" tabindex="-1">
         <!-- the tracker's skeleton: date, three dials, a coach line, the day's log. Only what is measured changed. -->
         <header class="dash-head">
-          <span class="patch-chip" title="WHEEP Patch 2 · מחובר"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="10" rx="5"/><circle cx="12" cy="12" r="2.2"/></svg><b class="num">64%</b></span>
+          <span class="patch-chip" title="שרשרת WHEEP · מחוברת"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2c.5 7 3.5 10 7 10s6.5-3 7-10"/><path class="pd" d="M12 12c1.7 2.1 3.2 3.7 3.2 5.6a3.2 3.2 0 0 1-6.4 0c0-1.9 1.5-3.5 3.2-5.6z"/></svg><b class="num">64%</b></span>
           <div class="dnav">
             <button type="button" class="dnav-btn" id="dnav-prev" aria-label="יום קודם"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
             <h1 class="dnav-day"><span id="hero-day">היום</span><small id="dnav-date">ג׳ <span class="num">15.12</span></small></h1>
@@ -152,7 +152,7 @@
       <!-- רגשות -->
       <section class="screen" id="screen-emo" role="tabpanel" aria-labelledby="tab-emo" tabindex="-1" hidden>
         <header class="page-head"><h1 class="page-title">אטלס הרגשות</h1></header>
-        <p class="emo-sensor"><span class="emo-dot" aria-hidden="true"></span>המדבקה מיפתה <b class="num">214</b> רגעים השבוע · <b class="num">31</b> לא זוהו</p>
+        <p class="emo-sensor"><span class="emo-dot" aria-hidden="true"></span>השרשרת מיפתה <b class="num">214</b> רגעים השבוע · <b class="num">31</b> לא זוהו</p>
         <section class="panel emo-radar" aria-labelledby="radar-h">
           <div class="panel-row"><h2 class="panel-h" id="radar-h">חמש היבשות <small>עוצמה 0–99</small></h2></div>
           <ul class="radar-key" aria-hidden="true"><li class="k-now">השבוע</li><li class="k-prev">שבוע שעבר</li></ul>
@@ -233,13 +233,13 @@
         <section class="panel device-card" aria-labelledby="dev-h">
           <svg class="patch" viewBox="0 0 120 80" aria-hidden="true">
             <defs><radialGradient id="g-patch" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#F3F1F8" stop-opacity=".22"/><stop offset="1" stop-color="#F3F1F8" stop-opacity=".06"/></radialGradient></defs>
-            <rect x="8" y="10" width="104" height="60" rx="30" fill="url(#g-patch)" stroke="rgba(243,241,248,.35)"/>
-            <circle cx="60" cy="40" r="11" fill="none" stroke="#3FC8F5" stroke-width="1.5"/>
-            <circle cx="60" cy="40" r="3.5" fill="#3FC8F5"/>
+            <path d="M18 2C21 32 38 42 60 42S99 32 102 2" fill="none" stroke="rgba(243,241,248,.45)" stroke-width="2" stroke-linecap="round" stroke-dasharray=".1 5"/>
+            <path d="M60 41C64.5 48 71 54 71 61.5A11 11 0 0 1 49 61.5C49 54 55.5 48 60 41Z" fill="url(#g-patch)" stroke="rgba(243,241,248,.35)"/>
+            <circle cx="60" cy="62" r="3.5" fill="#3FC8F5"/>
           </svg>
           <div>
-            <h2 class="panel-h" id="dev-h">WHEEP Patch 2</h2>
-            <p class="dev-state"><span class="dot-ok" aria-hidden="true"></span>מחובר · מתחת לעין שמאל</p>
+            <h2 class="panel-h" id="dev-h">שרשרת WHEEP</h2>
+            <p class="dev-state"><span class="dot-ok" aria-hidden="true"></span>מחוברת · על עצם החזה</p>
             <p class="dev-meta">סוללה <b class="num">64%</b> · סנכרון אחרון <b class="num">9:38</b></p>
             <button class="crew-btn dev-setup" type="button" data-setup>הגדרה מחדש</button>
           </div>
@@ -350,22 +350,23 @@
       <div class="su-splash" id="su-splash" aria-hidden="true"><svg class="wheep-logo" viewBox="-4 -4 387.838 160" role="img" aria-label="WHEEP"><path d="M40.788 92.4L35.508 43.164L30.228 92.4H10.296L0 0H14.124L21.912 72.864L28.908 0H42.9L50.16 73.392L57.684 0H70.356L60.06 92.4H40.788Z"/><path d="M118.599 52.8V92.4H104.079V0H118.599V39.6H135.099V0H149.883V92.4H135.099V52.8H118.599Z"/><path d="M201.331 13.2V38.94H221.263V52.14H201.331V79.2H226.411V92.4H186.811V0H226.411V13.2H201.331Z"/><path d="M276.329 13.2V38.94H296.261V52.14H276.329V79.2H301.409V92.4H261.809V0H301.409V13.2H276.329Z"/><path class="lg-p" d="M358.19 0C372.71 0 379.838 8.052 379.838 22.8361V34.848C379.838 49.632 372.71 57.684 358.19 57.684H351.326V92.4H336.806V0H358.19ZM357.908 11.662L357.924 11.6836L358.002 11.788C358.152 11.9908 358.305 12.1965 358.46 12.405C358.66 12.6748 358.863 12.9491 359.068 13.2277C361.193 16.113 363.555 19.4578 365.318 22.9117C366.914 26.0364 368.02 29.2505 368.02 32.2947C368.02 35.8402 366.604 39.0548 364.355 41.2788C362.398 43.2146 359.809 44.4 356.972 44.4C354.915 44.4 352.98 43.7561 351.326 42.6426C348.158 40.5093 346.02 36.652 346.02 32.2947C346.02 27.927 348.465 22.8359 351.326 18.3036C352.474 16.4847 353.689 14.756 354.84 13.2C355.59 12.1855 356.313 11.2446 356.972 10.4C357.211 10.7238 357.458 11.057 357.713 11.399L357.908 11.662Z" fill-rule="evenodd"/><path class="lg-eye" d="M357.908 11.662L357.924 11.6836L358.002 11.788C358.152 11.9908 358.305 12.1965 358.46 12.405C358.66 12.6748 358.863 12.9491 359.068 13.2277C361.193 16.113 363.555 19.4578 365.318 22.9117C366.914 26.0364 368.02 29.2505 368.02 32.2947C368.02 35.8402 366.604 39.0548 364.355 41.2788C362.398 43.2146 359.809 44.4 356.972 44.4C354.915 44.4 352.98 43.7561 351.326 42.6426C348.158 40.5093 346.02 36.652 346.02 32.2947C346.02 27.927 348.465 22.8359 351.326 18.3036C352.474 16.4847 353.689 14.756 354.84 13.2C355.59 12.1855 356.313 11.2446 356.972 10.4C357.211 10.7238 357.458 11.057 357.713 11.399L357.908 11.662Z"/><path class="lg-tear" d="M357.908 11.662L357.924 11.6836L358.002 11.788C358.152 11.9908 358.305 12.1965 358.46 12.405C358.66 12.6748 358.863 12.9491 359.068 13.2277C361.193 16.113 363.555 19.4578 365.318 22.9117C366.914 26.0364 368.02 29.2505 368.02 32.2947C368.02 35.8402 366.604 39.0548 364.355 41.2788C362.398 43.2146 359.809 44.4 356.972 44.4C354.915 44.4 352.98 43.7561 351.326 42.6426C348.158 40.5093 346.02 36.652 346.02 32.2947C346.02 27.927 348.465 22.8359 351.326 18.3036C352.474 16.4847 353.689 14.756 354.84 13.2C355.59 12.1855 356.313 11.2446 356.972 10.4C357.211 10.7238 357.458 11.057 357.713 11.399L357.908 11.662Z"/></svg></div>
 
       <div class="su-step" data-step="0">
-        <p class="su-badge">עדכון <span class="num">26.12</span> · הותקן</p>
-        <h1 class="su-h">אותו מכשיר. מודד משהו אחר.</h1>
+        <p class="su-badge">מכשיר חדש · שרשרת WHEEP</p>
+        <svg class="su-patch" viewBox="0 0 160 110" aria-hidden="true"><path class="chain" d="M22 2C26 46 50 60 80 60S134 46 138 2"/><path class="pend" d="M80 58C86 68 95 77 95 88A15 15 0 0 1 65 88C65 77 74 68 80 58Z"/><circle class="su-dot" cx="80" cy="89" r="5"/></svg>
+        <h1 class="su-h">מכשיר אחר. מודד משהו אחר.</h1>
         <ul class="su-log">
-          <li><b class="is-out">הוסר</b>עומס אימון</li>
-          <li><b>נוסף</b>עומס הדחקה <bdi class="num">0–21</bdi></li>
-          <li><b>נוסף</b>שחרור · בכי</li>
-          <li><b class="is-out">הוצא משימוש</b>"הכל טוב"</li>
+          <li><b class="is-out">לא מודד</b>עומס אימון</li>
+          <li><b>מודד</b>עומס הדחקה <bdi class="num">0–21</bdi></li>
+          <li><b>מודד</b>שחרור · בכי</li>
+          <li><b class="is-out">לא מקבל</b>"הכל טוב"</li>
         </ul>
-        <button class="su-go" type="button">להגדיר מחדש</button>
+        <button class="su-go" type="button">להגדיר</button>
       </div>
 
       <div class="su-step" data-step="1" hidden>
-        <svg class="su-patch" viewBox="0 0 160 110" aria-hidden="true"><rect x="10" y="14" width="140" height="82" rx="41"/><circle cx="80" cy="55" r="16"/><circle class="su-dot" cx="80" cy="55" r="5"/></svg>
-        <h1 class="su-h">הצמד את המדבקה</h1>
-        <p class="su-lead">מתחת לעין שמאל, על עור נקי ויבש. היא קוראת לחות, מתח בלסת ושתיקות.</p>
-        <p class="su-status" id="su-pair" aria-live="polite">מחפש מדבקה…</p>
+        <svg class="su-patch" viewBox="0 0 160 110" aria-hidden="true"><path class="chain" d="M22 2C26 46 50 60 80 60S134 46 138 2"/><path class="pend" d="M80 58C86 68 95 77 95 88A15 15 0 0 1 65 88C65 77 74 68 80 58Z"/><circle class="su-dot" cx="80" cy="89" r="5"/></svg>
+        <h1 class="su-h">ענוד את השרשרת</h1>
+        <p class="su-lead">התליון נח על עצם החזה, מתחת לגרון. הוא קורא גוש בגרון, נשימה עצורה ושתיקות.</p>
+        <p class="su-status" id="su-pair" aria-live="polite">מחפש שרשרת…</p>
         <button class="su-go" type="button" disabled>המשך</button>
       </div>
 
@@ -428,6 +429,6 @@
 </div>
 
 
-<script src="app.js?v=55"></script>
+<script src="app.js?v=58"></script>
 </body>
 </html>

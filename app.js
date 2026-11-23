@@ -554,7 +554,7 @@
   });
   renderNeeds();
 
-  /* ── emotions: the patch maps Ekman's five continents; a radar like a player card, without a score ── */
+  /* ── emotions: the necklace maps Ekman's five continents; a radar like a player card, without a score ── */
   const EMO = ([
     { id: 'fear', name: 'פחד', base: 'shiver', n: 13, fill: PAL.fear, v: 82, prev: 70, out: .18,
       states: [['דאגה', 8], ['חרדה', 5], ['בהלה', 1]], trigger: 'הכסף לחתונה', did: 'אמרת "הכל טוב"' },
@@ -684,7 +684,7 @@
   ];
   const SHOP = [
     { t: 'ערב זוגי · מסעדה לשניים', c: 300, n: 'שולחן שקט, בלי מסך' },
-    { t: 'סדנת שליטה בכעסים · 4 מפגשים', c: 400, n: `לפי המדבקה: ${METRICS.find((m) => m.id === 'anger').sub.match(/\d+/)[0]} כעסים נשארו בפנים היום` },
+    { t: 'סדנת שליטה בכעסים · 4 מפגשים', c: 400, n: `לפי השרשרת: ${METRICS.find((m) => m.id === 'anger').sub.match(/\d+/)[0]} כעסים נשארו בפנים היום` },
     { t: 'מנוי חודשי ליוגה או לבריכה', c: 450, n: 'תנועה: 45 מתוך 100 היום' },
     { t: 'מפגש עם מטפל · 50 דק׳', c: 500, n: 'מהרשימה של קופת רווחה, בלי הפניה' },
     { t: 'סדנת זוגיות · לדבר בלי לנצח', c: 650, n: 'ערב אחד, שניכם' },
@@ -757,7 +757,7 @@
 
   /* ── trends ── */
   // 16.11 → 15.12 (i = 0…29). Dry since a cry on 14.11, one cry on 3.12 (i = 17), rising every day since.
-  // 6.12 (i = 20) is a sensor gap: the patch was removed overnight.
+  // 6.12 (i = 20) is a sensor gap: the necklace was off overnight.
   const noise = (i) => Math.sin(i * 12.9898) * 43758.5453 % 1;
   const month = Array.from({ length: 30 }, (_, i) => {
     const base = i < 17 ? 1012 + i * .7 : 1009 + (i - 17) * 1.83;
@@ -957,7 +957,7 @@
     const step = suSteps[n];
     if (n === 1) {                                         // pairing: a short search, then connected
       const st = $('#su-pair'), go = $('.su-go', step);
-      step.classList.remove('is-paired'); st.textContent = 'מחפש מדבקה…'; go.disabled = true;
+      step.classList.remove('is-paired'); st.textContent = 'מחפש שרשרת…'; go.disabled = true;
       pairT = setTimeout(() => { step.classList.add('is-paired'); st.textContent = 'מחוברת · סוללה 64%'; go.disabled = false; go.focus(); }, 1600);
     }
     if (n === 5) {                                         // calibration: the rings look for a baseline and find none

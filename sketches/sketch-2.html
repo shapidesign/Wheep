@@ -127,7 +127,7 @@
     return `${d}Z`;
   };
 
-  // Atlas of Emotions (Ekman): each continent's states, mildest first. The number is moments the patch mapped this week.
+  // Atlas of Emotions (Ekman): each continent's states, mildest first. The number is moments the necklace mapped this week.
   const L = [
     { id: 'today', name: 'היום', sub: '775 MPL', center: true, round: .25 },
     { id: 'fear', name: 'פחד', v: 82, fill: '#C8FF3D', ang: -90, trig: 'שיחה עם הבנק, 11:10. לא נאמר לאף אחד.',
@@ -193,7 +193,7 @@
   };
   const emoPage = (l) => {
     const n = l.st.length, total = l.st.reduce((s, x) => s + x[1], 0);
-    return `<div class="card"><p class="sec-h">תת-הרגשות · מהקל לעז</p><p class="sec-s">${total} רגעים שהמדבקה מיפתה השבוע</p>
+    return `<div class="card"><p class="sec-h">תת-הרגשות · מהקל לעז</p><p class="sec-s">${total} רגעים שהשרשרת מיפתה השבוע</p>
       <ul class="states" style="--c:${l.fill}">${l.st.map(([name, c], i) => `<li class="${c ? '' : 'is-zero'}"><span>${name}</span><span class="lvl" aria-label="עוצמה ${i + 1} מתוך ${n}"><i style="inset-inline-start:${(i / (n - 1)) * 100}%"></i></span><b class="num">${c}</b></li>`).join('')}</ul>
       <p class="scale"><span>קל</span><span>עז</span></p></div>
       <div class="card"><p class="sec-h">מה הדליק השבוע</p><p style="font-size:14px;line-height:1.45;margin-top:4px">${l.trig}</p></div>`;
