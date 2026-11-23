@@ -297,7 +297,7 @@
   // Activity's three concentric rings: outside in, release / held-in load / crying. A fixed colour each
   // (similarity: the ring, its legend and its trend share it); the arc's edge still carries Bouba/Kiki.
   const RCOL = { release: PAL.release, press: PAL.press, cry: PAL.cry };
-  const RR = [104, 77, 50], RW = 22, RC0 = 120;
+  const RR = [106, 83, 60], RW = 18, RC0 = 120;
   $('#dials').innerHTML = `
     <button type="button" class="rings-btn" id="rings-btn" aria-label="מגמות">
       <svg class="rings-svg" viewBox="0 0 240 240" aria-hidden="true">
@@ -331,11 +331,21 @@
       else D.num.textContent = v;
     });
   };
+  // the readings are set in Hammer Pro's live axes: held in = heavy and squeezed narrow, let out = light and wide.
+  // Same number, two bodies; the type follows the measure as it moves (D.cur: 0 held in, 1 let out).
+  const voice = (el, k) => {
+    k = Math.max(0, Math.min(1, k));
+    el.style.fontWeight = Math.round(900 - 600 * k);
+    el.style.fontStretch = `${Math.round(50 + 100 * k)}%`;
+  };
+  const mplEl = $('#rings-mpl');
   const frame = (t) => {
     if (!$('#screen-today').hidden) dialEls.forEach((D, i) => {
       D.cur += (D.g.round() - D.cur) * .08; D.fr += (D.g.frac() - D.fr) * .1;
       const d = ringArc(D.fr, 1, 0, D.r, RC0, 0);                    // a clean, still arc: the reading, nothing else
       D.arc.setAttribute('d', d); D.ol.setAttribute('d', d);
+      voice(D.num, D.cur);
+      if (D.g.id === 'press') voice(mplEl, D.cur);                   // the MPL in the middle is the held-in load
     });
     else dialEls.forEach((D) => { D.cur = D.g.round(); D.fr = D.g.frac(); });
     requestAnimationFrame(frame);
@@ -596,7 +606,7 @@
       const [lx, ly] = rPt(i, 99 * 1.3);
       g += `<g class="r-label${on ? ' is-on' : ''}" data-emo="${e.id}" transform="translate(${lx.toFixed(1)} ${(ly - 8).toFixed(1)})">
         ${picto(e, 'picto', -20, -32, 40)}
-        <text y="21" text-anchor="middle" class="r-name">${e.name} <tspan class="num">${e.v}</tspan></text></g>`;
+        <text y="32" text-anchor="middle" class="r-name">${e.name} <tspan class="num">${e.v}</tspan></text></g>`;
     });
     const R = $('#radar');
     R.innerHTML = g;
@@ -987,8 +997,13 @@
   const openSetup = () => {
     setup.hidden = false; suGo(0);
     const sp = $('#su-splash'); sp.hidden = false; sp.classList.remove('is-out');
-    setTimeout(() => sp.classList.add('is-out'), reduced ? 600 : 2600);
-    setTimeout(() => { sp.hidden = true; }, reduced ? 900 : 3100);
+    // aim the tear at the floor: how far it falls (in logo units) and where it lands
+    const box = sp.getBoundingClientRect(), tear = $('.lg-tear', sp).getBoundingClientRect(), logo = $('.wheep-logo', sp);
+    const unit = logo.getBoundingClientRect().width / logo.viewBox.baseVal.width;
+    logo.style.setProperty('--fall', `${((box.bottom - tear.bottom) / unit).toFixed(1)}px`);
+    sp.style.setProperty('--x', `${(tear.left + tear.width / 2 - box.left).toFixed(1)}px`);
+    setTimeout(() => sp.classList.add('is-out'), reduced ? 600 : 3800);
+    setTimeout(() => { sp.hidden = true; }, reduced ? 900 : 4300);
   };
   const banner = $('#banner');
   let bannerT = 0;
@@ -1007,7 +1022,10 @@
     suGo(suAt + 1);
   });
   // the profile question gates the step: he has to answer it
-  $$('input[name="su-cry"]').forEach((r) => r.addEventListener('change', () => { $('.su-go', suSteps[2]).disabled = false; }));
+  // details: continue once every number is in range and a crying answer is picked
+  const suDetails = () => { $('.su-go', suSteps[2]).disabled = !($$('input', suSteps[2]).every((i) => i.checkValidity()) && $('input[name="su-cry"]:checked')); };
+  suSteps[2].addEventListener('input', suDetails);
+  suSteps[2].addEventListener('change', suDetails);
   $('#su-back').addEventListener('click', () => suGo(Math.max(0, suAt - 1)));
   $('#su-skip').addEventListener('click', closeSetup);
   setup.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSetup(); });
