@@ -3,16 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0A0E2E">
+<meta name="theme-color" content="#0B0A10">
 <title>WHEEP · תחזית רגשית</title>
-<link rel="stylesheet" href="style.css?v=33">
-<link rel="stylesheet" href="brutal.css?v=33">
-<link rel="stylesheet" href="aura.css?v=33">
-<script>
-  // ?style=aura or the switch on the caption; remembered between visits
-  (() => { const q = new URLSearchParams(location.search).get('style'); if (q) localStorage.setItem('wheepStyle', q);
-    if ((q || localStorage.getItem('wheepStyle')) === 'aura') document.documentElement.classList.add('aura'); })();
-</script>
+<link rel="stylesheet" href="style.css?v=49">
+<link rel="stylesheet" href="brutal.css?v=49">
+<link rel="stylesheet" href="track.css?v=49">
+<script>document.documentElement.classList.add('track');   // one skin: the dark tracker</script>
 </head>
 <body>
 
@@ -42,80 +38,90 @@
       </span>
     </div>
 
-    <div class="aura-field" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <main class="screens">
 
       <!-- היום -->
       <section class="screen is-active" id="screen-today" role="tabpanel" aria-labelledby="tab-today" tabindex="-1">
-        <header class="today-head">
-          <h1 class="today-title">היום</h1>
-          <p class="today-date">ג׳ <span class="num">15.12</span> · תל אביב-יפו</p>
-        </header>
-        <header class="hero">
-          <div class="hero-shape">
-            <svg viewBox="-12 -12 344 344" id="hero-shape" role="img" aria-label="הצורה של היום: לחץ גבוה">
-              <defs><path id="hero-d"/></defs><path class="sh"/><g class="ed"><use href="#hero-d" y="1"/><use href="#hero-d" y="2"/><use href="#hero-d" y="3"/><use href="#hero-d" y="4"/><use href="#hero-d" y="5"/><use href="#hero-d" y="6"/><use href="#hero-d" y="7"/><use href="#hero-d" y="8"/><use href="#hero-d" y="9"/></g><path class="fg"/>
-            </svg>
+        <!-- the tracker's skeleton: date, three dials, a coach line, the day's log. Only what is measured changed. -->
+        <header class="dash-head">
+          <span class="patch-chip" title="WHEEP Patch 2 · מחובר"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="10" rx="5"/><circle cx="12" cy="12" r="2.2"/></svg><b class="num">64%</b></span>
+          <div class="dnav">
+            <button type="button" class="dnav-btn" id="dnav-prev" aria-label="יום קודם"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+            <h1 class="dnav-day"><span id="hero-day">היום</span><small id="dnav-date">ג׳ <span class="num">15.12</span></small></h1>
+            <button type="button" class="dnav-btn" id="dnav-next" aria-label="יום הבא"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
           </div>
-          <p class="hero-mpl"><b class="num" id="hero-mpl">775</b><span>MPL</span></p>
-          <p class="hero-sub"><span id="hero-day">היום</span> · צורת הגבריות שלך, ממוצע של 4 מדדים</p>
-          <p class="hero-note" id="hero-note" aria-live="polite"></p>
-          <div class="hero-days">
-            <div class="shape-strip" id="shape-strip" role="group" aria-label="צורת הגבריות בכל יום"></div>
-        <div class="scrub">
-          <button class="play" id="play" type="button" aria-label="הפעלת מעבר על הימים">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5v13l11-6.5z"/><g class="i-pause"><rect x="6.5" y="5.5" width="4" height="13" rx="1"/><rect x="13.5" y="5.5" width="4" height="13" rx="1"/></g></svg>
+        </header>
+        <!-- the rings: Activity's concentric set (Jakob's law). One colour per measure, MPL in the middle. -->
+        <section class="hero rings-card" aria-label="שלושת המדדים">
+          <div class="rings" id="dials"></div>
+        </section>
+
+        <!-- one next step (Hick's law): the warning, one line, how far to today's goal, one action -->
+        <section class="panel coach-card" aria-labelledby="coach-h">
+          <h2 class="sr-only" id="coach-h">הצעד הבא</h2>
+          <button class="alert" type="button" aria-expanded="false" aria-controls="alert-more" id="alert">
+            <span class="alert-head">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.2" r="1.1" fill="currentColor"/></svg>
+              <span class="alert-title">אזהרת לחץ גבוה</span>
+              <span class="alert-src">קופת רווחה</span>
+              <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>
+            </span>
+            <span class="alert-more" id="alert-more" hidden>
+              <span class="alert-body">מדד לחץ הגבריות (MPL) עומד על <b class="num">775</b> ועולה ברציפות כבר <b class="num">12</b> ימים. אף אחד מארבעת המדדים לא השתחרר מאז <b class="num">3</b> בדצמבר.</span>
+              <span class="alert-body">בתוקף עד יום ו׳, <span class="num">20:00</span>. ההתראה תוסר אוטומטית כשאחד המדדים ישתחרר.</span>
+            </span>
           </button>
-          <div class="scrub-track">
-            <input type="range" id="day" min="0" max="15" step="0.05" value="12" aria-label="יום" aria-valuetext="היום">
-            <div class="scrub-ticks" aria-hidden="true"><span>3.12 · בכי אחרון</span><span class="tk-today">היום</span><span class="tk-fc">תחזית</span></div>
+          <p class="coach" id="hero-note" aria-live="polite"></p>
+          <div class="goal" id="goal" aria-hidden="true"><span class="goal-bar"><i id="goal-fill"></i></span><span class="goal-t" id="goal-t"></span></div>
+          <div class="coach-acts" id="coach-acts">
+            <button class="cta" type="button" id="cta">להתקשר לעידו<small>מעל 5 דק׳ · שיחת עומק</small></button>
+            <button class="cta-more" type="button" id="cta-more">דרכים אחרות</button>
           </div>
-        </div>
-
-          </div>
-          <p class="hero-range"><span><b class="num">12</b> ימים בלי שחרור</span><span>תחזית ו׳: <b class="num">60%</b></span></p>
-        </header>
-
-
-        <button class="alert" type="button" aria-expanded="false" aria-controls="alert-more" id="alert">
-          <span class="alert-head">
-            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.2" r="1.1" fill="currentColor"/></svg>
-            <span class="alert-title">אזהרת לחץ גבוה</span>
-            <span class="alert-src">קופת רווחה</span>
-            <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>
-          </span>
-          <span class="alert-more" id="alert-more" hidden>
-            <span class="alert-body">מדד לחץ הגבריות (MPL) עומד על <b class="num">775</b> ועולה ברציפות כבר <b class="num">12</b> ימים. אף אחד מארבעת המדדים לא השתחרר מאז <b class="num">3</b> בדצמבר.</span>
-            <span class="alert-body">בתוקף עד יום ו׳, <span class="num">20:00</span>. ההתראה תוסר אוטומטית כשאחד המדדים ישתחרר.</span>
-          </span>
-        </button>
+        </section>
 
         <section class="metrics" aria-labelledby="mx-h">
-          <h2 class="sr-only" id="mx-h">ארבעת המדדים</h2>
+          <div class="panel-row"><h2 class="panel-h" id="mx-h">היעדים שלך</h2><span class="panel-meta">השבוע</span></div>
           <ul class="metric-grid" id="metric-grid"></ul>
         </section>
 
-        <section class="panel needs-panel" aria-labelledby="needs-h">
-          <div class="panel-row"><h2 class="panel-h" id="needs-h">מה הוא צריך</h2><span class="panel-meta">הגבר שבפנים · היום</span></div>
-          <ul class="needs" id="needs"></ul>
-        </section>
-        <section class="panel acts-panel" aria-labelledby="acts-h">
-          <h2 class="panel-h" id="acts-h">לטפל בו עכשיו</h2>
-          <div class="acts" id="acts"></div>
-          <p class="acts-out" id="acts-out" aria-live="polite"></p>
-        </section>
-
-        <section class="talk" aria-labelledby="talk-h">
-          <h2 class="talk-h" id="talk-h">לדבר עכשיו</h2>
-          <p class="talk-sub">שיחה של יותר מ-5 דקות מורידה את הלחץ יותר מכל יעד.</p>
-          <div class="talk-people" id="talk-people"></div>
+        <section class="panel myday" aria-labelledby="myday-h">
+          <div class="panel-row"><h2 class="panel-h" id="myday-h">היום שלך</h2><span class="panel-meta">זוהה אוטומטית</span></div>
+          <ol class="log" id="log"></ol>
         </section>
 
 
 
+        <details class="more" id="more">
+          <summary><span>עוד להיום</span><small>טיפול עצמי · אנשים</small></summary>
+          <section class="panel more-days" aria-label="16 ימים" hidden>
+          <div class="hero-days">
+              <div class="shape-strip" id="shape-strip" role="group" aria-label="צורת הגבריות בכל יום"></div>
+        <div class="scrub">
+            <button class="play" id="play" type="button" aria-label="הפעלת מעבר על הימים">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5v13l11-6.5z"/><g class="i-pause"><rect x="6.5" y="5.5" width="4" height="13" rx="1"/><rect x="13.5" y="5.5" width="4" height="13" rx="1"/></g></svg>
+            </button>
+            <div class="scrub-track">
+              <input type="range" id="day" min="0" max="15" step="0.05" value="12" aria-label="יום" aria-valuetext="היום">
+              <div class="scrub-ticks" aria-hidden="true"><span>3.12 · בכי אחרון</span><span class="tk-today">היום</span><span class="tk-fc">תחזית</span></div>
+            </div>
+        </div>
 
+            </div>
+            <p class="hero-range"><span><b class="num">12</b> ימים בלי שחרור</span><span>תחזית ו׳: <b class="num">60%</b></span></p>
+          </section>
 
+          <section class="panel acts-panel" aria-labelledby="acts-h">
+            <h2 class="panel-h" id="acts-h">טיפול עצמי</h2>
+            <div class="acts" id="acts"></div>
+            <p class="acts-out" id="acts-out" aria-live="polite"></p>
+          </section>
 
+          <section class="talk" aria-labelledby="talk-h">
+            <h2 class="talk-h" id="talk-h">לדבר עכשיו</h2>
+            <p class="talk-sub">שיחה של יותר מ-5 דקות מורידה את הלחץ יותר מכל יעד.</p>
+            <div class="talk-people" id="talk-people"></div>
+          </section>
+        </details>
       </section>
 
       <!-- רווחה -->
@@ -139,6 +145,7 @@
         <section class="panel" aria-labelledby="shop-h">
           <div class="panel-row"><h2 class="panel-h" id="shop-h">לממש</h2><span class="panel-meta">בשיתוף קופת רווחה</span></div>
           <ul class="shop" id="shop"></ul>
+          <button type="button" class="shop-more" id="shop-more" hidden></button>
         </section>
         <p class="fine gain-fine">כוכבים לא עוברים בין משתמשים ולא נצברים מעבר ל-5,000. בכי שלא אומת לא מזכה בכוכבים עד לאימות.</p>
       </section>
@@ -150,34 +157,27 @@
         <section class="panel emo-radar" aria-labelledby="radar-h">
           <div class="panel-row"><h2 class="panel-h" id="radar-h">חמש היבשות <small>עוצמה 0–99</small></h2></div>
           <ul class="radar-key" aria-hidden="true"><li class="k-now">השבוע</li><li class="k-prev">שבוע שעבר</li></ul>
-          <svg id="radar" viewBox="0 0 340 332" role="img"></svg>
+          <svg id="radar" viewBox="0 0 340 360" role="img"></svg>
         </section>
         <div class="emo-pick" id="emo-pick" role="radiogroup" aria-label="בחירת יבשה"></div>
         <section class="panel emo-det" id="emo-det" aria-live="polite"></section>
       </section>
 
-      <!-- החבר'ה -->
+      <!-- שיתוף: a feed like the running apps'. Same cards, same applause; what gets posted is what came out. -->
       <section class="screen" id="screen-crew" role="tabpanel" aria-labelledby="tab-crew" tabindex="-1" hidden>
-        <header class="page-head"><h1 class="page-title">החבר'ה</h1></header>
-        <p class="crew-sub">החבר'ה מהצבא · <span class="num">5</span> · מחובר</p>
-        <section class="panel crew-group" aria-labelledby="crew-state">
-          <div class="crew-shape" id="crew-shape"></div>
-          <div class="crew-body">
-            <h2 class="crew-state" id="crew-state">הקבוצה · מתוחה</h2>
-            <p>הלחץ של הקבוצה יורד רק כשמישהו פותח שיחה. אין ניקוד ואין מקומות.</p>
-            <button class="crew-btn is-ink" type="button" data-crew-group>שיחה קבוצתית</button>
-          </div>
-        </section>
-        <label class="panel crew-seen"><span>הצורה שלך גלויה לחבר'ה. <b>עידו ראה היום את מצבך.</b></span><input type="checkbox" class="switch" checked aria-label="הצורה שלי גלויה לחבר'ה"></label>
-        <ul class="crew-list" id="crew-list"></ul>
+        <header class="page-head"><h1 class="page-title">שיתוף</h1></header>
+        <p class="crew-sub">החבר'ה מהצבא · <span class="num">5</span> · <button type="button" class="feed-group" data-crew-group>שיחה קבוצתית</button></p>
+        <article class="post post-mine" id="post-mine" aria-live="polite"></article>
+        <ol class="feed" id="feed"></ol>
         <button class="crew-invite" type="button" id="crew-invite">+ להזמין לחבורה</button>
         <p class="crew-out" id="crew-out" aria-live="polite"></p>
       </section>
 
-      <!-- מגמות -->
-      <section class="screen" id="screen-trends" role="tabpanel" aria-labelledby="tab-trends" tabindex="-1" hidden>
+      <!-- מגמות: opened from the dials, the tracker's deep dive -->
+      <section class="screen" id="screen-trends" role="region" aria-labelledby="trends-h" tabindex="-1" hidden>
         <header class="page-head">
-          <h1 class="page-title">מגמות</h1>
+          <button class="back-btn" type="button" data-go="today"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>היום</button>
+          <h1 class="page-title" id="trends-h">מגמות</h1>
           <div class="seg" role="radiogroup" aria-label="טווח זמן" id="range">
             <button type="button" role="radio" aria-checked="false" data-range="week">שבוע</button>
             <button type="button" role="radio" aria-checked="true" data-range="month">חודש</button>
@@ -233,15 +233,16 @@
 
         <section class="panel device-card" aria-labelledby="dev-h">
           <svg class="patch" viewBox="0 0 120 80" aria-hidden="true">
-            <defs><radialGradient id="g-patch" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#9FE9FF" stop-opacity=".55"/><stop offset="1" stop-color="#5B7CF7" stop-opacity=".15"/></radialGradient></defs>
-            <rect x="8" y="10" width="104" height="60" rx="30" fill="url(#g-patch)" stroke="rgba(190,220,255,.6)"/>
-            <circle cx="60" cy="40" r="11" fill="none" stroke="#6CF4FF" stroke-width="1.5"/>
-            <circle cx="60" cy="40" r="3.5" fill="#6CF4FF"/>
+            <defs><radialGradient id="g-patch" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#F3F1F8" stop-opacity=".22"/><stop offset="1" stop-color="#F3F1F8" stop-opacity=".06"/></radialGradient></defs>
+            <rect x="8" y="10" width="104" height="60" rx="30" fill="url(#g-patch)" stroke="rgba(243,241,248,.35)"/>
+            <circle cx="60" cy="40" r="11" fill="none" stroke="#3FC8F5" stroke-width="1.5"/>
+            <circle cx="60" cy="40" r="3.5" fill="#3FC8F5"/>
           </svg>
           <div>
             <h2 class="panel-h" id="dev-h">WHEEP Patch 2</h2>
             <p class="dev-state"><span class="dot-ok" aria-hidden="true"></span>מחובר · מתחת לעין שמאל</p>
             <p class="dev-meta">סוללה <b class="num">64%</b> · סנכרון אחרון <b class="num">9:38</b></p>
+            <button class="crew-btn dev-setup" type="button" data-setup>הגדרה מחדש</button>
           </div>
         </section>
 
@@ -281,21 +282,17 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="15.5" cy="8" r="3"/><path d="M15.5 2.25v1M20.6 4.4l-.7.7M21.75 9.5h-1"/><path d="M6.75 19.25h9.5a3.25 3.25 0 0 0 .2-6.5 4.75 4.75 0 0 0-9.1 1.05 2.75 2.75 0 0 0-.6 5.45z"/></svg>
         <span>היום</span>
       </button>
-      <button role="tab" id="tab-gain" aria-controls="screen-gain" aria-selected="false" data-tab="gain" tabindex="-1">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19.5v-15h6a3.5 3.5 0 0 1 3.5 3.5v6.5"/><path d="M19 4.5v15h-6a3.5 3.5 0 0 1-3.5-3.5V9.5"/></svg>
-        <span>רווחה</span>
-      </button>
       <button role="tab" id="tab-emo" aria-controls="screen-emo" aria-selected="false" data-tab="emo" tabindex="-1">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8.5 6.2-3.2 10H6.7L3.5 9.2z"/><path d="M12 8.5l3.6 2.4-1.5 4.4H9.9l-1.5-4.4z"/></svg>
         <span>רגשות</span>
       </button>
       <button role="tab" id="tab-crew" aria-controls="screen-crew" aria-selected="false" data-tab="crew" tabindex="-1">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3.25"/><path d="M3 19.5c.7-3.2 3-5 6-5s5.3 1.8 6 5"/><path d="M15.5 5.6a3.25 3.25 0 0 1 0 5.8M17.6 14.8c1.8.6 3 2.2 3.4 4.7"/></svg>
-        <span>החבר'ה</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.75 13.5v5.75h14.5V13.5"/><path d="M12 3.75v11"/><path d="M7.75 8 12 3.75 16.25 8"/></svg>
+        <span>שיתוף</span>
       </button>
-      <button role="tab" id="tab-trends" aria-controls="screen-trends" aria-selected="false" data-tab="trends" tabindex="-1">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.75 20.25h16.5"/><path d="M4.75 15.5l4.5-4.25 3.75 2.75 5.5-6.5"/><circle cx="18.5" cy="7.5" r="1.6"/></svg>
-        <span>מגמות</span>
+      <button role="tab" id="tab-gain" aria-controls="screen-gain" aria-selected="false" data-tab="gain" tabindex="-1">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19.5v-15h6a3.5 3.5 0 0 1 3.5 3.5v6.5"/><path d="M19 4.5v15h-6a3.5 3.5 0 0 1-3.5-3.5V9.5"/></svg>
+        <span>רווחה</span>
       </button>
     </nav>
 
@@ -341,13 +338,93 @@
         <button class="ab-go" type="button" id="ab-go">המשך</button>
       </div>
     </section>
+
+    <!-- setup: a tracker's setup flow, step for step. The steps are the familiar ones; only what they ask changed. -->
+    <section class="setup" id="setup" role="dialog" aria-modal="true" aria-label="הגדרת WHEEP" hidden>
+      <div class="su-top">
+        <button class="su-back" type="button" id="su-back" aria-label="חזרה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        <ol class="su-prog" id="su-prog" aria-hidden="true"><li></li><li></li><li></li><li></li><li></li><li></li></ol>
+        <button class="su-skip" type="button" id="su-skip">דלג</button>
+      </div>
+
+      <div class="su-step" data-step="0">
+        <p class="su-badge">עדכון <span class="num">26.12</span> · הותקן</p>
+        <h1 class="su-h">אותו מכשיר. מודד משהו אחר.</h1>
+        <ul class="su-log">
+          <li><b class="is-out">הוסר</b>עומס אימון</li>
+          <li><b>נוסף</b>עומס הדחקה <bdi class="num">0–21</bdi></li>
+          <li><b>נוסף</b>שחרור · בכי</li>
+          <li><b class="is-out">הוצא משימוש</b>"הכל טוב"</li>
+        </ul>
+        <button class="su-go" type="button">להגדיר מחדש</button>
+      </div>
+
+      <div class="su-step" data-step="1" hidden>
+        <svg class="su-patch" viewBox="0 0 160 110" aria-hidden="true"><rect x="10" y="14" width="140" height="82" rx="41"/><circle cx="80" cy="55" r="16"/><circle class="su-dot" cx="80" cy="55" r="5"/></svg>
+        <h1 class="su-h">הצמד את המדבקה</h1>
+        <p class="su-lead">מתחת לעין שמאל, על עור נקי ויבש. היא קוראת לחות, מתח בלסת ושתיקות.</p>
+        <p class="su-status" id="su-pair" aria-live="polite">מחפש מדבקה…</p>
+        <button class="su-go" type="button" disabled>המשך</button>
+      </div>
+
+      <div class="su-step" data-step="2" hidden>
+        <h1 class="su-h">כמה פרטים</h1>
+        <dl class="su-rows">
+          <div><dt>גובה</dt><dd><b class="num">178</b> ס״מ</dd></div>
+          <div><dt>משקל</dt><dd><b class="num">82</b> ק״ג</dd></div>
+          <div><dt>גיל</dt><dd><b class="num">31</b></dd></div>
+        </dl>
+        <fieldset class="su-choice">
+          <legend>מתי בכית בפעם האחרונה?</legend>
+          <label><input type="radio" name="su-cry">השבוע</label>
+          <label><input type="radio" name="su-cry">החודש</label>
+          <label><input type="radio" name="su-cry">השנה</label>
+          <label><input type="radio" name="su-cry">לא זוכר</label>
+        </fieldset>
+        <button class="su-go" type="button" disabled>המשך</button>
+      </div>
+
+      <div class="su-step su-step-perm" data-step="3" hidden>
+        <h1 class="su-h">הרשאות</h1>
+        <p class="su-lead">WHEEP סופר גם את מה שלא נאמר.</p>
+        <div class="su-alert" role="group" aria-labelledby="su-alert-h">
+          <p class="su-alert-h" id="su-alert-h">‏"WHEEP" מבקש גישה למיקרופון</p>
+          <p class="su-alert-p">כדי לזהות אנחות, שתיקות ארוכות ו"הכל טוב".</p>
+          <div class="su-alert-btns"><button type="button" data-perm="no">לא לאפשר</button><button type="button" data-perm="yes">אישור</button></div>
+        </div>
+      </div>
+
+      <div class="su-step" data-step="4" hidden>
+        <h1 class="su-h">על מה לעבוד?</h1>
+        <p class="su-lead">אפשר לבחור יותר מאחד.</p>
+        <fieldset class="su-choice su-goals">
+          <legend class="sr-only">מטרות</legend>
+          <label><input type="checkbox">להפסיק להגיד "הכל טוב"</label>
+          <label><input type="checkbox">לבכות מול מישהו</label>
+          <label><input type="checkbox">להתקשר לאבא</label>
+          <label><input type="checkbox">לשאול לפני שאני מתקן</label>
+        </fieldset>
+        <button class="su-go" type="button">המשך</button>
+      </div>
+
+      <div class="su-step" data-step="5" hidden>
+        <h1 class="su-h">מכייל</h1>
+        <div class="su-dials" id="su-dials" aria-hidden="true"></div>
+        <p class="su-lead">WHEEP לומד את הבסיס שלך. זה לוקח <span class="num">4</span> לילות.</p>
+        <p class="su-status" id="su-cal" aria-live="polite"></p>
+        <button class="su-go" type="button">לאפליקציה</button>
+      </div>
+    </section>
+
+    <button class="banner" type="button" id="banner" hidden>
+      <span class="bn-app">WHEEP · עכשיו</span>
+      <b>זוהה: דמעה? · <span class="num">0.4</span> מ״ל</b>
+      <span>לא מאומת. לתייג?</span>
+    </button>
   </div>
 </div>
 
-<button class="style-toggle" type="button" role="switch" aria-checked="false" aria-label="סגנון 2">
-  <span class="st-a">סגנון 1</span><i aria-hidden="true"></i><span class="st-b">סגנון 2</span>
-</button>
 
-<script src="app.js?v=33"></script>
+<script src="app.js?v=49"></script>
 </body>
 </html>

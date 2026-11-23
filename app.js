@@ -28,6 +28,21 @@
   // AURA: the same app as light, not ink. Every shape is a blurred gradient orb on cream;
   // the sharper (kiki) a shape is, the crisper its edge; the rounder (bouba), the more it dissolves into the page.
   const AURA = document.documentElement.classList.contains('aura');
+  // WHEEP palette. Colour means a measure or a feeling, never decoration; UI, people and stars stay neutral.
+  // Mirrored as --m-* in track.css.
+  const PAL = {
+    cry: '#3FC8F5',      // בכי
+    anger: '#FF5A36',    // כעס
+    press: '#9B6BFF',    // הדחקה
+    talk: '#FF7AC6',     // שיחות עומק
+    release: '#3DDC97',  // שחרור
+    joy: '#FFD23F',      // הנאה
+    fear: '#C8FF3D',     // פחד
+    sad: '#3D6BFF',      // עצב
+    shame: '#FF9F1C',    // בושה
+    silence: '#ABA6BC',  // שתיקה: grey on purpose, nothing came out
+    person: '#2E2A3A',   // avatars: people are not measures
+  };
   const RMAP = { '#3FC8F5': '#3D8BE0', '#FF5A36': '#F0504A', '#9B6BFF': '#8C7BE8', '#FF7AC6': '#F27BC4', '#FFD23F': '#F7C531', '#3DDC97': '#4FCB8A' };
   const R = (hex) => (AURA && hex ? RMAP[hex] || hex : hex);
   // the halo hue around each core: neighbours on the colour wheel, so every orb carries two lights
@@ -45,13 +60,25 @@
       + `<path d="${d}" fill="url(#${id}g)" filter="url(#${id}e)"/></g></svg>`;
   };
   const rf = (arr) => { if (AURA) arr.forEach((x) => { x.fill = R(x.fill); }); return arr; };
+  // the shape set drawn in Figma (wheep-shapes): one file per measure and per emotion, white, recoloured here
+  const FIG = { fear: ['pachad', 116, 114], anger: ['kaas', 155.846, 155.846], sad: ['bechi', 123, 173], shame: ['hadhaka', 138.656, 138.656],
+    joy: ['hanaa', 126, 126], talk: ['hanaa', 126, 126], release: ['shichrur', 134.1, 149], press: ['hadhaka', 138.656, 138.656], cry: ['bechi', 123, 173] };
+  let figN = 0;
+  const fig = (key, color, cls = 'fig', x, y, size = 48) => {
+    const [f, w, hh] = FIG[key], k = size / Math.max(w, hh), iw = w * k, ih = hh * k, id = `fg${++figN}`;
+    const pos = x == null ? '' : ` x="${x}" y="${y}" width="${size}" height="${size}"`;
+    return `<svg class="${cls}" viewBox="0 0 ${size} ${size}"${pos} aria-hidden="true"><mask id="${id}"><image href="shapes/${f}.svg" x="${((size - iw) / 2).toFixed(2)}" y="${((size - ih) / 2).toFixed(2)}" width="${iw.toFixed(2)}" height="${ih.toFixed(2)}"/></mask><rect width="${size}" height="${size}" fill="${color}" mask="url(#${id})"/></svg>`;
+  };
   // one switch between the two skins; the open screen survives the reload
-  const styleBtn = $('.style-toggle');
-  styleBtn.setAttribute('aria-checked', String(AURA));
-  styleBtn.addEventListener('click', () => {
-    localStorage.setItem('wheepStyle', AURA ? 'brutal' : 'aura');
-    sessionStorage.setItem('wheepTab', ($('.screen:not([hidden])')?.id || 'screen-today').replace('screen-', ''));
-    location.replace(location.pathname);
+  const SKIN = AURA ? 'aura' : document.documentElement.classList.contains('track') ? 'track' : 'brutal';
+  $$('.skin-switch button').forEach((b) => {
+    b.setAttribute('aria-checked', String(b.dataset.skin === SKIN));
+    b.addEventListener('click', () => {
+      if (b.dataset.skin === SKIN) return;
+      localStorage.setItem('wheepSkin', b.dataset.skin);
+      sessionStorage.setItem('wheepTab', ($('.screen:not([hidden])')?.id || 'screen-today').replace('screen-', ''));
+      location.replace(location.pathname);
+    });
   });
 
   /* ── device scaling (desktop presentation) ── */
@@ -64,13 +91,14 @@
 
   /* ── the notebook glyphs, drawn by hand (pen wobble via #hand filter) ── */
   const GLYPH = {
-    cry:     { name: 'בכי',    color: '#6CF4FF', d: 'M12.2 2.9C10 7.1 6.9 10.2 7.2 14.4c.3 3.6 2.6 6 5.1 5.9 3-.2 5-2.7 4.6-6.2-.4-3.3-2.9-6.6-4.7-11.2z' },
-    anger:   { name: 'כעס',    color: '#FF9A4A', d: 'M12.0 1.8L13.2 8.6L18.1 6.3L16.0 10.3L21.5 9.5L15.4 12.3L19.2 17.2L14.3 15.4L16.0 21.6L12.2 15.7L8.2 19.2L8.7 14.9L4.2 17.6L8.6 12.9L3.1 9.9L8.7 9.8L5.6 4.3L10.7 8.4z' },
-    empathy: { name: 'אמפתיה', color: '#E77FD8', d: 'M12 11.4C9.3 5.2 4.3 7.6 7.7 11.9c-4 3.4.9 8.2 4.1 1.4 3.1 6.4 8.4 2.5 4.4-1.4 3.9-4-1.4-7.2-4.2-.5z' },
-    press:   { name: 'הדחקה',  color: '#A3ACDD', d: 'M8.7 3.3l7.2-.2 4.9 5.4.1 7.1-5.2 5.2-7.4-.1-5-5.3.3-7.2z' },
+    cry:     { name: 'בכי',    color: PAL.cry, d: 'M12.2 2.9C10 7.1 6.9 10.2 7.2 14.4c.3 3.6 2.6 6 5.1 5.9 3-.2 5-2.7 4.6-6.2-.4-3.3-2.9-6.6-4.7-11.2z' },
+    anger:   { name: 'כעס',    color: PAL.anger, d: 'M12.0 1.8L13.2 8.6L18.1 6.3L16.0 10.3L21.5 9.5L15.4 12.3L19.2 17.2L14.3 15.4L16.0 21.6L12.2 15.7L8.2 19.2L8.7 14.9L4.2 17.6L8.6 12.9L3.1 9.9L8.7 9.8L5.6 4.3L10.7 8.4z' },
+    empathy: { name: 'אמפתיה', color: PAL.release, d: 'M12 11.4C9.3 5.2 4.3 7.6 7.7 11.9c-4 3.4.9 8.2 4.1 1.4 3.1 6.4 8.4 2.5 4.4-1.4 3.9-4-1.4-7.2-4.2-.5z' },
+    press:   { name: 'הדחקה',  color: PAL.press, d: 'M8.7 3.3l7.2-.2 4.9 5.4.1 7.1-5.2 5.2-7.4-.1-5-5.3.3-7.2z' },
+    silence: { name: 'שתיקה',  color: PAL.silence, d: 'M8.7 3.3l7.2-.2 4.9 5.4.1 7.1-5.2 5.2-7.4-.1-5-5.3.3-7.2z' },
   };
-  const glyph = (k, cls = 'glyph') =>
-    `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${GLYPH[k].d}" stroke="${GLYPH[k].color}" filter="url(#hand)"/></svg>`;
+  const GFIG = { cry: 'cry', anger: 'anger', empathy: 'joy', press: 'press', silence: 'press' };
+  const glyph = (k, cls = 'glyph') => fig(GFIG[k], GLYPH[k].color, cls);
 
   /* ── Bouba/Kiki: the one shape of WHEEP ──
      round 0 = kiki (sharp spikes: pressure), 1 = bouba (soft blob: release).
@@ -121,17 +149,13 @@
   };
   // flat three-stop scale: kiki red → tense yellow → bouba cyan (a colour per state, never a gradient)
   const KB = AURA ? [[240, 80, 74], [247, 197, 49], [61, 139, 224]] : [[255, 90, 54], [255, 210, 63], [63, 200, 245]];
-  const kbColor = (round) => {
-    const t = Math.max(0, Math.min(1, round)) * 2, i = Math.min(1, Math.floor(t)), f = t - i;
-    return `rgb(${KB[i].map((x, k) => Math.round(x + (KB[i + 1][k] - x) * f)).join(',')})`;
-  };
+  const kbColor = (round) => (round < .34 ? PAL.press : round < .67 ? PAL.silence : PAL.release);
   // neo-brutalist shape: flat fill, thick ink outline, hard offset shadow (a second path)
   const INK = '#121212';
   const mini = (round, cls = 'mini', dashed = false, label = '', fill, base = 'burst', n = 9, shadow = false) => {
     const d = polar({ round, R: 18, base, n });
     if (AURA) return auraSvg(d, R(fill) || kbColor(round), round, cls, ` ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}`, dashed);
-    const sh = shadow ? `<path d="${d}" transform="translate(2.5 2.5)" fill="${INK}"/>` : '';
-    return `<svg class="${cls}" viewBox="0 0 48 48" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}>${sh}<path d="${d}" fill="${fill || kbColor(round)}" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"${dashed ? ' stroke-dasharray="4 3"' : ''}/></svg>`;
+    return `<svg class="${cls}" viewBox="0 0 48 48" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}><path d="${d}" fill="${fill || kbColor(round)}"${dashed ? ' opacity=".4"' : ''}/></svg>`;
   };
 
   /* ── the 16 days: 3.12 (last cry) → 18.12 (forecast); index 12 is today ── */
@@ -234,7 +258,7 @@
   const fromHash = () => {
     const h = location.hash.slice(1);
     if (h === 'about') return openInfo();
-    if (tabs.some((t) => t.dataset.tab === h)) show(h);
+    if (h && $(`#screen-${h}`)) show(h);
   };
   addEventListener('hashchange', fromHash);
   // the info button steps aside once a screen scrolls, so it never sits on top of content
@@ -242,10 +266,10 @@
 
   /* ── what the man inside needs (said in the third person on purpose: the app keeps him like a pet) ── */
   const NEEDS = rf([
-    { id: 'talk', name: 'שיחה', base: 'bubble', n: 6, fill: '#FF7AC6', v: 20 },
-    { id: 'move', name: 'תנועה', base: 'blob', n: 7, fill: '#FFD23F', v: 45 },
-    { id: 'sleep', name: 'שינה', base: 'bean', n: 6, fill: '#9B6BFF', v: 35 },
-    { id: 'release', name: 'שחרור', base: 'drop', n: 7, fill: '#3FC8F5', v: 10 },
+    { id: 'talk', name: 'שיחה', base: 'bubble', n: 6, fill: PAL.talk, v: 20 },
+    { id: 'move', name: 'תנועה', base: 'blob', n: 7, fill: PAL.joy, v: 45 },
+    { id: 'sleep', name: 'שינה', base: 'bean', n: 6, fill: PAL.press, v: 35 },
+    { id: 'release', name: 'שחרור', base: 'drop', n: 7, fill: PAL.release, v: 10 },
   ]);
   const needsAvg = () => NEEDS.reduce((n, x) => n + x.v, 0) / NEEDS.length / 100;
   const NEEDS0 = needsAvg();
@@ -254,7 +278,7 @@
   // the frame is the variable: as the shape softens, the ink thins, the shadows drop and the corners round.
   // Today's sharp shape (~.3) keeps the full brutal frame; the round day after a cry (~.86) has almost none.
   const setFrame = (round) => {
-    if (AURA) return;
+    if (AURA || document.documentElement.classList.contains('track')) return;   // only the brutalist skin breathes its frame
     const k = Math.max(0, Math.min(1, (round - .3) / .5)), ph = $('.phone').style, o = (6 * (1 - k)).toFixed(1), o2 = (4 * (1 - k)).toFixed(1);
     ph.setProperty('--sh', `${o}px ${o}px 0 var(--plate)`);
     ph.setProperty('--sh-sm', `${o2}px ${o2}px 0 var(--plate)`);
@@ -266,66 +290,155 @@
   /* ── four measures, each its own Bouba/Kiki shape; the hero is their average ── */
   const state = { press: 9, talks: 4 };
   const METRICS = rf([
-    { id: 'cry', name: 'בכי', base: 'drop', n: 7, fill: '#3FC8F5', val: () => '0', sub: '1 לא מאומת', round: () => .08 },
-    { id: 'anger', name: 'כעס שנאמר', base: 'burst', n: 9, fill: '#FF5A36', val: () => '1/3', sub: '2 נשארו בפנים', round: () => .3 },
-    { id: 'press', name: 'הדחקות', base: 'box', n: 8, fill: '#9B6BFF', val: () => String(state.press), sub: '"הכל טוב"', round: () => Math.max(0, 1 - state.press / 11) },
-    { id: 'talk', name: 'שיחות עומק', base: 'bubble', n: 6, fill: '#FF7AC6', val: () => String(state.talks), sub: 'מעל 5 דק׳', round: () => Math.min(1, state.talks / 6) },
+    { id: 'cry', name: 'בכי', base: 'drop', n: 7, fill: PAL.cry, val: () => '0', sub: '1 לא מאומת', goal: 'יעד: 1', round: () => .08 },
+    { id: 'anger', name: 'כעס שנאמר', base: 'burst', n: 9, fill: PAL.anger, val: () => '1/3', sub: '2 נשארו בפנים', goal: 'יעד: 3/3', round: () => .3 },
+    { id: 'press', name: 'הדחקות', base: 'box', n: 8, fill: PAL.press, val: () => String(state.press), sub: '"הכל טוב"', goal: 'יעד: 3 ומטה', round: () => Math.max(0, 1 - state.press / 11) },
+    { id: 'talk', name: 'שיחות עומק', base: 'bubble', n: 6, fill: PAL.talk, val: () => String(state.talks), sub: 'מעל 5 דק׳', goal: 'יעד: 6', round: () => Math.min(1, state.talks / 6) },
   ]);
   const composite = () => METRICS.reduce((n, m) => n + m.round(), 0) / METRICS.length;
   const renderMetrics = () => {
     const prevVals = $$('#metric-grid .metric b').map((b) => b.textContent);
     $('#metric-grid').innerHTML = METRICS.map((m) => `
-      <li class="metric">${mini(m.round(), 'mini metric-shape', false, '', m.fill, m.base, m.n, true)}
-        <b class="num">${m.val()}</b><span class="m-name">${m.name}</span><small>${m.sub}</small></li>`).join('');
+      <li class="metric" style="--mc:${m.fill}">${fig(m.id, m.fill, 'fig metric-shape')}
+        <span class="m-name">${m.name}</span><b class="num">${m.val()}</b>
+        <span class="m-bar" aria-hidden="true"><i style="width:${Math.max(4, Math.round(m.round() * 100))}%"></i></span>
+        <small><span>${m.sub}</span><span class="num">${m.goal}</span></small></li>`).join('');
     if (prevVals.length) $$('#metric-grid .metric').forEach((li, i) => { if (li.querySelector('b').textContent !== prevVals[i]) fx(li, 'is-up'); });
     const m = liveMpl();
-    if (Math.round(shapeDay) === TODAY) { countTo($('#hero-mpl'), +$('#hero-mpl').textContent || m, m); $('#hero-shape').setAttribute('aria-label', `הצורה של היום: ${stateWord(heroTarget())}, MPL ${m}`); }
+    if (isToday()) { paintDialNums(true); coachLine(); }
     setFrame(curTarget());
     // every 25 MPL let go of is worth 10 points
     if (m <= lastMpl - 25) { const steps = Math.floor((lastMpl - m) / 25); earn(`MPL ירד ב-${steps * 25}`, steps * 10); lastMpl -= steps * 25; }
   };
 
-  /* ── the live shapes: Today's hero and the shape tab, both trembling with pressure ── */
+  /* ── the tracker's three dials ──
+     A performance tracker opens on three rings and one big number each. WHEEP keeps the rings
+     and changes what fills them. */
   let shapeDay = TODAY, lastMpl = 775;
-  const live = {
-    hero: { cur: .3, sh: $('#hero-shape .sh'), fg: $('#hero-shape .fg'), def: $('#hero-d'), ed: $('#hero-shape .ed'), R: 140 },
-  };
-  if (AURA) Object.entries(live).forEach(([k, L]) => {
-    const svg = L.fg.ownerSVGElement;
-    svg.querySelector('defs').insertAdjacentHTML('beforeend', `<radialGradient id="${k}-ag" cx="40%" cy="36%" r="72%"><stop offset="0"/><stop offset=".6"/><stop offset="1"/></radialGradient><filter id="${k}-ab" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="14"/></filter><filter id="${k}-ae" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1"/></filter>`);
-    L.gs = [...svg.querySelectorAll(`#${k}-ag stop`)]; L.blur = svg.querySelector(`#${k}-ab feGaussianBlur`);
-    L.fg.setAttribute('filter', `url(#${k}-ae)`); L.fg.style.fill = `url(#${k}-ag)`;
-    L.sh.setAttribute('filter', `url(#${k}-ab)`); L.edge = svg.querySelector(`#${k}-ae feGaussianBlur`);
-  });
   const heroTarget = () => Math.min(1, composite() + care());
   const H0 = composite();
   // MPL today moves with everything he does: talks, care, released measures
   const liveMpl = () => Math.max(0, Math.min(1000, Math.round(775 - (heroTarget() - H0) * 700)));
   const curTarget = () => (Math.round(shapeDay) === TODAY ? heroTarget() : roundAt(shapeDay));
-  const frame = (t) => {
-    [['hero', curTarget(), '#screen-today']].forEach(([key, target, scr]) => {
-      const L = live[key];
-      if ($(scr).hidden) { L.cur = target; return; }
-      L.cur += (target - L.cur) * .08;
-      const tremble = reduced ? 0 : (1 - L.cur) * .035;
-      const d = polar({ round: L.cur, R: L.R, cx: 160, cy: 160, n: 11, tremble, phase: t / 120, N: 264 });
-      L.sh.setAttribute('d', d);
-      L.fg.setAttribute('d', d);
-      L.fg.setAttribute('fill', kbColor(L.cur));
-      if (AURA) {                                          // the big orb: its edge dissolves as it rounds
-        const c = kbColor(L.cur);
-        L.gs[0].setAttribute('stop-color', haloOf(R(['#FF5A36', '#FFD23F', '#3FC8F5'][Math.min(2, Math.round(L.cur * 2))]))); L.gs[1].setAttribute('stop-color', c); L.gs[2].setAttribute('stop-color', c);
-        L.blur.setAttribute('stdDeviation', (10 + L.cur * 22).toFixed(1));
-        L.edge.setAttribute('stdDeviation', (.6 + L.cur * 2.6).toFixed(2));
-        L.sh.style.fill = haloOf(R(['#FF5A36', '#FFD23F', '#3FC8F5'][Math.min(2, Math.round(L.cur * 2))]));
-        L.sh.style.transform = `scale(${(1.06 + L.cur * .12).toFixed(3)})`;
-        const ph = $('.phone').style;                      // the light behind the screen follows the shape
-        ph.setProperty('--f1', c); ph.setProperty('--f2', haloOf(c.startsWith('#') ? c : ''));
-      }
+  const isToday = () => Math.round(shapeDay) === TODAY;
+  const mplNow = () => (isToday() ? liveMpl() : mpl(at(PRESS, shapeDay)));
+  // crying against the weekly goal: 3.12 was the full release, today nothing has come out
+  const cryNow = () => Math.max(0, Math.round((flowAt(shapeDay) - .07) / .93 * 100));
+  const DIALS = [
+    { id: 'release', name: 'שחרור', unit: '%', frac: () => curTarget(), round: () => curTarget(),
+      val: () => String(Math.max(1, Math.round(curTarget() * 99))) },
+    // the strain scale, 0–21, now counts what was held in; a full ring is the bad day
+    { id: 'press', name: 'עומס הדחקה', unit: '/21', frac: () => mplNow() / 1000, round: () => 1 - mplNow() / 1000,
+      val: () => (mplNow() * 21 / 1000).toFixed(1) },
+    { id: 'cry', name: 'בכי', unit: '%', frac: () => cryNow() / 100, round: () => Math.min(1, .1 + cryNow() / 100),
+      val: () => String(cryNow()) },
+  ];
+  // a tracker ring, as on the wrist and in the health app: thin track, thick round-capped arc, number inside.
+  // Bouba/Kiki lives in the arc's line itself: a saw edge while the measure is held in, a clean stroke once it gets out.
+  const RING = 44, TEETH = 44;
+  const ringArc = (frac, round, phase = 0, r0 = RING, c = 60, amp0 = 3.4, teeth = TEETH) => {
+    const f = Math.max(0, Math.min(.999, frac));
+    if (f < .004) return '';
+    const amp = Math.max(0, 1 - round) * amp0, N = Math.max(8, Math.round(240 * f));
+    let d = '';
+    for (let j = 0; j <= N; j++) {
+      const a = -Math.PI / 2 + (j / N) * f * Math.PI * 2;
+      const u = (j / N) * f * teeth * 2 + phase;
+      const r = r0 + amp * (Math.abs((u % 2 + 2) % 2 - 1) * 2 - 1);   // triangle wave: the teeth
+      d += `${j ? 'L' : 'M'}${(c + r * Math.cos(a)).toFixed(2)} ${(c + r * Math.sin(a)).toFixed(2)}`;
+    }
+    return d;
+  };
+  const DIAL_G = { release: 'empathy', press: 'press', cry: 'cry' };
+  // Activity's three concentric rings: outside in, release / held-in load / crying. A fixed colour each
+  // (similarity: the ring, its legend and its trend share it); the arc's edge still carries Bouba/Kiki.
+  const RCOL = { release: PAL.release, press: PAL.press, cry: PAL.cry };
+  const RR = [104, 77, 50], RW = 22, RC0 = 120;
+  $('#dials').innerHTML = `
+    <button type="button" class="rings-btn" id="rings-btn" aria-label="מגמות">
+      <svg class="rings-svg" viewBox="0 0 240 240" aria-hidden="true">
+        ${DIALS.map((g, i) => `<g class="ring" data-ring="${g.id}" style="--rc:${RCOL[g.id]}">
+          <circle class="ring-track" cx="${RC0}" cy="${RC0}" r="${RR[i]}"/>
+          <path class="ring-ol"/><path class="ring-arc"/>
+          ${fig(g.id, '#0E0D12', 'ring-icon', RC0 - 8, RC0 - RR[i] - 8, 16)}
+        </g>`).join('')}
+      </svg>
+      <span class="rings-mid"><b class="num" id="rings-mpl">775</b><small>MPL</small></span>
+    </button>
+    <ul class="ring-legend">${DIALS.map((g) => `
+      <li><button type="button" class="dial" data-dial="${g.id}" style="--rc:${RCOL[g.id]}">
+        <span class="dial-name">${g.name}</span>
+        <span class="dial-read"><b class="num" id="dial-${g.id}">${g.val()}</b><small class="num">${g.unit}</small></span>
+      </button></li>`).join('')}
+    </ul>`;
+  const dialEls = DIALS.map((g, i) => {
+    const li = $(`[data-dial="${g.id}"]`), ring = $(`[data-ring="${g.id}"]`);
+    return { g, r: RR[i], cur: g.round(), fr: g.frac(), arc: $('.ring-arc', ring), ol: $('.ring-ol', ring), num: $('.dial-read b', li), li };
+  });
+  // as in the tracker: the rings, or any reading, open the deep dive (the trends)
+  [$('#rings-btn'), ...dialEls.map((D) => D.li)].forEach((b) => b.addEventListener('click', () => show('trends')));
+  const paintDialNums = (animate = false) => {
+    $('#rings-mpl').textContent = mplNow();
+    dialEls.forEach((D) => {
+      const v = D.g.val();
+      D.li.setAttribute('aria-label', `${D.g.name}: ${v}${D.g.unit === '%' ? '%' : ` מתוך 21`} · מגמות`);
+      if (D.num.textContent === v) return;
+      if (animate && D.g.id === 'release') countTo(D.num, +D.num.textContent, +v);
+      else D.num.textContent = v;
     });
+  };
+  const frame = (t) => {
+    if (!$('#screen-today').hidden) dialEls.forEach((D, i) => {
+      D.cur += (D.g.round() - D.cur) * .08; D.fr += (D.g.frac() - D.fr) * .1;
+      const d = ringArc(D.fr, 1, 0, D.r, RC0, 0);                    // a clean, still arc: the reading, nothing else
+      D.arc.setAttribute('d', d); D.ol.setAttribute('d', d);
+    });
+    else dialEls.forEach((D) => { D.cur = D.g.round(); D.fr = D.g.frac(); });
+    if (AURA) { const c = kbColor(dialEls[0].cur), ph = $('.phone').style; ph.setProperty('--f1', c); ph.setProperty('--f2', haloOf(c)); }
     requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
+
+  /* ── the day's log: like "activity detected", each line arrives on its own ── */
+  const LOG = [
+    ['07:55', 'press', 'הדחקה', '"הכל טוב" · שירי שאלה איך ישנת', '+1'],
+    ['10:20', 'anger', 'כעס שלא נאמר', 'ישיבת צוות', '14 דק׳'],
+    ['13:10', 'cry', 'דמעה?', '0.4 מ״ל · לא מאומת', null],
+    ['18:05', 'silence', 'שתיקה ארוכה', 'פקק באיילון', '40 דק׳'],
+  ];
+  const renderLog = () => {
+    $('#log').innerHTML = LOG.map(([time, g, what, ctx, v], i) => `
+      <li class="log-row">${glyph(g, 'glyph log-g')}
+        <span class="log-what"><b>${what}</b><small>${ctx}</small></span>
+        <span class="log-time num">${time}</span>
+        ${v ? `<span class="log-v num" dir="ltr">${v}</span>` : `<button type="button" class="log-tag" data-i="${i}">לתייג</button>`}</li>`).join('');
+  };
+  renderLog();
+  // the coach line: the tracker's one instruction, tied to the release reading
+  const GOAL = 60;
+  let goalMet = false;
+  const coachLine = () => {
+    const i = Math.round(shapeDay), rel = Math.max(1, Math.round(curTarget() * 99));
+    const pct = `<bdi class="num">${rel}%</bdi>`, today = i === TODAY, met = rel >= GOAL;
+    $('#hero-note').innerHTML = !today ? (NOTES[i] || 'אין רישום.')
+      : met ? `שחרור ${pct}. היעד של היום הושג. אין עוד מה לעשות.`
+      : `שחרור ${pct}. עוד שיחה אחת מעל 5 דק׳ ותגיע ליעד.`;
+    // goal-gradient: the distance left is drawn, and the bar starts already part-full
+    $('#goal').hidden = !today;
+    $('#goal-fill').style.width = `${Math.min(100, rel / GOAL * 100)}%`;
+    $('#goal-t').innerHTML = met ? 'הושג' : `<bdi class="num">${rel}/${GOAL}</bdi> · עד <bdi class="num">20:00</bdi>`;
+    $('#coach-acts').hidden = !today || met;
+    if (today && met && !goalMet) { goalMet = true; fx($('.rings-card'), 'is-done'); }
+  };
+  $('#cta').addEventListener('click', () => openSheet('ido'));
+  $('#cta-more').addEventListener('click', () => { const m = $('#more'); m.open = true; setTimeout(() => $('#acts-h').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }), 30); });
+  $('#dnav-prev').addEventListener('click', () => { stopPlay(); const d = Math.max(0, Math.round(shapeDay) - 1); dayInput.value = d; setDay(d); });
+  $('#dnav-next').addEventListener('click', () => { stopPlay(); const d = Math.min(DAYS.length - 1, Math.round(shapeDay) + 1); dayInput.value = d; setDay(d); });
+  $('#log').addEventListener('click', (e) => {
+    const b = e.target.closest('.log-tag'); if (!b) return;
+    LOG[+b.dataset.i] = ['13:10', 'cry', 'בכי · תויג', '0.4 מ״ל · ממתין לאימות', 'ממתין'];
+    renderLog(); fx($('#log').children[+b.dataset.i], 'is-up');
+  });
   /* ── shape tab: 16 days of one shape ── */
   const NOTES = {
     0: '11 דק׳ בכי ברמזור בדרך הביתה. MPL ירד ל-310.',
@@ -345,11 +458,13 @@
     shapeDay = d;
     const i = Math.round(d), r = roundAt(d);
     const label = i === TODAY ? 'היום' : i > TODAY ? `תחזית · ${DAYS[i]}` : DAYS[i];
-    $('#hero-day').textContent = label;
+    const [wd, dt] = DAYS[i].split(' ');
+    $('#hero-day').innerHTML = i === TODAY ? 'היום' : i > TODAY ? 'תחזית' : i === TODAY - 1 ? 'אתמול' : `<span class="num">${dt}</span>`;
+    $('#dnav-date').innerHTML = i < TODAY - 1 ? `${wd} · לפני <span class="num">${TODAY - i}</span> ימים` : `${wd} <span class="num">${dt}</span>`;
+    $('#dnav-prev').disabled = i <= 0; $('#dnav-next').disabled = i >= DAYS.length - 1;
     dayInput.setAttribute('aria-valuetext', label);
-    $('#hero-mpl').textContent = i === TODAY ? liveMpl() : mpl(at(PRESS, d));
-    $('#hero-note').textContent = i === TODAY ? '' : NOTES[i] || 'אין רישום.';
-    $('#hero-shape').setAttribute('aria-label', `צורת הגבריות ב-${label}: ${stateWord(i === TODAY ? heroTarget() : r)}`);
+    paintDialNums();
+    coachLine();
     strip.querySelectorAll('.sday').forEach((b) => b.classList.toggle('is-sel', +b.dataset.i === i));
     setFrame(curTarget());
   };
@@ -381,10 +496,10 @@
 
   /* ── talk now: the quick fix is a conversation (and WHEEP still counts it) ── */
   const PEOPLE = rf([
-    { id: 'ido', name: 'עידו', rel: 'חבר מהצבא', init: 'ע', fill: '#3FC8F5' },
-    { id: 'shiri', name: 'שירי', rel: 'בת זוג', init: 'ש', fill: '#FF7AC6' },
-    { id: 'dad', name: 'אבא', rel: 'לא דיברתם 9 ימים', init: 'א', fill: '#FFD23F' },
-    { id: 'guys', name: "החבר'ה", rel: 'שיחה קבוצתית · 5', init: '5', fill: '#9B6BFF', group: true },
+    { id: 'ido', name: 'עידו', rel: 'חבר מהצבא', init: 'ע', fill: PAL.person },
+    { id: 'shiri', name: 'שירי', rel: 'בת זוג', init: 'ש', fill: PAL.person },
+    { id: 'dad', name: 'אבא', rel: 'לא דיברתם 9 ימים', init: 'א', fill: PAL.person },
+    { id: 'guys', name: "החבר'ה", rel: 'שיחה קבוצתית · 5', init: '5', fill: PAL.person, group: true },
   ]);
   const OPENERS = ['יש לך 5 דקות?', 'אני לא ממש בסדר השבוע.', 'רציתי לשמוע מה איתך באמת.'];
   const GROUP_OPENERS = ['מישהו פנוי לשיחה הערב?', 'אני צריך לדבר על משהו.', 'בלי בדיחות הפעם, טוב?'];
@@ -469,6 +584,7 @@
   ];
   const renderNeeds = () => {
     const ul = $('#needs');
+    if (!ul) return;
     if (ul.children.length) {
       NEEDS.forEach((x, i) => {
         const li = ul.children[i], num = li.querySelector('b');
@@ -492,32 +608,27 @@
     renderNeeds(); renderMetrics();
     const low = NEEDS.slice().sort((a, c) => a.v - c.v)[0];
     earn(t, 15, b);
-    $('#acts-out').textContent = `${t} · נרשם, +15 כוכבים. הלחץ ירד קצת. הכי חסר לו עכשיו: ${low.name}.`;
+    $('#acts-out').textContent = `${t} · נרשם, +15 כוכבים. הלחץ ירד קצת.`;
   });
   renderNeeds();
 
   /* ── emotions: the patch maps Ekman's five continents; a radar like a player card, without a score ── */
   const EMO = rf([
-    { id: 'fear', name: 'פחד', base: 'shiver', n: 13, fill: '#9B6BFF', v: 82, prev: 70, out: .18,
+    { id: 'fear', name: 'פחד', base: 'shiver', n: 13, fill: PAL.fear, v: 82, prev: 70, out: .18,
       states: [['דאגה', 8], ['חרדה', 5], ['בהלה', 1]], trigger: 'הכסף לחתונה', did: 'אמרת "הכל טוב"' },
-    { id: 'anger', name: 'כעס', base: 'flare', n: 9, fill: '#FF5A36', v: 64, prev: 71, out: .3,
+    { id: 'anger', name: 'כעס', base: 'flare', n: 9, fill: PAL.anger, v: 64, prev: 71, out: .3,
       states: [['עצבנות', 6], ['תסכול', 4], ['זעם', 1]], trigger: 'פקק באיילון', did: 'שתקת 40 דקות' },
-    { id: 'sad', name: 'עצב', base: 'sag', n: 7, fill: '#3FC8F5', v: 48, prev: 35, out: .12,
+    { id: 'sad', name: 'עצב', base: 'sag', n: 7, fill: PAL.sad, v: 48, prev: 35, out: .12,
       states: [['בדידות', 4], ['אכזבה', 3], ['אבל', 0]], trigger: 'אבא שאל מה נשמע', did: 'לא תויג' },
-    { id: 'disgust', name: 'גועל', base: 'recoil', n: 6, fill: '#3DDC97', v: 30, prev: 26, out: .62,
-      states: [['בוז עצמי', 3], ['סלידה', 2]], trigger: 'המראה בחדר הכושר', did: 'יצאת מוקדם' },
-    { id: 'joy', name: 'הנאה', base: 'bloom', n: 6, fill: '#FFD23F', v: 41, prev: 52, out: .85,
+    { id: 'shame', name: 'בושה', base: 'recoil', n: 6, fill: PAL.shame, v: 57, prev: 49, out: .2,
+      states: [['מבוכה', 4], ['השפלה', 2], ['חוסר ערך', 1]], trigger: 'ביקשת עזרה בעבודה', did: 'צחקת על זה' },
+    { id: 'joy', name: 'הנאה', base: 'bloom', n: 6, fill: PAL.joy, v: 41, prev: 52, out: .85,
       states: [['הקלה', 3], ['שמחה', 2], ['גאווה', 1]], trigger: 'שיחה עם עידו', did: 'צחקת' },
   ]);
-  // an emotion's mark: its own amorphous silhouette; how sharp it is = how much stayed inside
-  const picto = (e, cls = 'picto', x, y, size) => {
-    const d = polar({ round: e.out, R: 19, cx: 24, cy: 24, base: e.base, n: e.n, N: 220 });
-    const pos = x == null ? '' : ` x="${x}" y="${y}" width="${size}" height="${size}"`;
-    if (AURA) return auraSvg(d, e.fill, e.out, cls, `${pos} aria-hidden="true"`);
-    return `<svg class="${cls}" viewBox="0 0 48 48"${pos} aria-hidden="true"><path d="${d}" transform="translate(2.5 2.5)" fill="#121212"/><path d="${d}" fill="${e.fill}" stroke="#121212" stroke-width="2.4" stroke-linejoin="round"/></svg>`;
-  };
+  // an emotion's mark: its own shape from the set
+  const picto = (e, cls = 'picto', x, y, size) => fig(e.id, e.fill, cls, x, y, size || 48);
   let emoSel = 'fear';
-  const RC = { x: 170, y: 180, R: 110 };
+  const RC = { x: 170, y: 200, R: 110 };
   const rPt = (i, v) => {
     const a = -Math.PI / 2 + i * (2 * Math.PI / EMO.length);
     return [RC.x + Math.cos(a) * RC.R * v / 99, RC.y + Math.sin(a) * RC.R * v / 99];
@@ -525,26 +636,21 @@
   const pts = (vals) => vals.map((v, i) => rPt(i, v).map((n) => n.toFixed(1)).join(',')).join(' ');
   const renderEmo = () => {
     let g = '';
-    [20, 40, 60, 80, 99].forEach((v) => { g += `<polygon points="${pts(EMO.map(() => v))}" fill="none" stroke="#121212" stroke-opacity=".16" stroke-width="1.2"/>`; });
-    EMO.forEach((_, i) => { const [x, y] = rPt(i, 99); g += `<line x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}" stroke="#121212" stroke-opacity=".16" stroke-width="1.2"/>`; });
+    [20, 40, 60, 80, 99].forEach((v) => { g += `<polygon class="r-grid${v === 99 ? ' is-edge' : ''}" points="${pts(EMO.map(() => v))}"/>`; });
+    EMO.forEach((_, i) => { const [x, y] = rPt(i, 99); g += `<line class="r-grid" x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}"/>`; });
     [20, 40, 60, 80].forEach((v) => { const [, y] = rPt(0, v); g += `<text x="${RC.x - 4}" y="${y + 3.5}" text-anchor="end" class="r-tick num">${v}</text>`; });
     const now = pts(EMO.map((e) => e.v));
-    if (AURA) {
-      g += `<defs>${EMO.map((e, i) => { const [x, y] = rPt(i, e.v); return `<linearGradient id="ray-${e.id}" gradientUnits="userSpaceOnUse" x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}"><stop offset="0" stop-color="#5B5BD6"/><stop offset=".45" stop-color="${haloOf(e.fill)}"/><stop offset="1" stop-color="${e.fill}"/></linearGradient>`; }).join('')}</defs>`;
+    {
+      g += `<defs>${EMO.map((e, i) => { const [x, y] = rPt(i, e.v); return `<linearGradient id="ray-${e.id}" gradientUnits="userSpaceOnUse" x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}"><stop offset="0" stop-color="#D9D6E3" stop-opacity=".85"/><stop offset="1" stop-color="${e.fill}"/></linearGradient>`; }).join('')}</defs>`;
       EMO.forEach((e, i) => {
         const [x, y] = rPt(i, e.v), [px, py] = rPt(i, e.prev), on = e.id === emoSel;
         g += `<line x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}" stroke="url(#ray-${e.id})" stroke-width="${on ? 17 : 13}" stroke-linecap="round"/>`;
-        g += `<circle cx="${px}" cy="${py}" r="4" fill="none" stroke="#2A2622" stroke-width="1" stroke-dasharray="2 2"/>`;
-        g += `<circle cx="${x}" cy="${y}" r="${on ? 13 : 11}" fill="none" stroke="#2A2622" stroke-width="1"/>`;
+        g += `<circle class="r-prev" cx="${px}" cy="${py}" r="4"/>`;
+        g += `<circle class="r-ring" cx="${x}" cy="${y}" r="${on ? 13 : 11}"/>`;
       });
-    } else {
-    g += `<polygon points="${now}" transform="translate(3 3)" fill="#121212"/>`;
-    g += `<polygon points="${now}" fill="#FFD23F" stroke="#121212" stroke-width="2.6" stroke-linejoin="round"/>`;
-    g += `<polygon points="${pts(EMO.map((e) => e.prev))}" fill="none" stroke="#121212" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`;
     }
     EMO.forEach((e, i) => {
       const [x, y] = rPt(i, e.v), on = e.id === emoSel;
-      if (!AURA) g += `<circle cx="${x}" cy="${y}" r="${on ? 7.5 : 5.5}" fill="${e.fill}" stroke="#121212" stroke-width="2"/>`;
       const [lx, ly] = rPt(i, 99 * 1.3);
       g += `<g class="r-label${on ? ' is-on' : ''}" data-emo="${e.id}" transform="translate(${lx.toFixed(1)} ${(ly - 8).toFixed(1)})">
         ${picto(e, 'picto', -20, -32, 40)}
@@ -566,24 +672,61 @@
 
   /* ── the crew: a shared shape, no ranks; you can see who is sharp and reach him ── */
   const CREW = rf([
-    { id: 'ido', name: 'עידו', init: 'ע', fill: '#3FC8F5', r: .22, last: 'שקט 4 ימים. גם ה-MPL שלו עולה.' },
-    { id: 'doron', name: 'דורון', init: 'ד', fill: '#3DDC97', r: .7, last: 'דיבר עם אבא שלו אתמול, 40 דק׳.' },
-    { id: 'alon', name: 'אלון', init: 'א', fill: '#FF7AC6', r: .5, last: 'שלח "בוא נדבר" בקבוצה. אף אחד לא ענה.' },
-    { id: 'yoni', name: 'יוני', init: 'י', fill: '#FFD23F', r: .38, last: 'במילואים. החיישן לא מסונכרן.', off: true },
+    { id: 'ido', name: 'עידו', init: 'ע', fill: PAL.person, r: .22, last: 'שקט 4 ימים. גם ה-MPL שלו עולה.' },
+    { id: 'doron', name: 'דורון', init: 'ד', fill: PAL.person, r: .7, last: 'דיבר עם אבא שלו אתמול, 40 דק׳.' },
+    { id: 'alon', name: 'אלון', init: 'א', fill: PAL.person, r: .5, last: 'שלח "בוא נדבר" בקבוצה. אף אחד לא ענה.' },
+    { id: 'yoni', name: 'יוני', init: 'י', fill: PAL.person, r: .38, last: 'במילואים. החיישן לא מסונכרן.', off: true },
   ]);
+  /* ── שיתוף: the running apps' feed, card for card (who, when, title, three stats, the trace, applause).
+     The trace is the man's shape; the applause is a hug; the app posts his streaks for him, the bad ones too. ── */
+  const POSTS = [
+    { id: 'doron', when: 'אתמול · 21:40 · רמת גן', title: 'שיחה עם אבא', stats: [['משך', '40:12'], ['שחרור', '71%'], ['עומס', '−3.8']], hugs: 14, talk: 3 },
+    { id: 'ido', when: 'היום · 06:10 · פורסם אוטומטית', title: 'שיא אישי: 4 ימים בלי שחרור', badge: 'שיא אישי', stats: [['רצף', '4 ימים'], ['שחרור', '9%'], ['עומס', '17.9']], hugs: 11, talk: 0 },
+    { id: 'alon', when: 'אתמול · 23:02', title: 'כתב "בוא נדבר" בקבוצה', stats: [['נקרא', '5/5'], ['תשובות', '0'], ['עומס', '12.4']], hugs: 0, talk: 0 },
+    { id: 'yoni', when: 'לפני 3 ימים · מילואים', title: 'פעילות לא סונכרנה', stats: [['חיישן', 'מנותק'], ['שחרור', '—'], ['עומס', '—']], hugs: 2, talk: 0 },
+  ];
+  const HUG_I = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="3"/><path d="M4 11.5c1.6 4.4 4.4 7 8 7s6.4-2.6 8-7"/><path d="M7.5 14.2c1.3 1.1 2.8 1.6 4.5 1.6s3.2-.5 4.5-1.6"/></svg>';
+  const CALL_I = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.75h3l1.5 4-2 1.25a10 10 0 0 0 4.5 4.5l1.25-2 4 1.5v3a2 2 0 0 1-2.2 2A15.75 15.75 0 0 1 4.5 5.95a2 2 0 0 1 2-2.2z"/></svg>';
+  const statsHtml = (st) => `<dl class="post-stats">${st.map(([k, v]) => `<div><dt>${k}</dt><dd class="num"><bdi>${v}</bdi></dd></div>`).join('')}</dl>`;
+  const mine = { shared: false, hugs: 0 };
+  const renderMine = () => {
+    const rel = Math.max(1, Math.round(heroTarget() * 99)), st = [['שחרור', `${rel}%`], ['עומס', (liveMpl() * 21 / 1000).toFixed(1)], ['בלי שחרור', '12 ימים']];
+    $('#post-mine').innerHTML = `
+      <header class="post-head"><span class="avatar avatar-me">אני</span><p><b>${mine.shared ? 'אתה' : 'היום שלך'}</b><small>${mine.shared ? 'היום · עכשיו' : 'טיוטה · רק אתה רואה'}</small></p></header>
+      <h3 class="post-title">${mine.shared ? '12 ימים בלי שחרור' : 'עוד לא שיתפת היום'}</h3>
+      ${statsHtml(st)}
+      ${mine.shared
+        ? `<footer class="post-foot"><span class="hug is-static">${HUG_I}<b class="num">${mine.hugs}</b> חיבוקים</span><span class="post-talk">${mine.hugs ? 'עידו ראה' : 'נשלח לחבר\'ה'}</span></footer>`
+        : '<button type="button" class="post-share" id="post-share">לשתף עם החבר\'ה</button>'}`;
+  };
   const renderCrew = () => {
-    const g = (CREW.reduce((n, f) => n + f.r, 0) + heroTarget()) / (CREW.length + 1);
-    $('#crew-shape').innerHTML = mini(g, 'mini', false, `הצורה של הקבוצה: ${stateWord(g)}`, undefined, 'burst', 9, true);
-    $('#crew-state').textContent = `הקבוצה · ${g > .5 ? 'הלחץ יורד' : 'לחץ גבוה'}`;
-    $('#crew-list').innerHTML = CREW.map((f) => `<li class="mate">
-      ${mini(f.r, 'mini mate-shape', !!f.off, '', undefined, 'burst', 9, true)}
-      <div class="mate-body"><p class="mate-name"><b>${f.name}</b></p><p class="mate-last">${f.last}</p></div>
-      <div class="mate-acts"><button type="button" class="crew-btn" data-crew-call="${f.id}">להתקשר</button><button type="button" class="crew-btn" data-crew-msg="${f.id}">הודעה</button></div></li>`).join('');
+    renderMine();
+    $('#feed').innerHTML = POSTS.map((p) => {
+      const f = CREW.find((c) => c.id === p.id);
+      return `<li class="post${f.off ? ' is-off' : ''}">
+        <header class="post-head"><span class="avatar" style="background:${f.fill}">${f.init}</span><p><b>${f.name}</b><small>${p.when}</small></p>
+          <button type="button" class="post-call" data-crew-call="${f.id}" aria-label="להתקשר ל${f.name}">${CALL_I}</button></header>
+        <h3 class="post-title">${p.badge ? `<span class="post-badge">${p.badge}</span>` : ''}${p.title}</h3>
+        ${statsHtml(p.stats)}
+        <div class="post-trace">${mini(f.r, 'mini post-shape', !!f.off, `הצורה של ${f.name}`, undefined, 'burst', 11)}</div>
+        <footer class="post-foot"><button type="button" class="hug" data-hug="${p.id}" aria-pressed="${!!p.mine}">${HUG_I}<b class="num">${p.hugs}</b> חיבוקים</button>
+          <span class="post-talk">${p.talk ? `${p.talk} תגובות` : 'אין תגובות'}</span></footer></li>`;
+    }).join('');
   };
   $('#screen-crew').addEventListener('click', (e) => {
     const c = e.target.closest('[data-crew-call]'); if (c) return openSheet(c.dataset.crewCall);
-    const m = e.target.closest('[data-crew-msg]'); if (m) return openSheet(m.dataset.crewMsg, 'msg');
     if (e.target.closest('[data-crew-group]')) return openSheet('guys');
+    const h = e.target.closest('[data-hug]');
+    if (h) {
+      const p = POSTS.find((x) => x.id === h.dataset.hug);
+      p.mine = !p.mine; p.hugs += p.mine ? 1 : -1;
+      renderCrew(); fx($(`[data-hug="${p.id}"]`), 'is-up');
+      return;
+    }
+    if (e.target.closest('#post-share')) {
+      mine.shared = true; renderMine(); fx($('#post-mine'), 'is-up');
+      setTimeout(() => { mine.hugs = 1; renderMine(); fx($('#post-mine .hug'), 'is-up'); }, 2200);
+    }
   });
   $('#crew-invite').addEventListener('click', () => { $('#crew-out').textContent = 'קוד הזמנה: WHP-4417. בתוקף 24 שעות. מי שמצטרף רואה את הצורה שלך.'; });
   renderCrew();
@@ -594,7 +737,7 @@
     ['בכי מאומת', 50, 'נמדד אוטומטית'],
     ['שיחת עומק · מעל 5 דק׳', 30, 'talk'],
     ['שיחה קבוצתית', 40, 'group'],
-    ['טיפול ב"מה הוא צריך"', 15, 'care'],
+    ['טיפול עצמי', 15, 'care'],
     ['כל ירידה של 25 ב-MPL', 10, 'נמדד אוטומטית'],
   ];
   const SHOP = [
@@ -620,6 +763,10 @@
       : '<li class="l-empty">עוד לא הרווחת היום. 12 ימים בלי שחרור לא שווים כוכבים.</li>';
     $('#earn').innerHTML = EARN.map(([t, p, how]) => `<li><span class="e-t">${t}</span><b class="num e-p">+${p}</b>${['talk', 'group', 'care'].includes(how) ? `<button type="button" class="crew-btn e-go" data-earn="${how}">${how === 'group' ? 'לפתוח' : how === 'talk' ? 'להתקשר' : 'לטפל'}</button>` : `<span class="e-how">${how}</span>`}</li>`).join('');
     $('#shop').innerHTML = SHOP.map((x, i) => `<li class="${x.done ? 'is-done' : ''}"><span class="s-t">${x.t}<small>${x.n}</small></span><span class="num s-c">${x.c}</span><button type="button" class="crew-btn" data-buy="${i}" ${x.done || x.c > GAIN.bal ? 'disabled' : ''}>${x.done ? 'מומש' : 'לממש'}</button></li>`).join('');
+    // three at a time (Hick): the closest rewards first, the rest one tap away
+    const more = $('#shop-more'), hiddenN = Math.max(0, SHOP.length - 3);
+    more.hidden = !hiddenN || $('#shop').classList.contains('is-all');
+    more.textContent = `עוד ${hiddenN} הטבות`;
   };
   const earn = (t, pts, from) => {
     const was = GAIN.bal;
@@ -633,7 +780,8 @@
     if (g) {
       if (g.dataset.earn === 'group') return openSheet('guys');
       show('today');
-      const target = g.dataset.earn === 'talk' ? '#talk-h' : '#needs-h';
+      const target = g.dataset.earn === 'talk' ? '#talk-h' : '#acts-h';
+      $('#more').open = true;
       return setTimeout(() => $(target).scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }), 60);
     }
     const b = e.target.closest('[data-buy]'); if (!b) return;
@@ -647,7 +795,8 @@
     }
     const was = GAIN.bal;
     GAIN.bal -= x.c; x.done = true; x.code = `WHP-${1000 + Math.floor(Math.random() * 9000)}`; x.at = clock();
-    renderGain(); renderPerks();
+    $('#shop-more').addEventListener('click', () => { $('#shop').classList.add('is-all'); $('#shop-more').hidden = true; });
+  renderGain(); renderPerks();
     countTo($('#gain-bal'), was, GAIN.bal);
     fx($(`#shop [data-buy="${SHOP.indexOf(x)}"]`).closest('li'), 'is-stamped');
     flyPts(`−${x.c}`, b);
@@ -746,7 +895,7 @@
   $('#measures-weeks').innerHTML = `<colgroup><col class="c-name"><col span="4"><col class="c-trend"></colgroup><thead><tr><th scope="col"><span class="sr">מדד</span></th>${WEEK_LABELS.map((w, i) => `<th scope="col" class="num">${i === WEEK_LABELS.length - 1 ? 'השבוע' : w}</th>`).join('')}<th scope="col"><span class="sr">מגמה</span></th></tr></thead><tbody>`
     + METRICS.map((m) => {
       const w = WEEKS[m.id], t = trendWord(w.r);
-      return `<tr><th scope="row">${mini(.5, 'mini mw-icon', false, '', m.fill, m.base, m.n)}<span>${m.name}</span></th>${w.v.map((v, i) => `<td><span class="mw-tile num" style="background:${R(w.r[i] < .34 ? '#FF5A36' : w.r[i] < .6 ? '#FFD23F' : '#3FC8F5')}">${v}</span></td>`).join('')}<td><span class="mw-trend is-${t === 'משתחרר' ? 'up' : t === 'נאגר' ? 'down' : 'flat'}">${t}</span></td></tr>`;
+      return `<tr><th scope="row">${mini(.5, 'mini mw-icon', false, '', m.fill, m.base, m.n)}<span>${m.name}</span></th>${w.v.map((v, i) => `<td><span class="mw-tile num" style="background:${kbColor(w.r[i])}">${v}</span></td>`).join('')}<td><span class="mw-trend is-${t === 'משתחרר' ? 'up' : t === 'נאגר' ? 'down' : 'flat'}">${t}</span></td></tr>`;
     }).join('') + '</tbody>';
 
   // December 2026 calendar (1.12 is a Tuesday; columns run Sunday → Saturday, right to left).
@@ -853,8 +1002,74 @@
   };
   stepBtns.forEach((b) => b.addEventListener('click', () => { goal.value = String(Math.max(0, Math.min(7, +goal.value + +b.dataset.step))); syncGoal(); }));
   syncGoal();
-  // the app opens on Today, or where a deep link or the style switch left it
+  /* ── setup: the tracker's own onboarding, step for step (update → pair → profile → permission → goals → calibrate).
+     Nothing is explained; each familiar step asks one thing it never asked before. ── */
+  const setup = $('#setup'), suSteps = $$('.su-step', setup);
+  let suAt = 0, pairT = 0, calT = 0, calRaf = 0;
+  const suGo = (n) => {
+    suAt = n;
+    suSteps.forEach((s, i) => { s.hidden = i !== n; });
+    $$('#su-prog li').forEach((li, i) => li.classList.toggle('is-on', i <= n));
+    $('#su-back').style.visibility = n > 0 && n < 5 ? 'visible' : 'hidden';
+    clearTimeout(pairT); clearTimeout(calT); cancelAnimationFrame(calRaf);
+    const step = suSteps[n];
+    if (n === 1) {                                         // pairing: a short search, then connected
+      const st = $('#su-pair'), go = $('.su-go', step);
+      step.classList.remove('is-paired'); st.textContent = 'מחפש מדבקה…'; go.disabled = true;
+      pairT = setTimeout(() => { step.classList.add('is-paired'); st.textContent = 'מחוברת · סוללה 64%'; go.disabled = false; go.focus(); }, 1600);
+    }
+    if (n === 5) {                                         // calibration: the rings look for a baseline and find none
+      $('#su-cal').textContent = '';
+      $('#su-dials').innerHTML = DIALS.map(() => `<svg viewBox="0 0 120 120"><circle class="dial-track" cx="60" cy="60" r="${RING}"/><path class="dial-arc"/></svg>`).join('');
+      const arcs = $$('#su-dials .dial-arc');
+      const t0 = performance.now();
+      const spin = (t) => {
+        arcs.forEach((el, i) => {
+          const k = (t - t0) / 1000, r = .5 + .5 * Math.sin(k * 1.4 + i * 1.6);   // it keeps changing its mind: saw, smooth, saw
+          el.setAttribute('d', ringArc(.28, r, k * 3));
+          el.style.stroke = kbColor(r);
+          el.style.transform = `rotate(${((k * 220 + i * 70) % 360).toFixed(1)}deg)`;
+        });
+        calRaf = requestAnimationFrame(spin);
+      };
+      if (reduced) spin(t0 + 400), cancelAnimationFrame(calRaf); else calRaf = requestAnimationFrame(spin);
+      calT = setTimeout(() => { $('#su-cal').textContent = 'לילה 1 · לא נמצאו נתונים לכיול. ממשיך לנסות.'; }, 2600);
+    }
+    (step.querySelector('button:not(:disabled), input') || step).focus({ preventScroll: true });
+  };
+  const openSetup = () => { setup.hidden = false; suGo(0); };
+  const banner = $('#banner');
+  let bannerT = 0;
+  const closeSetup = () => {
+    setup.hidden = true;
+    clearTimeout(pairT); clearTimeout(calT); cancelAnimationFrame(calRaf);
+    localStorage.setItem('wheepSetup', 'done');
+    if (location.hash === '#setup') history.replaceState(null, '', location.pathname + location.search);
+    show('today');
+    // the first thing the new tracker does is notice something
+    setTimeout(() => { banner.hidden = false; fx(banner, 'is-in'); bannerT = setTimeout(() => { banner.hidden = true; }, 5200); }, 700);
+  };
+  setup.addEventListener('click', (e) => {
+    const go = e.target.closest('.su-go, [data-perm]');
+    if (!go) return;
+    if (suAt === 5) return closeSetup();
+    suGo(suAt + 1);
+  });
+  // the profile question gates the step: he has to answer it
+  $$('input[name="su-cry"]').forEach((r) => r.addEventListener('change', () => { $('.su-go', suSteps[2]).disabled = false; }));
+  $('#su-back').addEventListener('click', () => suGo(Math.max(0, suAt - 1)));
+  $('#su-skip').addEventListener('click', closeSetup);
+  setup.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSetup(); });
+  $$('[data-setup]').forEach((b) => b.addEventListener('click', openSetup));
+  banner.addEventListener('click', () => {
+    clearTimeout(bannerT); banner.hidden = true;
+    $('.myday').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+  });
+
+  // the app opens on Today, or where a deep link or the style switch left it; the first visit opens setup
   const back = sessionStorage.getItem('wheepTab'); sessionStorage.removeItem('wheepTab');
   if (back && $(`#screen-${back}`)) show(back);
+  else if (location.hash === '#setup' || (!location.hash && !localStorage.getItem('wheepSetup'))) openSetup();
   else fromHash();
+  addEventListener('hashchange', () => { if (location.hash === '#setup') openSetup(); });
 })();

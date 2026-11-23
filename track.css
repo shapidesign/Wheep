@@ -1,0 +1,236 @@
+/* WHEEP · track skin: a dark fitness-tracker skin over the same components.
+   Near-black ground, quiet surfaces with hairlines instead of ink outlines and offset shadows,
+   condensed numerals (Danidin Condensed, Hafontia: the same foundry as Leon). The accent colours are WHEEP's own. */
+
+@font-face { font-family: DanidinC; src: url(fonts/Danidin-Condensed.otf) format('opentype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: DanidinC; src: url(fonts/Danidin-CondensedSemiBold.otf) format('opentype'); font-weight: 600; font-display: swap; }
+@font-face { font-family: DanidinC; src: url(fonts/Danidin-CondensedBold.otf) format('opentype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: DanidinC; src: url(fonts/Danidin-CondensedBlack.otf) format('opentype'); font-weight: 900; font-display: swap; }
+
+html.track {
+  --ground: #0B0A10;
+  --desk: #060509;
+  --ink: #F3F1F8;
+  --ink-2: #ABA6BC;
+  --ink-3: #7C778F;
+  --line: rgba(255, 255, 255, .09);
+  --panel: #16141D;
+  --panel-2: #221F2B;
+  --river: #3FC8F5;
+  --alert: #FF5A36;
+  /* the palette: colour = a measure or a feeling. Mirrors PAL in app.js */
+  --m-cry: #3FC8F5; --m-anger: #FF5A36; --m-press: #9B6BFF; --m-talk: #FF7AC6; --m-release: #3DDC97;
+  --m-joy: #FFD23F; --m-fear: #C8FF3D; --m-sad: #3D6BFF; --m-shame: #FF9F1C; --m-silence: #ABA6BC;
+  /* the interface is neutral: white is the only UI accent */
+  --c-yellow: var(--ink);
+  --peak: var(--ink);
+  --bw: 1px;
+  --plate: transparent;
+  --sh: none;
+  --sh-sm: none;
+  --r: 18px;
+  --on-accent: #0E0D12;           /* text on yellow, cyan, white */
+  color-scheme: dark;
+}
+html.track body { background: var(--desk); }
+html.track ::selection { background: var(--c-yellow); color: var(--on-accent); }
+html.track :focus-visible { outline: 2px solid var(--c-yellow); outline-offset: 3px; }
+
+/* one quiet depth system: surfaces, hairlines, no offset blocks */
+html.track .phone *, html.track .phone *::before, html.track .phone *::after { box-shadow: none !important; }
+html.track .phone [class], html.track .phone button, html.track .phone li, html.track .phone table, html.track .phone td, html.track .phone th { border-color: var(--line); }
+html.track .phone { background: #000; box-shadow: 0 30px 80px rgba(0, 0, 0, .6); }
+html.track .phone::before { background: var(--ground); }
+html.track .panel, html.track .alert, html.track .stats, html.track .talk, html.track .metric, html.track .device-card, html.track .dials, html.track .post {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r);
+}
+html.track .panel-h, html.track .panel-row { border-bottom: 1px solid var(--line); }
+html.track .panel-row .panel-h { border: 0; }
+
+/* condensed numerals and display type */
+html.track .num, html.track .dial-read b, html.track .page-title, html.track .dnav-day > span, html.track .su-h,
+html.track .metric b, html.track .gain-bal b, html.track .post-stats dd, html.track .post-title, html.track .panel-h, html.track .tabbar span {
+  font-family: DanidinC, Leon, system-ui, sans-serif;
+}
+html.track .page-title { font-size: 34px; font-weight: 700; letter-spacing: .01em; }
+html.track .panel-h { font-size: 19px; font-weight: 700; letter-spacing: .01em; }
+
+/* header: date like a tracker's, no sticker */
+html.track .dnav-day { background: none; border: 0; rotate: none; padding: 0 6px; min-width: 96px; }
+html.track .dnav-day > span { font-size: 26px; font-weight: 700; letter-spacing: .02em; }
+html.track .dnav-day small { color: var(--ink-3); font-weight: 400; }
+html.track .dnav-btn { color: var(--ink-2); }
+html.track .dnav-btn:hover:not(:disabled) { background: var(--panel-2); box-shadow: none; }
+html.track .patch-chip { background: var(--panel); border: 1px solid var(--line); color: var(--ink); font-weight: 700; }
+html.track .patch-chip svg { stroke: var(--ink-2); }
+html.track .me-btn, html.track .info-btn { background: var(--panel); border: 1px solid var(--line); color: var(--ink); }
+html.track .me-btn svg { stroke: var(--ink); }
+html.track .info-btn:hover, html.track .me-btn:hover { background: var(--panel-2); }
+
+/* the three rings */
+html.track .dials { padding: 20px 6px 16px; }
+html.track .dial { cursor: pointer; border-radius: 14px; }
+html.track .dial:hover .dial-name { color: var(--ink); }
+html.track .dial-track { stroke: #fff; stroke-opacity: .08; stroke-width: 8; }
+html.track .dial-arc { stroke-width: 8; }
+html.track .dial-icon path { stroke: var(--ink); stroke-width: 2.6; }
+html.track .dial-read b { font-size: 38px; font-weight: 700; letter-spacing: 0; }
+html.track .dial-read small { font-family: DanidinC, Leon, sans-serif; font-size: 13px; font-weight: 400; color: var(--ink-3); margin-top: 0; }
+html.track .dial-name { margin-top: 8px; font-size: 13px; font-weight: 700; color: var(--ink-2); letter-spacing: .02em; }
+html.track .coach { font-weight: 400; color: var(--ink-2); }
+html.track .coach bdi { color: var(--ink); font-weight: 700; }
+
+/* the day strip and scrubber */
+html.track .sday { color: var(--ink-3); border-radius: 10px; }
+html.track .sday.is-sel { background: var(--panel-2); color: var(--ink); box-shadow: none; }
+html.track input[type="range"]::-webkit-slider-runnable-track { height: 4px; background: var(--panel-2); border: 0; }
+html.track input[type="range"]::-moz-range-track { height: 4px; background: var(--panel-2); border: 0; }
+html.track input[type="range"]::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -7px; background: var(--c-yellow); border: 0; }
+html.track input[type="range"]::-moz-range-thumb { background: var(--c-yellow); border: 0; }
+html.track .play { background: var(--ink); color: var(--on-accent); border: 0; }
+html.track .hero-range { color: var(--ink-3); }
+
+/* alert: a tinted surface, the colour in the title */
+html.track .alert { background: rgba(255, 210, 63, .08); border-color: rgba(255, 210, 63, .28); }
+html.track .alert:hover { background: var(--panel-2); }
+html.track .alert-title { color: var(--c-yellow); }
+html.track .alert-src { color: var(--ink-3); }
+
+/* lists, chips and buttons on dark */
+html.track .log-row { border-top: 1px solid var(--line); }
+html.track .log-row:first-child { border-top: 0; }
+html.track .log-g { filter: none; }
+html.track .log-v { background: var(--panel-2); border: 0; color: var(--ink); }
+html.track .log-tag { background: var(--c-cyan); color: var(--on-accent); border: 0; }
+html.track .avatar { color: var(--on-accent); border: 0; }
+html.track .person { background: var(--panel); border: 1px solid var(--line); }
+html.track .person:hover { background: var(--panel-2); transform: none; }
+html.track .crew-btn { background: var(--panel-2); color: var(--ink); border: 0; }
+html.track .crew-btn.is-ink, html.track .ts-go { background: var(--c-yellow); color: var(--on-accent); }
+html.track .act { background: var(--panel); border: 1px solid var(--line); }
+html.track .seg { background: var(--panel); border: 1px solid var(--line); }
+html.track .seg button[aria-checked="true"] { background: var(--ink); color: var(--on-accent); }
+html.track .stepper button:hover { background: var(--panel-2); }
+html.track .row { border-bottom: 1px solid var(--line); }
+html.track .back-btn { color: var(--ink-2); }
+html.track .back-btn svg { stroke: var(--ink-2); }
+
+/* tab bar: dark, no box around the selected tab; it lights up */
+html.track .tabbar { background: rgba(11, 10, 16, .94); border-top: 1px solid var(--line); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+html.track .tabbar button { color: var(--ink-3); border: 0; background: none; }
+html.track .tabbar button svg { stroke: currentColor; }
+html.track .tabbar button[aria-selected="true"] { color: var(--ink); background: none; border: 0; }
+html.track .tabbar button[aria-selected="true"]::after { content: ''; display: block; width: 18px; height: 3px; margin-top: 3px; border-radius: 2px; background: var(--c-yellow); }
+html.track .tabbar span { font-size: 13px; font-weight: 600; letter-spacing: .02em; }
+
+/* sheets and overlays */
+html.track .ts-card, html.track .banner { background: var(--panel-2); border: 1px solid var(--line); }
+html.track .call { background: var(--ground); }
+html.track .intro::before, html.track .about, html.track .intro.is-about .about { background: var(--ground); }
+html.track .ab-map li { background: var(--panel); border: 1px solid var(--line); }
+html.track .ab-go { background: var(--ink); color: var(--on-accent); border: 0; }
+
+/* setup */
+html.track .setup { background: var(--ground); }
+html.track .su-prog li { height: 4px; border: 0; background: var(--panel-2); }
+html.track .su-prog li.is-on { background: var(--c-yellow); }
+html.track .su-skip { color: var(--ink-3); }
+html.track .su-h { font-size: 38px; font-weight: 700; line-height: 1; letter-spacing: .01em; }
+html.track .su-go { background: var(--ink); color: var(--on-accent); border: 0; border-radius: 16px; }
+html.track .su-go:hover:not(:disabled) { background: #fff; }
+html.track .su-go:disabled { background: var(--panel-2); color: var(--ink-3); border: 0; }
+html.track .su-badge { background: var(--panel-2); color: var(--c-yellow); border: 0; rotate: none; }
+html.track .su-log, html.track .su-rows { background: var(--panel); border: 1px solid var(--line); }
+html.track .su-log li, html.track .su-rows div { border-top: 1px solid var(--line); }
+html.track .su-log li:first-child, html.track .su-rows div:first-child { border-top: 0; }
+html.track .su-log b { background: rgba(63, 200, 245, .16); color: var(--c-cyan); border: 0; }
+html.track .su-log b.is-out { background: var(--panel-2); color: var(--ink-3); }
+html.track .su-patch rect { fill: var(--panel); stroke: var(--line); stroke-width: 2; }
+html.track .su-patch circle { stroke: var(--ink-3); stroke-width: 2; }
+html.track .su-choice label { background: var(--panel); border: 1px solid var(--line); }
+html.track .su-choice label:has(input:checked) { background: var(--panel-2); border-color: var(--c-yellow); color: var(--c-yellow); }
+html.track .su-alert { background: var(--panel-2); border: 0; border-radius: 14px; }
+html.track .su-alert-btns { border-top: 1px solid var(--line); }
+html.track .su-alert-btns button + button { border-inline-start: 1px solid var(--line); }
+html.track .su-alert-btns button:hover { background: rgba(255, 255, 255, .05); }
+
+/* שיתוף feed on dark */
+html.track .post-trace { background: var(--panel-2); }
+html.track .post-badge { background: var(--panel-2); color: var(--c-yellow); border: 0; }
+html.track .hug { background: var(--panel-2); color: var(--ink); border: 0; }
+html.track .hug[aria-pressed="true"] { background: var(--c-yellow); color: var(--on-accent); }
+html.track .post-share { background: var(--ink); color: var(--on-accent); border: 0; }
+html.track .post-call { background: var(--panel-2); border: 0; }
+html.track .feed-group { color: var(--c-yellow); }
+
+/* the caption beside the phone */
+html.track .exhibit, html.track .exhibit-fine { color: var(--ink-3); }
+html.track .exhibit-name, html.track .exhibit-text { color: var(--ink); }
+html.track .exhibit-link { color: var(--ink-2); }
+
+/* v8 rings and the next step, on dark */
+html.track .rings-card, html.track .coach-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); }
+html.track .ring-ol { display: none; }
+html.track .ring-track { stroke-opacity: .18; }
+html.track .ring-icon path { stroke: #0E0D12; stroke-width: 3; }
+html.track .rings-mid b { font-family: DanidinC, Leon, sans-serif; font-size: 48px; font-weight: 700; letter-spacing: 0; }
+html.track .rings-mid small { color: var(--ink-3); font-weight: 400; letter-spacing: .08em; }
+html.track .ring-legend .dial { background: var(--panel-2); border: 0; }
+html.track .ring-legend .dial-name { color: var(--ink-2); font-weight: 700; }
+html.track .ring-legend .dial-name::before { border: 0; }
+html.track .ring-legend .dial-read b { font-size: 30px; }
+html.track .coach-card .alert { background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; }
+html.track .goal-bar { border: 0; background: var(--panel-2); }
+html.track .cta { color: var(--on-accent); background: var(--ink); box-shadow: none; }
+html.track .cta small { color: rgba(14, 13, 18, .62); }
+html.track .cta-more { color: var(--ink-2); }
+html.track .more > summary { background: var(--panel); border: 1px solid var(--line); box-shadow: none; }
+html.track .more > summary::after { border-color: var(--ink-2); }
+html.track .shop-more { color: var(--ink-2); }
+
+/* v9 · the emotions radar on dark: five gradient rays from one centre, a grey pentagon grid for the scale */
+html.track .r-grid { fill: none; stroke: #fff; stroke-opacity: .14; stroke-width: 1; }
+html.track .r-grid.is-edge { stroke-opacity: .26; }
+html.track .r-tick { fill: var(--ink-3); font-size: 10px; }
+html.track .r-prev { fill: none; stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 2 2; }
+html.track .r-ring { fill: none; stroke: var(--ink); stroke-width: 1.2; }
+html.track .r-name { fill: var(--ink); font-family: DanidinC, Leon, sans-serif; font-weight: 700; font-size: 14px; }
+html.track .radar-key .k-now::before { background: linear-gradient(90deg, #5B5BD6, var(--c-yellow)); border: 0; }
+html.track .radar-key .k-prev::before { border: 1px dashed var(--ink-2); border-radius: 50%; background: none; }
+/* the user's shapes, recoloured */
+html.track .fig, html.track .picto { display: block; overflow: visible; }
+html.track .ring-icon { overflow: visible; }
+
+/* v10 · the atlas: room to breathe; the picker selects by outline and dims the rest, never by a fill under the shape */
+html.track .emo-radar { padding: 18px 16px 20px; }
+html.track .radar-key { padding-top: 14px; margin-bottom: 6px; gap: 18px; }
+html.track .emo-radar svg { margin-top: 18px; }
+html.track .radar-key .k-now::before { background: linear-gradient(90deg, #D9D6E3, #9B6BFF); }
+html.track .emo-pick { gap: 8px; margin-top: 18px; }
+html.track .emo-pick button { min-height: 76px; padding: 12px 2px 10px; gap: 6px; background: var(--panel); border: 1.5px solid var(--line); border-radius: 14px; transition: opacity .2s, filter .2s, border-color .2s; }
+html.track .emo-pick button[aria-checked="false"] { opacity: .45; filter: saturate(.6) brightness(.8); }
+html.track .emo-pick button[aria-checked="false"]:hover { opacity: .75; filter: none; }
+html.track .emo-pick button[aria-checked="true"] { background: var(--panel-2); border: 2px solid var(--ink); color: var(--ink); }
+html.track .emo-pick button span { font-size: 13px; font-weight: 700; }
+html.track .emo-det { margin-top: 18px; }
+
+/* ── v11: metrics as today's goals; smaller log marks ── */
+html.track .screen > .metrics { margin-top: 16px; }
+html.track .metrics .panel-row { padding: 0 4px 10px; }
+html.track .metric { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "name shape" "num num" "bar bar" "sub sub";
+  align-items: center; row-gap: 8px; padding: 16px; }
+html.track .metric .m-name { grid-area: name; font-size: 14px; font-weight: 700; color: var(--ink); }
+html.track .metric-shape { grid-area: shape; width: 26px; height: 26px; }
+html.track .metric b { grid-area: num; font-size: 46px; line-height: .95; color: var(--mc); }
+html.track .m-bar { grid-area: bar; height: 6px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; }
+html.track .m-bar i { display: block; height: 100%; border-radius: inherit; background: var(--mc); }
+html.track .metric small { grid-area: sub; display: flex; justify-content: space-between; gap: 6px; font-size: 12px; color: var(--ink-2); }
+html.track .metric small .num { color: var(--ink); white-space: nowrap; }
+html.track .log-row { grid-template-columns: 18px 1fr auto auto; gap: 14px; padding: 14px 0; align-items: start; }
+html.track .log-g { width: 18px; height: 18px; margin-top: 2px; }
+html.track .log-what small { display: block; margin-top: 4px; }
+html.track .log-time, html.track .log-v, html.track .log-tag { align-self: center; }
+
+/* ── v12: one palette. Neutral UI, neutral people, colour only where it measures something ── */
+html.track .avatar, html.track #call-avatar { background: #2E2A3A !important; color: var(--ink); }
+html.track #gain-bar { background: var(--m-release); }   /* progress toward the next reward reads as release: green */

@@ -264,7 +264,7 @@
   // the pages behind the tabs, for as long as the tabs are there
   // רגשות: the FIFA-style player card of the week. This week filled, last week dashed.
   const radarPage = () => {
-    const E = [['פחד', 82 - streak * 8, 70, '#9B6BFF', 9], ['כעס', 64 - streak * 6, 58, '#FF5A36', 9], ['עצב', 48 - streak * 3, 52, '#3FC8F5', 7], ['גועל', 30 - streak * 2, 34, '#3DDC97', 8], ['הנאה', 41 + streak * 5, 38, '#FFD23F', 6]];
+    const E = [['פחד', 82 - streak * 8, 70, '#9B6BFF', 9], ['כעס', 64 - streak * 6, 58, '#FF5A36', 9], ['עצב', 48 - streak * 3, 52, '#3FC8F5', 7], ['בושה', 57 - streak * 2, 34, '#3DDC97', 8], ['הנאה', 41 + streak * 5, 38, '#FFD23F', 6]];
     const cx = 165, cy = 162, R = 96;
     const pt = (i, v) => { const a = -Math.PI / 2 + i * (2 * Math.PI / 5); return [cx + Math.cos(a) * R * v / 99, cy + Math.sin(a) * R * v / 99]; };
     const poly = (vals) => vals.map((v, i) => pt(i, v).map((n) => n.toFixed(1)).join(',')).join(' ');
