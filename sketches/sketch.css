@@ -1,10 +1,9 @@
 /* WHEEP sketches: shared frame, in the app's dark tracker skin, so the ideas read as the same product. */
-@font-face { font-family: DanidinC; src: url(../fonts/Danidin-CondensedBold.otf) format('opentype'); font-weight: 700; font-display: swap; }
-@font-face { font-family: DanidinC; src: url(../fonts/Danidin-CondensedBlack.otf) format('opentype'); font-weight: 900; font-display: swap; }
-@font-face { font-family: Leon; src: url(../fonts/Leon-ProductThin.otf) format('opentype'); font-weight: 200; }
-@font-face { font-family: Leon; src: url(../fonts/Leon-ProductRegular.otf) format('opentype'); font-weight: 400; }
-@font-face { font-family: Leon; src: url(../fonts/Leon-ProductBold.otf) format('opentype'); font-weight: 700; }
-@font-face { font-family: Leon; src: url(../fonts/Leon-ProductHeavy.otf) format('opentype'); font-weight: 900; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductThin.otf) format('opentype'); font-weight: 200; font-display: swap; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductRegular.otf) format('opentype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductBold.otf) format('opentype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: Leon; src: url(../fonts/Leon-ProductHeavy.otf) format('opentype'); font-weight: 900; font-display: swap; }
+@font-face { font-family: Hammer; src: url(../fonts/HammerProVF.ttf) format('truetype-variations'), url(../fonts/HammerProVF.ttf) format('truetype'); font-weight: 100 900; font-stretch: 50% 200%; font-display: swap; }
 :root {
   --ink: #F3F1F8; --ink-2: #ABA6BC; --ink-3: #7C778F; --ground: #0B0A10; --panel: #16141D; --panel-2: #221F2B; --page: #060509;
   --line: rgba(255, 255, 255, .09); --on-ink: #0E0D12;
@@ -19,7 +18,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Leon, system-ui, sans-serif; color: var(--ink); background: var(--page); min-height: 100vh; }
 button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
-.num { font-family: DanidinC, Leon, system-ui, sans-serif; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
+.num { font-family: Hammer, system-ui, sans-serif; font-stretch: 79%; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
 ::selection { background: var(--ink); color: var(--on-ink); }
 :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 
