@@ -38,7 +38,7 @@
     sad: '#3D6BFF',      // עצב
     shame: '#FF9F1C',    // בושה
     silence: '#ABA6BC',  // שתיקה: grey on purpose, nothing came out
-    person: '#2E2A3A',   // avatars: people are not measures
+    person: '#221F2B',   // avatars: people are not measures
   };
   // the shape set drawn in Figma (wheep-shapes): one file per measure and per emotion, white, recoloured here
   const FIG = { fear: ['pachad', 116, 114], anger: ['kaas', 155.846, 155.846], sad: ['bechi', 123, 173], shame: ['hadhaka', 138.656, 138.656],
@@ -304,7 +304,7 @@
         ${DIALS.map((g, i) => `<g class="ring" data-ring="${g.id}" style="--rc:${RCOL[g.id]}">
           <circle class="ring-track" cx="${RC0}" cy="${RC0}" r="${RR[i]}"/>
           <path class="ring-ol"/><path class="ring-arc"/>
-          ${fig(g.id, '#0E0D12', 'ring-icon', RC0 - 8, RC0 - RR[i] - 8, 16)}
+          ${fig(g.id, '#0B0A10', 'ring-icon', RC0 - 8, RC0 - RR[i] - 8, 16)}
         </g>`).join('')}
       </svg>
       <span class="rings-mid"><b class="num" id="rings-mpl">775</b><small>MPL</small></span>
@@ -593,7 +593,7 @@
     [20, 40, 60, 80].forEach((v) => { const [, y] = rPt(0, v); g += `<text x="${RC.x - 4}" y="${y + 3.5}" text-anchor="end" class="r-tick num">${v}</text>`; });
     const now = pts(EMO.map((e) => e.v));
     {
-      g += `<defs>${EMO.map((e, i) => { const [x, y] = rPt(i, e.v); return `<linearGradient id="ray-${e.id}" gradientUnits="userSpaceOnUse" x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}"><stop offset="0" stop-color="#D9D6E3" stop-opacity=".85"/><stop offset="1" stop-color="${e.fill}"/></linearGradient>`; }).join('')}</defs>`;
+      g += `<defs>${EMO.map((e, i) => { const [x, y] = rPt(i, e.v); return `<linearGradient id="ray-${e.id}" gradientUnits="userSpaceOnUse" x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}"><stop offset="0" stop-color="#F3F1F8" stop-opacity=".85"/><stop offset="1" stop-color="${e.fill}"/></linearGradient>`; }).join('')}</defs>`;
       EMO.forEach((e, i) => {
         const [x, y] = rPt(i, e.v), [px, py] = rPt(i, e.prev), on = e.id === emoSel;
         g += `<line x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}" stroke="url(#ray-${e.id})" stroke-width="${on ? 17 : 13}" stroke-linecap="round"/>`;
@@ -814,7 +814,7 @@
     const ev = [];
     if (r.mark != null) ev.push([r.mark, 'בכי', `<path d="${polar({ round: .9, R: 7, cx: x(r.mark), cy: lane, base: 'drop', n: 7 })}" fill="#3FC8F5" class="c-ev"/>`]);
     if (r.gap != null) ev.push([r.gap, 'חיישן', `<rect x="${x(r.gap) - 6}" y="${lane - 6}" width="12" height="12" rx="3" fill="url(#g-hatch)" class="c-ev"/>`]);
-    if (r.unverified != null && tearState !== 'rejected') ev.push([r.unverified, tearState === 'confirmed' ? 'בבדיקה' : 'דמעה?', `<circle cx="${x(r.unverified)}" cy="${lane}" r="6.5" fill="#fff" class="c-ev" stroke-dasharray="${tearState === 'confirmed' ? '0' : '3 2'}"/>`]);
+    if (r.unverified != null && tearState !== 'rejected') ev.push([r.unverified, tearState === 'confirmed' ? 'בבדיקה' : 'דמעה?', `<circle cx="${x(r.unverified)}" cy="${lane}" r="6.5" fill="#F3F1F8" class="c-ev" stroke-dasharray="${tearState === 'confirmed' ? '0' : '3 2'}"/>`]);
     ev.forEach(([i, label, mark], k) => {
       g += `<line x1="${x(i)}" x2="${x(i)}" y1="${P[i] == null ? top : y(P[i])}" y2="${lane - 8}" class="c-drop"/>${mark}<text x="${x(i)}" y="${lane + 20 + (k % 2) * 15}" text-anchor="middle" class="c-ev-t">${label}</text>`;
     });
@@ -823,7 +823,7 @@
     g += r.labels.map(([i, l]) => `<text x="${x(i)}" y="${ev.length ? lane + 56 : lane + 4}" direction="ltr" text-anchor="${i === 0 ? 'end' : i === n - 1 ? 'start' : 'middle'}" class="c-x">${l}</text>`).join('');
     const svg = $('#chart-press');
     svg.setAttribute('viewBox', `0 0 340 ${ev.length ? 234 : 182}`);
-    svg.innerHTML = `<defs><pattern id="g-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(18,18,18,.45)" stroke-width="1.5"/></pattern></defs>${g}`;
+    svg.innerHTML = `<defs><pattern id="g-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(0,0,0,.45)" stroke-width="1.5"/></pattern></defs>${g}`;
     $('#press-now').textContent = P[n - 1];
     const first = P.find((v) => v != null), delta = P[n - 1] - first;
     $('#press-delta').innerHTML = `<span dir="ltr" class="num">${delta >= 0 ? '+' : '−'}${Math.abs(delta)}</span> ${r.since}`;
@@ -1005,15 +1005,11 @@
     setTimeout(() => sp.classList.add('is-out'), reduced ? 600 : 3800);
     setTimeout(() => { sp.hidden = true; }, reduced ? 900 : 4300);
   };
-  const banner = $('#banner');
-  let bannerT = 0;
   const closeSetup = () => {
     setup.hidden = true;
     clearTimeout(pairT); clearTimeout(calT); cancelAnimationFrame(calRaf);
     if (location.hash === '#setup') history.replaceState(null, '', location.pathname + location.search);
     show('today');
-    // the first thing the new tracker does is notice something
-    setTimeout(() => { banner.hidden = false; fx(banner, 'is-in'); bannerT = setTimeout(() => { banner.hidden = true; }, 5200); }, 700);
   };
   setup.addEventListener('click', (e) => {
     const go = e.target.closest('.su-go, [data-perm]');
@@ -1030,10 +1026,6 @@
   $('#su-skip').addEventListener('click', closeSetup);
   setup.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSetup(); });
   $$('[data-setup]').forEach((b) => b.addEventListener('click', openSetup));
-  banner.addEventListener('click', () => {
-    clearTimeout(bannerT); banner.hidden = true;
-    $('.myday').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
-  });
 
   // the app opens on setup, or where the style switch left it
   const back = sessionStorage.getItem('wheepTab'); sessionStorage.removeItem('wheepTab');
