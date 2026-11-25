@@ -5,17 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B0A10">
 <title>WHEEP · תחזית רגשית</title>
-<link rel="icon" href="favicon.svg?v=74" type="image/svg+xml">
-<link rel="apple-touch-icon" href="favicon.svg?v=74">
-<link rel="stylesheet" href="wheep.css?v=74">
+<link rel="icon" href="favicon.svg?v=83" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg?v=83">
+<link rel="stylesheet" href="wheep.css?v=83">
 <script>document.documentElement.classList.add('track');   // one skin: the dark tracker</script>
 </head>
 <body>
 
 <aside class="exhibit" aria-label="על האבטיפוס">
-  <p class="exhibit-name"><img src="shapes/logo.svg?v=74" alt="WHEEP" width="160" height="57"></p>
+  <p class="exhibit-name"><img src="shapes/logo.svg?v=83" alt="WHEEP" width="160" height="57"></p>
   <p class="exhibit-line">אבטיפוס ספקולטיבי · דצמבר 2026</p>
-  <p class="exhibit-text">בלילה של 1 בדצמבר 2026, הצורך הגברי להוכיח את עצמו נמחק. שבועיים אחרי, ככה נראה הבוקר.</p>
+  <p class="exhibit-text">מה אם גבריות הייתה נמדדת בבכי, הדחקה ושחרור כעסים, ולא בכמה אתה חזק, כמה אתה עשיר וכמה הגוף שלך מתאושש אחרי אימון?</p>
   <p class="exhibit-fine">הנתונים, האנשים וקופת רווחה באפליקציה בדיוניים.</p>
 </aside>
 
@@ -58,6 +58,7 @@
         <!-- one next step (Hick's law): the warning, one line, how far to today's goal, one action -->
         <section class="panel coach-card" aria-labelledby="coach-h">
           <h2 class="sr-only" id="coach-h">הצעד הבא</h2>
+          <div class="coach-warn">
           <button class="alert" type="button" aria-expanded="false" aria-controls="alert-more" id="alert">
             <span class="alert-head">
               <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.2" r="1.1" fill="currentColor"/></svg>
@@ -70,12 +71,10 @@
               <span class="alert-body">בתוקף עד יום ו׳, <span class="num">20:00</span>. ההתראה תוסר אוטומטית כשאחד המדדים ישתחרר.</span>
             </span>
           </button>
+          <button class="coach-help" type="button" id="coach-help">מה אני יכול לעשות?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5 9 12l5.5 5.5"/></svg></button>
+          </div>
           <p class="coach" id="hero-note" aria-live="polite"></p>
           <div class="goal" id="goal" aria-hidden="true"><span class="goal-bar"><i id="goal-fill"></i></span><span class="goal-t" id="goal-t"></span></div>
-          <div class="coach-acts" id="coach-acts">
-            <button class="cta" type="button" id="cta">להתקשר לעידו<small>מעל 5 דק׳ · שיחת עומק</small></button>
-            <button class="cta-more" type="button" id="cta-more">דרכים אחרות</button>
-          </div>
         </section>
 
         <section class="metrics" aria-labelledby="mx-h">
@@ -119,6 +118,7 @@
             <h2 class="talk-h" id="talk-h">לדבר עכשיו</h2>
             <p class="talk-sub">שיחה של יותר מ-5 דקות מורידה את הלחץ יותר מכל יעד.</p>
             <div class="talk-people" id="talk-people"></div>
+            <div class="talk-find" id="talk-find" hidden><input type="search" id="talk-q" placeholder="שם" aria-label="חיפוש באנשי הקשר" autocomplete="off"><div class="talk-people" id="talk-hits"></div></div>
           </section>
         </details>
       </section>
@@ -151,11 +151,10 @@
 
       <!-- רגשות -->
       <section class="screen" id="screen-emo" role="tabpanel" aria-labelledby="tab-emo" tabindex="-1" hidden>
-        <header class="page-head"><h1 class="page-title">אטלס הרגשות</h1></header>
-        <p class="emo-sensor"><span class="emo-dot" aria-hidden="true"></span>השרשרת מיפתה <b class="num">214</b> רגעים השבוע · <b class="num">31</b> לא זוהו</p>
+        <header class="page-head"><h1 class="page-title">מפת רגשות</h1></header>
+        <p class="emo-sensor"><span class="emo-dot" aria-hidden="true"></span><span>השרשרת מיפתה <b class="num">214</b> רגעים השבוע · <b class="num">31</b> לא זוהו</span></p>
         <section class="panel emo-radar" aria-labelledby="radar-h">
-          <div class="panel-row"><h2 class="panel-h" id="radar-h">חמש היבשות <small>עוצמה 0–99</small></h2></div>
-          <ul class="radar-key" aria-hidden="true"><li class="k-now">השבוע</li><li class="k-prev">שבוע שעבר</li></ul>
+          <h2 class="sr-only" id="radar-h">עוצמת הרגשות השבוע</h2>
           <svg id="radar" viewBox="0 0 340 360" role="img"></svg>
         </section>
         <div class="emo-pick" id="emo-pick" role="radiogroup" aria-label="בחירת יבשה"></div>
@@ -325,7 +324,7 @@
     <section class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="ab-h" hidden>
 
       <div class="about" id="about">
-        <h1 class="ab-title" id="ab-h"><span class="app-ic" aria-hidden="true"><img src="shapes/favicon.svg?v=74" alt=""></span>מה זה WHEEP</h1>
+        <h1 class="ab-title" id="ab-h"><span class="app-ic" aria-hidden="true"><img src="shapes/favicon.svg?v=83" alt=""></span>מה זה WHEEP</h1>
         <p class="ab-lead">WHEEP מודד ארבעה דברים בכל יום, וכל אחד מהם הוא צורה: קוצים כשמשהו נשאר בפנים, קווים רכים כשהוא יוצא. הצורה מתארת את המדד, לא אותך.</p>
         <ul class="ab-map" id="ab-map"></ul>
         <div class="ab-shape">
@@ -352,7 +351,7 @@
       <div class="su-step" data-step="0">
         <p class="su-badge">מכשיר חדש · שרשרת WHEEP</p>
         <svg class="su-patch" viewBox="0 0 160 110" aria-hidden="true"><path class="chain" d="M22 2C26 46 50 60 80 60S134 46 138 2"/><path class="pend" d="M80 58C86 68 95 77 95 88A15 15 0 0 1 65 88C65 77 74 68 80 58Z"/><circle class="su-dot" cx="80" cy="89" r="5"/></svg>
-        <h1 class="su-h">מכשיר אחר. מודד משהו אחר.</h1>
+        <h1 class="su-h">בוא תראה כמה אתה גבר באמת</h1>
         <ul class="su-log">
           <li><b class="is-out">לא מודד</b>עומס אימון</li>
           <li><b>מודד</b>עומס הדחקה <bdi class="num">0–21</bdi></li>
@@ -391,7 +390,7 @@
         <h1 class="su-h">הרשאות</h1>
         <p class="su-lead">WHEEP סופר גם את מה שלא נאמר.</p>
         <div class="su-alert" role="group" aria-labelledby="su-alert-h">
-          <span class="app-ic" aria-hidden="true"><img src="shapes/favicon.svg?v=74" alt=""></span>
+          <span class="app-ic" aria-hidden="true"><img src="shapes/favicon.svg?v=83" alt=""></span>
           <p class="su-alert-h" id="su-alert-h">‏"WHEEP" מבקש גישה למיקרופון</p>
           <p class="su-alert-p">כדי לזהות אנחות, שתיקות ארוכות ו"הכל טוב".</p>
           <div class="su-alert-btns"><button type="button" data-perm="no">לא לאפשר</button><button type="button" data-perm="yes">אישור</button></div>
@@ -424,6 +423,6 @@
 </div>
 
 
-<script src="app.js?v=74"></script>
+<script src="app.js?v=83"></script>
 </body>
 </html>

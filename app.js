@@ -65,8 +65,12 @@
     empathy: { name: 'אמפתיה', color: PAL.release, d: 'M12 11.4C9.3 5.2 4.3 7.6 7.7 11.9c-4 3.4.9 8.2 4.1 1.4 3.1 6.4 8.4 2.5 4.4-1.4 3.9-4-1.4-7.2-4.2-.5z' },
     press:   { name: 'הדחקה',  color: PAL.press, d: 'M8.7 3.3l7.2-.2 4.9 5.4.1 7.1-5.2 5.2-7.4-.1-5-5.3.3-7.2z' },
     silence: { name: 'שתיקה',  color: PAL.silence, d: 'M8.7 3.3l7.2-.2 4.9 5.4.1 7.1-5.2 5.2-7.4-.1-5-5.3.3-7.2z' },
+    fear:    { name: 'פחד',    color: PAL.fear },
+    joy:     { name: 'הנאה',   color: PAL.joy },
+    shame:   { name: 'בושה',   color: PAL.shame },
+    sad:     { name: 'עצב',    color: PAL.sad },
   };
-  const GFIG = { cry: 'cry', anger: 'anger', empathy: 'joy', press: 'press', silence: 'press' };
+  const GFIG = { cry: 'cry', anger: 'anger', empathy: 'joy', press: 'press', silence: 'press', fear: 'fear', joy: 'joy', shame: 'shame', sad: 'sad' };
   const glyph = (k, cls = 'glyph') => fig(GFIG[k], GLYPH[k].color, cls);
 
   /* ── Bouba/Kiki: the one shape of WHEEP ──
@@ -236,8 +240,8 @@
   const state = { press: 9, talks: 4 };
   const METRICS = ([
     { id: 'cry', name: 'בכי', base: 'drop', n: 7, fill: PAL.cry, val: () => '0', sub: '1 לא מאומת', goal: 'יעד: 1', round: () => .08 },
-    { id: 'anger', name: 'כעס שנאמר', base: 'burst', n: 9, fill: PAL.anger, val: () => '1/3', sub: '2 נשארו בפנים', goal: 'יעד: 3/3', round: () => .3 },
-    { id: 'press', name: 'הדחקות', base: 'box', n: 8, fill: PAL.press, val: () => String(state.press), sub: '"הכל טוב"', goal: 'יעד: 3 ומטה', round: () => Math.max(0, 1 - state.press / 11) },
+    { id: 'anger', name: 'כעס ששיתפת', base: 'burst', n: 9, fill: PAL.anger, val: () => '1/3', sub: '2 נשארו בפנים', goal: 'יעד: 3/3', round: () => .3 },
+    { id: 'press', name: 'הדחקות', base: 'box', n: 8, fill: PAL.press, val: () => String(state.press), sub: '', goal: 'יעד: 3 ומטה', round: () => Math.max(0, 1 - state.press / 11) },
     { id: 'talk', name: 'שיחות עומק', base: 'bubble', n: 6, fill: PAL.talk, val: () => String(state.talks), sub: 'מעל 5 דק׳', goal: 'יעד: 6', round: () => Math.min(1, state.talks / 6) },
   ]);
   const composite = () => METRICS.reduce((n, m) => n + m.round(), 0) / METRICS.length;
@@ -247,7 +251,7 @@
       <li class="metric" style="--mc:${m.fill}">${fig(m.id, m.fill, 'fig metric-shape')}
         <span class="m-name">${m.name}</span><b class="num">${m.val()}</b>
         <span class="m-bar" aria-hidden="true"><i style="width:${Math.max(4, Math.round(m.round() * 100))}%"></i></span>
-        <small><span>${m.sub}</span><span class="num">${m.goal}</span></small></li>`).join('');
+        <small><span>${m.sub}</span><span class="m-goal">${m.goal}</span></small></li>`).join('');
     if (prevVals.length) $$('#metric-grid .metric').forEach((li, i) => { if (li.querySelector('b').textContent !== prevVals[i]) fx(li, 'is-up'); });
     const m = liveMpl();
     if (isToday()) { paintDialNums(true); coachLine(); }
@@ -354,10 +358,11 @@
 
   /* ── the day's log: like "activity detected", each line arrives on its own ── */
   const LOG = [
-    ['07:55', 'press', 'הדחקה', '"הכל טוב" · שירי שאלה איך ישנת', '+1'],
-    ['10:20', 'anger', 'כעס שלא נאמר', 'ישיבת צוות', '14 דק׳'],
+    ['08:40', 'fear', 'פחד', 'הודעה מהבנק', '6 דק׳'],
+    ['10:20', 'anger', 'כעס מופנם', 'ישיבת צוות', '14 דק׳'],
     ['13:10', 'cry', 'דמעה?', '0.4 מ״ל · לא מאומת', null],
-    ['18:05', 'silence', 'שתיקה ארוכה', 'פקק באיילון', '40 דק׳'],
+    ['17:45', 'joy', 'הנאה', 'הבן צחק בטלפון', '2 דק׳'],
+    ['19:40', 'press', 'הדחקה', 'מיכל שאלה איך היה היום', '+1'],
   ];
   const renderLog = () => {
     $('#log').innerHTML = LOG.map(([time, g, what, ctx, v], i) => `
@@ -380,11 +385,10 @@
     $('#goal').hidden = !today;
     $('#goal-fill').style.width = `${Math.min(100, rel / GOAL * 100)}%`;
     $('#goal-t').innerHTML = met ? 'הושג' : `<bdi class="num">${rel}/${GOAL}</bdi> · עד <bdi class="num">20:00</bdi>`;
-    $('#coach-acts').hidden = !today || met;
+    $('#coach-help').hidden = !today;
     if (today && met && !goalMet) { goalMet = true; fx($('.rings-card'), 'is-done'); }
   };
-  $('#cta').addEventListener('click', () => openSheet('ido'));
-  $('#cta-more').addEventListener('click', () => { const m = $('#more'); m.open = true; setTimeout(() => $('#acts-h').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }), 30); });
+  $('#coach-help').addEventListener('click', () => { $('#more').open = true; setTimeout(() => $('#acts-h').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }), 30); });
   $('#dnav-prev').addEventListener('click', () => { stopPlay(); const d = Math.max(0, Math.round(shapeDay) - 1); dayInput.value = d; setDay(d); });
   $('#dnav-next').addEventListener('click', () => { stopPlay(); const d = Math.min(DAYS.length - 1, Math.round(shapeDay) + 1); dayInput.value = d; setDay(d); });
   $('#log').addEventListener('click', (e) => {
@@ -396,7 +400,7 @@
   const NOTES = {
     0: '11 דק׳ בכי ברמזור בדרך הביתה. MPL ירד ל-310.',
     3: 'החיישן הוסר בין 02:10 ל-07:40. הצורה נמדדה חלקית.',
-    5: 'כעס שלא נאמר · ישיבת צוות. קוץ ראשון.',
+    5: 'כעס מופנם · ישיבת צוות. קוץ ראשון.',
     6: 'דמעה לא מאומתת · 0.4 מ״ל. סיבה אפשרית: בצל.',
     8: 'ארוחת שישי. שלוש פעמים "לא משנה".',
     10: 'פקק באיילון. 40 דקות של שתיקה. קוץ חדש.',
@@ -452,12 +456,21 @@
     { id: 'shiri', name: 'שירי', rel: 'בת זוג', init: 'ש', fill: PAL.person },
     { id: 'dad', name: 'אבא', rel: 'לא דיברתם 9 ימים', init: 'א', fill: PAL.person },
     { id: 'guys', name: "החבר'ה", rel: 'שיחה קבוצתית · 5', init: '5', fill: PAL.person, group: true },
+    { id: 'mom', name: 'אמא', rel: 'דיברתם ביום רביעי', init: 'א', fill: PAL.person, contact: true },
+    { id: 'yoav', name: 'יואב', rel: 'אח', init: 'י', fill: PAL.person, contact: true },
+    { id: 'ron', name: 'רון', rel: 'מהעבודה', init: 'ר', fill: PAL.person, contact: true },
   ]);
   const OPENERS = ['יש לך 5 דקות?', 'אני לא ממש בסדר השבוע.', 'רציתי לשמוע מה איתך באמת.'];
   const GROUP_OPENERS = ['מישהו פנוי לשיחה הערב?', 'אני צריך לדבר על משהו.', 'בלי בדיחות הפעם, טוב?'];
   let who = null, opener = 0, callTimer = 0, callSecs = 0, callStart = 0;
-  $('#talk-people').innerHTML = PEOPLE.map((p) => `
-    <button type="button" class="person" data-id="${p.id}"><span class="avatar" style="background:${p.fill}">${p.init}</span><b>${p.name}</b><small>${p.rel}</small></button>`).join('');
+  const personBtn = (p) => `<button type="button" class="person" data-id="${p.id}"><span class="avatar" style="background:${p.fill}">${p.init}</span><b>${p.name}</b><small>${p.rel}</small></button>`;
+  const FIND_I = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>';
+  $('#talk-people').innerHTML = PEOPLE.slice(0, 3).map(personBtn).join('')
+    + `<button type="button" class="person person-find" id="talk-find-btn" aria-expanded="false" aria-controls="talk-find"><span class="avatar">${FIND_I}</span><b>חפש</b><small>באנשי הקשר</small></button>`;
+  const findHits = () => { const q = $('#talk-q').value.trim(); $('#talk-hits').innerHTML = PEOPLE.filter((p) => !p.group && (!q || p.name.includes(q))).map(personBtn).join('') || '<p class="talk-none">אין איש קשר בשם הזה.</p>'; };
+  $('#talk-find-btn').addEventListener('click', (e) => { const f = $('#talk-find'); f.hidden = !f.hidden; e.currentTarget.setAttribute('aria-expanded', String(!f.hidden)); if (!f.hidden) { findHits(); $('#talk-q').focus(); } });
+  $('#talk-q').addEventListener('input', findHits);
+  $('#talk-hits').addEventListener('click', (e) => { const b = e.target.closest('.person'); if (b) openSheet(b.dataset.id); });
   const sheet = $('#talk-sheet');
   const MSGS = ['חשבתי עליך היום.', 'מה איתך באמת?', 'בא לך לקפוץ הערב?'];
   let sheetMode = 'call';
@@ -472,7 +485,7 @@
     $('#ts-lines button').focus();
   };
   const closeSheet = () => { sheet.hidden = true; };
-  $('#talk-people').addEventListener('click', (e) => { const b = e.target.closest('.person'); if (b) openSheet(b.dataset.id); });
+  $('#talk-people').addEventListener('click', (e) => { const b = e.target.closest('.person[data-id]'); if (b) openSheet(b.dataset.id); });
   $('#ts-lines').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     opener = +b.dataset.i;
@@ -533,6 +546,7 @@
     ['talk', 'להתקשר לעידו', '20 דק׳ · +30 שיחה', 30],
     ['move', 'הליכה בלי אוזניות', '20 דק׳ · +25 תנועה', 25],
     ['sleep', 'לישון ב-23:00', 'הלילה · +30 שינה', 30],
+    ['release', 'כתיבת יומן', '10 דק׳ · +20 שחרור', 20],
   ];
   const renderNeeds = () => {
     const ul = $('#needs');
@@ -595,9 +609,8 @@
     {
       g += `<defs>${EMO.map((e, i) => { const [x, y] = rPt(i, e.v); return `<linearGradient id="ray-${e.id}" gradientUnits="userSpaceOnUse" x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}"><stop offset="0" stop-color="#F3F1F8" stop-opacity=".85"/><stop offset="1" stop-color="${e.fill}"/></linearGradient>`; }).join('')}</defs>`;
       EMO.forEach((e, i) => {
-        const [x, y] = rPt(i, e.v), [px, py] = rPt(i, e.prev), on = e.id === emoSel;
+        const [x, y] = rPt(i, e.v), on = e.id === emoSel;
         g += `<line x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}" stroke="url(#ray-${e.id})" stroke-width="${on ? 17 : 13}" stroke-linecap="round"/>`;
-        g += `<circle class="r-prev" cx="${px}" cy="${py}" r="4"/>`;
         g += `<circle class="r-ring" cx="${x}" cy="${y}" r="${on ? 13 : 11}"/>`;
       });
     }
@@ -612,9 +625,9 @@
     R.innerHTML = g;
     R.setAttribute('aria-label', `עוצמת הרגשות השבוע: ${EMO.map((e) => `${e.name} ${e.v}`).join(', ')}`);
     $('#emo-pick').innerHTML = EMO.map((e) => `<button type="button" role="radio" aria-checked="${e.id === emoSel}" data-emo="${e.id}">${picto(e)}<span>${e.name}</span></button>`).join('');
-    const e = EMO.find((x) => x.id === emoSel), d = e.v - e.prev;
+    const e = EMO.find((x) => x.id === emoSel);
     $('#emo-det').innerHTML = `<div class="panel-row"><h2 class="panel-h emo-h">${picto(e)}${e.name}</h2>
-      <span class="panel-val"><b class="num">${e.v}</b> · ${d > 0 ? '+' : ''}<span class="num">${d}</span> מהשבוע שעבר</span></div>
+      <span class="panel-val"><b class="num">${e.v}</b> מתוך <span class="num">99</span></span></div>
       <p class="emo-out">יצא החוצה <b class="num">${Math.round(e.out * 100)}%</b> · השאר נשאר בפנים</p>
       <ul class="emo-states">${e.states.map(([n, v]) => `<li><span>${n}</span><span class="bar"><i style="width:${v * 10}%;background:${e.fill}"></i></span><b class="num">${v}</b></li>`).join('')}</ul>
       <div class="emo-facts"><p><small>מה הדליק</small><b>${e.trigger}</b></p><p><small>מה עשית עם זה</small><b>${e.did}</b></p></div>`;
@@ -637,7 +650,8 @@
     { id: 'alon', when: 'אתמול · 23:02', title: 'כתב "בוא נדבר" בקבוצה', stats: [['נקרא', '5/5'], ['תשובות', '0'], ['עומס', '12.4']], hugs: 0, talk: 0 },
     { id: 'yoni', when: 'לפני 3 ימים · מילואים', title: 'פעילות לא סונכרנה', stats: [['חיישן', 'מנותק'], ['שחרור', '—'], ['עומס', '—']], hugs: 2, talk: 0 },
   ];
-  const HUG_I = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="3"/><path d="M4 11.5c1.6 4.4 4.4 7 8 7s6.4-2.6 8-7"/><path d="M7.5 14.2c1.3 1.1 2.8 1.6 4.5 1.6s3.2-.5 4.5-1.6"/></svg>';
+  // the hug: two half-rings holding each other (wheep-shapes, node 28:56)
+  const HUG_I = '<svg viewBox="0 0 183 214" aria-hidden="true"><path d="M91 47.5a75.5 75.5 0 0 0 0 151"/><path d="M91.5 166.5a75.5 75.5 0 0 0 0-151"/></svg>';
   const CALL_I = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.75h3l1.5 4-2 1.25a10 10 0 0 0 4.5 4.5l1.25-2 4 1.5v3a2 2 0 0 1-2.2 2A15.75 15.75 0 0 1 4.5 5.95a2 2 0 0 1 2-2.2z"/></svg>';
   const statsHtml = (st) => `<dl class="post-stats">${st.map(([k, v]) => `<div><dt>${k}</dt><dd class="num"><bdi>${v}</bdi></dd></div>`).join('')}</dl>`;
   const mine = { shared: false, hugs: 0 };
@@ -658,7 +672,7 @@
       return `<li class="post${f.off ? ' is-off' : ''}">
         <header class="post-head"><span class="avatar" style="background:${f.fill}">${f.init}</span><p><b>${f.name}</b><small>${p.when}</small></p>
           <button type="button" class="post-call" data-crew-call="${f.id}" aria-label="להתקשר ל${f.name}">${CALL_I}</button></header>
-        <h3 class="post-title">${p.badge ? `<span class="post-badge">${p.badge}</span>` : ''}${p.title}</h3>
+        <h3 class="post-title">${p.badge ? `<span class="post-badge is-win">${p.badge}</span>` : ''}${p.title}</h3>
         ${statsHtml(p.stats)}
         <div class="post-trace">${mini(f.r, 'mini post-shape', !!f.off, `הצורה של ${f.name}`, undefined, 'burst', 11)}</div>
         <footer class="post-foot"><button type="button" class="hug" data-hug="${p.id}" aria-pressed="${!!p.mine}">${HUG_I}<b class="num">${p.hugs}</b> חיבוקים</button>
@@ -672,7 +686,7 @@
     if (h) {
       const p = POSTS.find((x) => x.id === h.dataset.hug);
       p.mine = !p.mine; p.hugs += p.mine ? 1 : -1;
-      renderCrew(); fx($(`[data-hug="${p.id}"]`), 'is-up');
+      renderCrew(); fx($(`[data-hug="${p.id}"]`), p.mine ? 'is-hug' : 'is-let');   // the two halves close into one, or let go
       return;
     }
     if (e.target.closest('#post-share')) {
@@ -687,7 +701,7 @@
   const GAIN = { bal: 340, led: [] };
   const EARN = [
     ['בכי מאומת', 50, 'נמדד אוטומטית'],
-    ['שיחת עומק · מעל 5 דק׳', 30, 'talk'],
+    ['שיחה עם עידו · מעל 5 דק׳', 30, 'talk'],
     ['שיחה קבוצתית', 40, 'group'],
     ['טיפול עצמי', 15, 'care'],
     ['כל ירידה של 25 ב-MPL', 10, 'נמדד אוטומטית'],
@@ -713,7 +727,7 @@
     $('#ledger').innerHTML = GAIN.led.length
       ? GAIN.led.map(([t, p, at]) => `<li><span class="num l-at">${at}</span><span class="l-t">${t}</span><b class="num l-p">+${p}</b></li>`).join('')
       : '<li class="l-empty">עוד לא הרווחת היום. 12 ימים בלי שחרור לא שווים כוכבים.</li>';
-    $('#earn').innerHTML = EARN.map(([t, p, how]) => `<li><span class="e-t">${t}</span><b class="num e-p">+${p}</b>${['talk', 'group', 'care'].includes(how) ? `<button type="button" class="crew-btn e-go" data-earn="${how}">${how === 'group' ? 'לפתוח' : how === 'talk' ? 'להתקשר' : 'לטפל'}</button>` : `<span class="e-how">${how}</span>`}</li>`).join('');
+    $('#earn').innerHTML = EARN.map(([t, p, how]) => `<li><span class="e-t">${t}</span><b class="num e-p">+${p}</b>${['talk', 'group', 'care'].includes(how) ? `<button type="button" class="crew-btn e-go" data-earn="${how}">${how === 'group' ? 'לפתוח' : how === 'talk' ? 'להתקשר לעידו' : 'לטפל'}</button>` : `<span class="e-how">${how}</span>`}</li>`).join('');
     $('#shop').innerHTML = SHOP.map((x, i) => `<li class="${x.done ? 'is-done' : ''}"><span class="s-t">${x.t}<small>${x.n}</small></span><span class="num s-c">${x.c}</span><button type="button" class="crew-btn" data-buy="${i}" ${x.done || x.c > GAIN.bal ? 'disabled' : ''}>${x.done ? 'מומש' : 'לממש'}</button></li>`).join('');
     // three at a time (Hick): the closest rewards first, the rest one tap away
     const more = $('#shop-more'), hiddenN = Math.max(0, SHOP.length - 3);
@@ -731,6 +745,7 @@
     const g = e.target.closest('[data-earn]');
     if (g) {
       if (g.dataset.earn === 'group') return openSheet('guys');
+      if (g.dataset.earn === 'talk') return openSheet('ido');
       show('today');
       const target = g.dataset.earn === 'talk' ? '#talk-h' : '#acts-h';
       $('#more').open = true;
@@ -855,11 +870,11 @@
   const DAYLOG = {
     3:  { g: 'cry', text: '11 דק׳ · ברמזור בדרך הביתה.' },
     6:  { g: null, gap: true, text: 'החיישן הוסר בין 02:10 ל-07:40. לא תויג.' },
-    8:  { g: 'anger', text: 'כעס שלא נאמר · ישיבת צוות.' },
+    8:  { g: 'anger', text: 'כעס מופנם · ישיבת צוות.' },
     9:  { g: 'cry', unverified: true },
     10: { g: 'press', n: 2, text: 'הדחקה ×2 · "הכל טוב, אחי".' },
     11: { g: 'press', n: 3, text: 'הדחקה ×3 · ארוחת שישי.' },
-    13: { g: 'anger', text: 'כעס שלא נאמר · 40 דקות בפקק באיילון.' },
+    13: { g: 'anger', text: 'כעס מופנם · 40 דקות בפקק באיילון.' },
     14: { g: 'press', n: 2, text: 'הדחקה ×2 · אבא שאל מה נשמע.' },
     15: { g: 'press', n: 2, text: 'הדחקה ×2 · עד עכשיו.' },
     18: { g: null, fc: true, text: 'תחזית · 60% · ארוחת ערב משפחתית.' },

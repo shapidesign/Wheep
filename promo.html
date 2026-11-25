@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHEEP · פרומו</title>
+<!-- WHEEP promo: a 60-second silent Instagram ad (1080×1920). Everything is drawn by render(t), so the
+     recorder can step it frame by frame. Open plainly to watch it loop; ?t=12 freezes at 12s.
+     Motion thesis: the Bouba/Kiki shape is the cut. Every scene opens through a measure's own silhouette,
+     spiky as it starts and soft as it fills the screen; the logo's tear falls out of the P and becomes the pendant. -->
+<style>
+@font-face { font-family: Leon; src: url(fonts/Leon-ProductThin.otf); font-weight: 200; }
+@font-face { font-family: Leon; src: url(fonts/Leon-ProductRegular.otf); font-weight: 400; }
+@font-face { font-family: Leon; src: url(fonts/Leon-ProductBold.otf); font-weight: 700; }
+@font-face { font-family: Leon; src: url(fonts/Leon-ProductHeavy.otf); font-weight: 900; }
+@font-face { font-family: Hammer; src: url(fonts/HammerProVF.ttf) format('truetype'); font-weight: 100 900; font-stretch: 50% 200%; }
+:root {
+  --ground: #0B0A10; --dark: #0E0D12; --panel: #16141D; --panel-2: #221F2B;
+  --ink: #F3F1F8; --ink-2: #ABA6BC; --ink-3: #7C778F;
+  --cry: #3FC8F5; --anger: #FF5A36; --press: #9B6BFF; --talk: #FF7AC6; --release: #3DDC97;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #000; overflow: hidden; }
+body { display: grid; place-items: center; font-family: Leon, sans-serif; -webkit-font-smoothing: antialiased; }
+.stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--ground); color: var(--ink); flex: none; }
+section { position: absolute; inset: 0; background: var(--ground); transform-origin: 50% 50%; }
+section > svg.full { position: absolute; inset: 0; width: 100%; height: 100%; }
+.at { position: absolute; inset-inline: 90px; }
+.ctr { text-align: center; }
+bdi, .n { direction: ltr; unicode-bidi: isolate; }
+[data-in] { will-change: opacity, translate, filter; }
+
+/* type: Hammer for anything loud, Leon for the quiet parts. Thin = held in, fat = shown */
+.kick { font: 700 46px/1.2 Leon; color: var(--ink-2); }
+.loud { font-family: Hammer; font-weight: 900; font-stretch: 79%; line-height: .92; letter-spacing: -.01em; }
+.sub { font: 200 60px/1.25 Leon; text-wrap: balance; }
+.sub b { font-weight: 900; }
+.fine { font: 400 34px/1.45 Leon; color: var(--ink-3); }
+.pill { display: inline-block; padding: 26px 44px; border-radius: 999px; font: 900 48px/1.1 Leon; }
+
+/* 1 · the old tracker */
+#s1 .ring { position: absolute; inset: 0; }
+#s1 .trk { fill: none; stroke: var(--panel-2); stroke-width: 26; }
+#ring { fill: none; stroke: var(--ink); stroke-width: 26; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 540px 860px; }
+#metric { top: 650px; text-align: center; }
+#ml { font: 700 50px Leon; color: var(--ink-2); }
+#mn { display: inline-block; font-family: Hammer; font-weight: 900; font-stretch: 79%; font-size: 300px; line-height: 1; margin-top: 10px; font-variant-numeric: tabular-nums; }
+#mu { font: 400 42px Leon; color: var(--ink-2); }
+#s1 .hook { top: 780px; }
+#s1 .hook .loud { font-size: 170px; }
+#s1 .hook .sub { margin-top: 50px; color: var(--ink-2); font-size: 54px; }
+
+/* 2 · one question */
+#s2 .q { top: 420px; }
+#s2 .q .loud { font-size: 150px; margin-top: 30px; text-wrap: balance; }
+.chips { top: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+.chips span { display: block; padding: 38px 0; border-radius: 999px; background: var(--panel); box-shadow: inset 0 0 0 2px var(--panel-2); font: 700 52px Leon; text-align: center; }
+#s2 .after { top: 1350px; }
+
+/* 3 · logo */
+#logo { position: absolute; left: 160px; top: 700px; width: 760px; height: auto; overflow: visible; }
+#s3 .line { top: 1060px; }
+.teaser { top: 1240px; display: flex; justify-content: center; gap: 46px; }
+.teaser svg { width: 96px; height: 96px; overflow: visible; }
+
+/* the tear that leaves the logo and becomes the pendant */
+#tear { position: absolute; z-index: 20; overflow: visible; pointer-events: none; }
+
+/* 4 · the necklace */
+#s4 .txt { top: 1140px; text-align: center; }
+#s4 .sub { font-size: 56px; margin-top: 18px; }
+.strike { position: relative; display: inline-block; margin-top: 54px; font: 400 52px Leon; color: var(--ink-2); }
+.strike i { position: absolute; inset-inline: -10px; top: 52%; height: 6px; background: var(--ink); transform-origin: 100% 50%; }
+#s4 .fat { font-size: 124px; margin-top: 14px; color: var(--ink); }
+
+/* 5 · four measures, each a full colour field */
+.ms { color: var(--dark); }
+.ms .head { top: 230px; }
+.ms .kick { color: rgba(14,13,18,.66); }
+.ms .name { font-size: 250px; margin-top: 18px; }
+.ms .desc { font: 200 58px/1.25 Leon; margin-top: 34px; }
+.ms .stat { margin-top: 34px; display: flex; align-items: baseline; gap: 22px; }
+.ms .stat bdi { font-family: Hammer; font-weight: 900; font-stretch: 79%; font-size: 150px; line-height: .9; font-variant-numeric: tabular-nums; }
+.ms .stat span { font: 700 44px Leon; opacity: .72; }
+
+#s5e .head { top: 250px; }
+#s5e .loud { font-size: 104px; line-height: 1.05; }
+#s5e .sub { font-size: 48px; color: var(--ink-2); margin-top: 34px; }
+.gname { position: absolute; width: 300px; margin-inline-start: -150px; text-align: center; font: 700 44px Leon; }
+
+/* 6 · "everything's fine" */
+#s6 .head { top: 300px; }
+#s6 .said { top: 470px; }
+#s6 .said span { display: block; font-family: Hammer; font-stretch: 79%; font-size: 300px; line-height: .9; }
+#tov { position: relative; display: inline-block !important; }
+#tov i { position: absolute; inset-inline: -16px; top: 50%; height: 18px; background: var(--anger); transform-origin: 100% 50%; scale: 0 1; }
+#wave { position: absolute; left: 140px; top: 1150px; width: 800px; height: 140px; overflow: visible; }
+#wave path { fill: none; stroke: var(--ink-2); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+#s6 .count { top: 1320px; font: 700 50px Leon; color: var(--ink-2); }
+#s6 .count bdi { font-family: Hammer; font-weight: 900; font-stretch: 79%; font-size: 110px; color: var(--ink); vertical-align: -12px; margin-inline: 8px; font-variant-numeric: tabular-nums; }
+#s6 .last { top: 1470px; }
+
+/* 7 · the pressure index, and the quick fix */
+#s7 .head { top: 250px; }
+#mpl { top: 320px; font-size: 330px; font-variant-numeric: tabular-nums; }
+#s7 .scale { top: 630px; font: 400 40px Leon; color: var(--ink-3); }
+.alert { top: 700px; text-align: center; }
+.alert span { display: inline-flex; align-items: center; gap: 18px; padding: 20px 36px; border-radius: 999px; background: var(--panel); box-shadow: inset 0 0 0 2px var(--panel-2); font: 700 44px Leon; }
+.alert span::before { content: ''; width: 20px; height: 20px; border-radius: 50%; background: var(--anger); }
+#talk { top: 1250px; text-align: center; }
+#talk .pill { background: var(--ink); color: var(--dark); padding: 34px 80px; font-size: 56px; }
+#call { top: 1236px; display: flex; align-items: center; gap: 30px; padding: 26px 34px; border-radius: 48px; background: var(--panel); box-shadow: inset 0 0 0 2px var(--panel-2); opacity: 0; }
+#call .av { width: 110px; height: 110px; border-radius: 50%; background: var(--panel-2); display: grid; place-items: center; font: 900 52px Leon; }
+#call b { display: block; font: 900 50px Leon; }
+#call small { display: block; font: 400 36px Leon; color: var(--ink-2); margin-top: 4px; }
+#call .tm { margin-inline-start: auto; font-family: Hammer; font-weight: 800; font-stretch: 79%; font-size: 90px; color: var(--release); font-variant-numeric: tabular-nums; }
+#s7 .foot { top: 1430px; }
+#s7 .foot .sub { font-size: 50px; }
+
+/* 8 · for whoever loves him */
+#s8 { background: var(--talk); color: var(--dark); }
+#s8 .head { top: 240px; }
+#s8 .kick { color: rgba(14,13,18,.66); }
+#s8 .loud { font-size: 156px; margin-top: 24px; line-height: .98; }
+#s8 .thin { font-weight: 200; }
+.note { position: absolute; inset-inline: 70px; top: 850px; padding: 34px 38px 38px; border-radius: 46px; background: rgba(14,13,18,.94); color: var(--ink); }
+.note .nh { display: flex; align-items: center; gap: 20px; font: 700 36px Leon; }
+.note .nh img { width: 64px; height: 64px; border-radius: 16px; }
+.note .nh span { margin-inline-start: auto; font-weight: 400; color: var(--ink-2); }
+.note p { margin-top: 18px; font: 400 44px/1.35 Leon; }
+.note p b { font-weight: 900; }
+#s8 .foot { top: 1420px; font: 400 50px/1.3 Leon; }
+
+/* 9 · stars */
+#s9 .head { top: 330px; }
+#stars { top: 400px; font-size: 380px; font-variant-numeric: tabular-nums; }
+#s9 .unit { top: 750px; font-family: Hammer; font-weight: 800; font-stretch: 150%; font-size: 92px; }
+#s9 .sub { top: 900px; }
+#s9 .perk { top: 1090px; }
+#s9 .perk .pill { background: var(--panel); box-shadow: inset 0 0 0 2px var(--panel-2); font-weight: 700; font-size: 44px; }
+
+/* 10 · end card */
+#logo2 { position: absolute; left: 220px; top: 440px; width: 640px; height: auto; overflow: visible; }
+#s10 .tag { top: 760px; }
+#s10 .tag .loud { font-size: 128px; line-height: 1.02; }
+#s10 .tag .thin { font-weight: 200; }
+#s10 .cta { top: 1120px; }
+#s10 .cta .pill { background: var(--ink); color: var(--dark); }
+#s10 .legal { top: 1290px; }
+
+.tap { position: absolute; z-index: 30; width: 140px; height: 140px; margin: -70px 0 0 -70px; border-radius: 50%; border: 6px solid var(--ink); background: rgba(243,241,248,.16); opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <svg width="0" height="0" style="position:absolute"><defs>
+    <g id="logo-mark"><path d="M47.07 0.15H49.36L39.03 85.78H36.74L24.68 5.91L12.63 85.78H10.33L0 0.15H2.3L11.72 79.18L23.53 0.15H25.83L37.71 78.65L47.07 0.15Z"/><path d="M84.95 0H91.41V85.64H84.95V42.32H68.02V85.64H61.56V0H68.02V36.32H84.95V0Z"/><path d="M134.74 0V12.87H115.23V34.74H131.87V46.18H115.23V72.77H134.74V85.64H103.75V0H134.74Z"/><path d="M161 18.87V33.31H178.08V50.04H161V66.77H180.95V85.64H144.5V0H180.95V18.87H161Z"/><path fill-rule="evenodd" d="M232.32 8.58C227.733 2.86 221.42 0 213.38 0H189.27V85.64H210.79V63.05H213.38C221.413 63.05 227.727 60.3567 232.32 54.97C236.913 49.5833 239.21 42.0767 239.21 32.45C239.21 22.2633 236.913 14.3067 232.32 8.58ZM212.94 46.79C206.45 46.79 201.09 41.4 201.09 34.87C201.09 27.72 208.4 18.6 212.94 13.31C217.47 18.91 224.89 27.41 224.89 34.87C224.89 41.4 219.53 46.79 212.94 46.79Z"/></g>
+    <path id="tear-path" d="M212.94 46.79C206.45 46.79 201.09 41.4 201.09 34.87C201.09 27.72 208.4 18.6 212.94 13.31C217.47 18.91 224.89 27.41 224.89 34.87C224.89 41.4 219.53 46.79 212.94 46.79Z"/>
+  </defs></svg>
+
+  <!-- 1 · the old tracker: everything measured, all in grey -->
+  <section id="s1">
+    <svg class="ring" viewBox="0 0 1080 1920"><circle class="trk" cx="540" cy="860" r="360"/><circle id="ring" cx="540" cy="860" r="360"/></svg>
+    <div class="at" id="metric"><p id="ml"></p><bdi id="mn"></bdi><p id="mu"></p></div>
+    <div class="at ctr hook">
+      <p class="loud" data-in="2.6">אתה מודד הכל.</p>
+      <p class="sub" data-in="3.2">כל צעד. כל פעימה. כל שעת שינה.</p>
+    </div>
+  </section>
+
+  <!-- 2 · the onboarding question -->
+  <section id="s2">
+    <div class="at ctr q">
+      <p class="kick" data-in=".15">אז שאלה אחת.</p>
+      <p class="loud" data-in=".3">מתי בכית בפעם האחרונה?</p>
+    </div>
+    <div class="at chips">
+      <span data-in=".95">השבוע</span><span data-in="1.0">החודש</span><span data-in="1.05">השנה</span><span id="dunno" data-in="1.1">לא זוכר</span>
+    </div>
+    <p class="at ctr sub after" data-in="2.8">בדיוק בשביל זה.</p>
+  </section>
+
+  <!-- 3 · WHEEP -->
+  <section id="s3">
+    <svg id="logo" viewBox="0 0 239.21 85.78" fill="currentColor" aria-label="WHEEP">
+      <use href="#logo-mark"/><use id="ptear" href="#tear-path" fill="#3FC8F5"/>
+    </svg>
+    <p class="at ctr sub line" data-in="1.2" data-out="3.3">הטראקר שמודד את מה<br><b>שאתה לא אומר.</b></p>
+    <div class="at teaser" id="teaser"></div>
+  </section>
+
+  <!-- 4 · the necklace -->
+  <section id="s4">
+    <svg class="full" viewBox="0 0 1080 1920"><path id="chainL" d="M540 690C470 640 262 430 250 -40" fill="none"/><path id="chainR" d="M540 690C610 640 818 430 830 -40" fill="none"/><g id="beads" fill="#7C778F"></g><circle id="bail" cx="540" cy="690" r="13" fill="none" stroke="#7C778F" stroke-width="6"/></svg>
+    <div class="at txt">
+      <p class="kick" data-in=".9">מכשיר חדש · שרשרת WHEEP</p>
+      <p class="sub" data-in="1.2">התליון נח על עצם החזה, מתחת לגרון.</p>
+      <p class="strike" data-in="2.2">לא מודד עומס אימון.<i id="strike4"></i></p>
+      <p class="loud fat" data-in="3.0">מודד עומס הדחקה.</p>
+    </div>
+  </section>
+
+  <!-- 5 · the four measures (built from MEASURES below) -->
+  <div id="measures"></div>
+
+  <section id="s5e">
+    <svg class="full" viewBox="0 0 1080 1920" id="grid"></svg>
+    <div class="at ctr head">
+      <p class="loud" data-in=".2">קוצים כשמשהו<br>נשאר בפנים.</p>
+      <p class="sub" data-in="2.9">הצורה מתארת את המדד, לא אותך.</p>
+    </div>
+  </section>
+
+  <!-- 6 · "everything's fine" doesn't count -->
+  <section id="s6">
+    <p class="at ctr kick head" data-in=".2">המיקרופון סופר גם את מה שלא נאמר.</p>
+    <div class="at ctr said"><span data-in=".45" style="font-weight:100">הכל</span><span id="tov" data-in=".7">טוב.<i></i></span></div>
+    <svg id="wave" viewBox="0 0 800 140"><path/></svg>
+    <p class="at ctr count" data-in="1.2">נאמר היום<bdi id="c6">0</bdi>פעמים</p>
+    <p class="at ctr sub last" data-in="3.5">WHEEP לא מקבל <b>״הכל טוב״.</b></p>
+  </section>
+
+  <!-- 7 · the pressure index, then the quick fix -->
+  <section id="s7">
+    <svg class="full" viewBox="0 0 1080 1920"><path id="mplShape"/></svg>
+    <p class="at ctr kick head" data-in=".15">מדד לחץ הגבריות · MPL</p>
+    <p class="at ctr loud" id="mpl" data-in=".25"><bdi id="c7">0</bdi></p>
+    <p class="at ctr scale" data-in=".5"><bdi>0–1000</bdi></p>
+    <div class="at alert" id="alert" data-in="1.8"><span>12 ימים בלי שחרור</span></div>
+    <div class="at" id="talk" data-in="2.5"><span class="pill">לדבר עכשיו</span></div>
+    <div class="at" id="call"><span class="av">א</span><div><b>אבא</b><small id="callsub">לא דיברתם 9 ימים</small></div><bdi class="tm" id="tm">00:00</bdi></div>
+    <div class="at ctr foot"><p class="sub" data-in="5.4">שיחה של יותר מ־5 דקות מורידה את הלחץ <b>יותר מכל יעד.</b></p></div>
+  </section>
+
+  <!-- 8 · for whoever loves him -->
+  <section id="s8">
+    <div class="at ctr head">
+      <p class="kick" data-in=".3">ולמי שאוהב אותו:</p>
+      <p class="loud" data-in=".45"><span class="thin">הוא לא יגיד.</span><br>WHEEP כן.</p>
+    </div>
+    <div class="note" id="n1"><div class="nh"><img src="favicon.svg" alt="">WHEEP<span>עכשיו</span></div><p>השחרור של עומר ירד ל־<bdi>12%</bdi>.<br><b>מומלץ: חיבוק, בלי שאלות.</b></p></div>
+    <div class="note" id="n2"><div class="nh"><img src="favicon.svg" alt="">WHEEP<span>עכשיו</span></div><p>עומר אמר ״הכל טוב״ <bdi>6</bdi> פעמים היום.</p></div>
+    <p class="at ctr foot" data-in="3.3">סוף סוף תדעו מה הוא מרגיש.<br><b>בלי לשאול.</b></p>
+  </section>
+
+  <!-- 9 · stars for what came out -->
+  <section id="s9">
+    <p class="at ctr kick head" data-in=".2">ועל כל שחרור</p>
+    <p class="at ctr loud" id="stars" data-in=".3"><bdi id="c9">0</bdi></p>
+    <p class="at ctr unit" data-in=".5">כוכבים</p>
+    <p class="at ctr sub" data-in=".9">על מה שיצא החוצה.</p>
+    <div class="at ctr perk" data-in="1.5"><span class="pill"><bdi>12%</bdi> הנחה בפרמיה · קופת רווחה</span></div>
+  </section>
+
+  <!-- 10 · end card -->
+  <section id="s10">
+    <svg id="logo2" viewBox="0 0 239.21 85.78" fill="currentColor" aria-label="WHEEP">
+      <use href="#logo-mark"/><use id="ptear2" href="#tear-path" fill="#3FC8F5"/>
+    </svg>
+    <div class="at ctr tag">
+      <p class="loud"><span class="thin" data-in=".5" style="display:block">בוא תראה כמה</span><span data-in=".8" style="display:block" id="gever">אתה גבר באמת.</span></p>
+    </div>
+    <div class="at ctr cta" data-in="1.5"><span class="pill">שרשרת WHEEP · מ־<bdi>1.12.2026</bdi></span></div>
+    <div class="at ctr legal fine" data-in="1.9">WHEEP · בחסות קופת רווחה<br>אבטיפוס ספקולטיבי. המוצר, הנתונים וקופת רווחה בדיוניים.</div>
+  </section>
+
+  <svg id="tear" viewBox="0 0 100 100"><path id="tearShape" fill="#3FC8F5"/></svg>
+  <div class="tap" id="tap"></div>
+</div>
+
+<script>
+const DUR = 60, FPS = 30, T_IN = .85, T_OUT = .3;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const expo = (x) => { x = clamp(x); return x === 1 ? 1 : 1 - Math.pow(2, -10 * x); };      // arrivals
+const inout = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }; // moves
+const easeIn = (x) => { x = clamp(x); return x * x * x; };                                  // exits
+const sine = (x) => -(Math.cos(Math.PI * clamp(x)) - 1) / 2;
+const fmt = (n) => Math.round(n).toLocaleString('en-US');
+
+/* ── Bouba/Kiki: the one shape of WHEEP, copied from app.js so the film speaks the app's language ──
+   round 0 = kiki (spikes: held in), 1 = bouba (soft: let out) */
+const DROP_L = 1.75, DROP_A = Math.acos(1 / DROP_L);
+const BASE = {
+  burst: () => 1,
+  drop: (a) => { const f = Math.abs(Math.atan2(Math.sin(a + Math.PI / 2), Math.cos(a + Math.PI / 2))); return .68 * (f < DROP_A ? 1 / Math.cos(f - DROP_A) : 1); },
+  box: (a) => .8 / ((Math.abs(Math.cos(a)) ** 7 + Math.abs(Math.sin(a)) ** 7) ** (1 / 7)),
+  bubble: (a) => .9 / ((Math.abs(Math.cos(a)) ** 3 + Math.abs(Math.sin(a) / .74) ** 3) ** (1 / 3)) + .44 * Math.max(0, Math.cos(a - Math.PI * .72)) ** 34,
+  blob: (a) => .86 + .07 * Math.cos(4 * a + .5),
+};
+const SHARP = { burst: 1, drop: .14, box: .3, bubble: .06, blob: .12 };
+const OFF = { drop: .26, bubble: -.07 };
+const polar = ({ round = 0, R = 20, cx = 24, cy = 24, n = 9, tremble = 0, phase = 0, N = 220, base = 'burst' }) => {
+  const B = BASE[base], S = SHARP[base];
+  cy += (OFF[base] || 0) * R;
+  const A = lerp(.5, .07, round) * S, K = lerp(2.6, 1, round);
+  let d = '';
+  for (let j = 0; j < N; j++) {
+    const u = (j / N) * n * 2, tri = Math.abs((u % 2) - 1), soft = (Math.cos(Math.PI * u) + 1) / 2;
+    const w = lerp(tri ** K, soft, round), spike = Math.floor((u + 1) / 2);
+    const ang = -Math.PI / 2 + (j / N) * Math.PI * 2;
+    const r = R * B(ang) * (1 - A * (1 - w)) * (1 + tremble * Math.sin(phase + spike * 1.9) * w);
+    d += `${j ? 'L' : 'M'}${(cx + r * Math.cos(ang)).toFixed(1)} ${(cy + r * Math.sin(ang)).toFixed(1)}`;
+  }
+  return d + 'Z';
+};
+
+/* ── the four measures ── */
+const MEASURES = [
+  { id: 's5a', i: 1, name: 'בכי', bg: '#3FC8F5', base: 'drop', n: 7, desc: 'כל דמעה נספרת.<br>גם זו שבלעת.', val: '0', stat: 'השבוע · יעד: 1', from: .06, to: 1 },
+  { id: 's5b', i: 2, name: 'כעס', bg: '#FF5A36', base: 'burst', n: 9, desc: 'שאמרת בקול.<br>לא זה שבלעת.', val: '1/3', stat: 'השבוע', from: 0, to: .9 },
+  { id: 's5c', i: 3, name: 'הדחקות', bg: '#9B6BFF', base: 'box', n: 8, desc: 'כל פעם שהחלטת<br>שזה לא משנה.', val: '11', stat: 'היום', from: 1, to: 0, count: 11 },
+  { id: 's5d', i: 4, name: 'שיחות עומק', bg: '#FF7AC6', base: 'bubble', n: 6, desc: 'מעל 5 דקות.<br>עם מישהו שאכפת לו.', val: '2/6', stat: 'השבוע', from: 0, to: 1, small: true },
+];
+$('#measures').outerHTML = MEASURES.map((m) => `
+  <section id="${m.id}" class="ms" style="background:${m.bg}">
+    <svg class="full" viewBox="0 0 1080 1920"><path class="mshape" fill="#0E0D12"/></svg>
+    <div class="at head">
+      <p class="kick" data-in=".35">מדד <bdi>${m.i}</bdi> מתוך <bdi>4</bdi></p>
+      <p class="loud name" data-in=".45"${m.small ? ' style="font-size:200px"' : ''}>${m.name}</p>
+      <p class="desc" data-in=".7">${m.desc}</p>
+      <p class="stat" data-in=".95"><bdi class="sv">${m.val}</bdi><span>${m.stat}</span></p>
+    </div>
+  </section>`).join('');
+
+/* scenes: start time; tr = the silhouette this scene opens through (none = a cut) */
+const SCENES = [
+  { id: 's1', s: 0 },
+  { id: 's2', s: 5 },
+  { id: 's3', s: 9.6 },
+  { id: 's4', s: 14.6 },
+  { id: 's5a', s: 20.6, tr: { base: 'drop', n: 11, x: 540, y: 860, r0: 176, k0: .08 } },
+  { id: 's5b', s: 23.1, tr: { base: 'burst', n: 9, x: 540, y: 1250, r0: 0, k0: 0 } },
+  { id: 's5c', s: 25.6, tr: { base: 'box', n: 8, x: 540, y: 1250, r0: 0, k0: 0 } },
+  { id: 's5d', s: 28.1, tr: { base: 'bubble', n: 6, x: 540, y: 1250, r0: 0, k0: 0 } },
+  { id: 's5e', s: 30.6, tr: { base: 'blob', n: 4, x: 540, y: 1250, r0: 0, k0: 1 } },
+  { id: 's6', s: 34.6 },
+  { id: 's7', s: 40 },
+  { id: 's8', s: 47.6, tr: { base: 'bubble', n: 6, x: 540, y: 1650, r0: 0, k0: .2 } },
+  { id: 's9', s: 52.8, tr: { base: 'blob', n: 4, x: 540, y: 960, r0: 0, k0: 1 } },
+  { id: 's10', s: 55.6 },
+];
+const secs = SCENES.map((c, i) => ({ ...c, el: $('#' + c.id), e: i + 1 < SCENES.length ? SCENES[i + 1].s : DUR + 9, next: SCENES[i + 1] }));
+const sec = (id) => secs.find((s) => s.id === id);
+const ins = $$('[data-in]').map((el) => {
+  const sc = sec(el.closest('section').id);
+  const out = el.dataset.out != null ? sc.s + +el.dataset.out : sc.id === 's10' ? 1e9 : sc.e - T_OUT;
+  return { el, at: sc.s + +el.dataset.in, out };
+});
+
+/* teaser: the four measures in one row */
+const TEASE = [['drop', 7, '#3FC8F5'], ['burst', 9, '#FF5A36'], ['box', 8, '#9B6BFF'], ['bubble', 6, '#FF7AC6']];
+$('#teaser').innerHTML = TEASE.map(([b, n, c]) => `<svg viewBox="0 0 100 100"><path fill="${c}" data-b="${b}" data-n="${n}"/></svg>`).join('');
+const teasers = $$('#teaser svg');
+
+/* necklace: ball-chain beads along both curves, from the pendant up */
+const beads = [];
+{ const g = $('#beads');
+  ['#chainL', '#chainR'].forEach((sel) => { const p = $(sel), L = p.getTotalLength();
+    for (let d = 26, k = 0; d < L; d += 25, k++) { const pt = p.getPointAtLength(d), c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', pt.x.toFixed(1)); c.setAttribute('cy', pt.y.toFixed(1)); c.setAttribute('r', 7.5); g.appendChild(c); beads.push({ c, f: d / L }); } }); }
+
+/* summary grid: the four shapes, two by two */
+const GRID = [[780, 930, 'drop', 7, '#3FC8F5', 'בכי'], [300, 930, 'burst', 9, '#FF5A36', 'כעס'], [780, 1300, 'box', 8, '#9B6BFF', 'הדחקות'], [300, 1300, 'bubble', 6, '#FF7AC6', 'שיחות']];
+$('#grid').innerHTML = GRID.map(([, , , , c]) => `<path fill="${c}"/>`).join('');
+$('#s5e').insertAdjacentHTML('beforeend', GRID.map(([x, y, , , , nm]) => `<p class="gname" style="left:${x}px;top:${y + 160}px">${nm}</p>`).join(''));
+const gridPaths = $$('#grid path'), gnames = $$('#s5e .gname');
+
+const METRICS = [['דופק במנוחה', '58', 'פעימות לדקה', .58], ['צעדים', '12,408', 'היום', .83], ['שינה', '7:24', 'שעות', .74], ['התאוששות', '91%', 'מוכן לאימון', .91], ['עומס אימון', '16.8', 'מתוך 21', .8]];
+const RING_C = 2 * Math.PI * 360;
+const tap = $('#tap');
+const tapAt = (x, y, p) => { tap.style.left = x + 'px'; tap.style.top = y + 'px'; tap.style.opacity = p > 0 && p < 1 ? Math.sin(p * Math.PI) : 0; tap.style.scale = .55 + .6 * expo(p); };
+const center = (el) => { const r = el.getBoundingClientRect(), s = $('#stage').getBoundingClientRect(), k = s.width / 1080; return [(r.left + r.width / 2 - s.left) / k, (r.top + r.height / 2 - s.top) / k]; };
+const mix = (a, b, t) => { const h = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)); const A = h(a), B = h(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], t))).join(',')})`; };
+
+function render(t) {
+  let cur = 0;
+  secs.forEach((s, i) => { if (t >= s.s) cur = i; });
+  tap.style.opacity = 0;
+
+  // scenes: a cut swaps instantly; a shaped scene opens through its silhouette, spiky first, soft as it fills
+  secs.forEach((s, i) => {
+    const hold = s.next && s.next.tr ? T_IN : 0;
+    const vis = i <= cur && t < s.e + hold;
+    s.el.style.display = vis ? '' : 'none';
+    if (!vis) return;
+    s.el.style.zIndex = i;
+    if (s.tr && t - s.s < T_IN) {
+      const p = inout((t - s.s) / T_IN), tr = s.tr;
+      s.el.style.clipPath = `path('${polar({ base: tr.base, n: tr.n, cx: tr.x, cy: tr.y, R: lerp(tr.r0, 2900, p), round: lerp(tr.k0, 1, expo((t - s.s) / T_IN)) })}')`;
+    } else s.el.style.clipPath = 'none';
+    const pout = hold ? clamp((t - s.e) / T_IN) : 0;   // the old scene sinks back under the new one
+    s.el.style.transform = pout ? `scale(${1 - .07 * sine(pout)})` : '';
+    s.el.style.filter = pout ? `brightness(${1 - .5 * sine(pout)})` : '';
+  });
+
+  // text rises out of a blur (ease-out) and leaves a beat before the cut (ease-in, faster)
+  ins.forEach(({ el, at, out }) => {
+    const p = expo((t - at) / .8), o = easeIn((t - out) / T_OUT);
+    el.style.opacity = p * (1 - o);
+    el.style.translate = `0 ${(1 - p) * 56 - o * 30}px`;
+    el.style.filter = p < 1 || o > 0 ? `blur(${(1 - p) * 10 + o * 8}px)` : '';
+  });
+  const L = (id) => t - sec(id).s;
+
+  // 1 · the old world, in grey: metrics slam in every half second, then all of it steps back
+  { const l = L('s1'), k = Math.min(4, Math.floor(l / .5)), lk = l - k * .5, m = METRICS[k];
+    $('#ml').textContent = m[0]; $('#mn').textContent = m[1]; $('#mu').textContent = m[2];
+    const pop = expo(lk / .3), gone = easeIn((l - 2.5) / .3);
+    $('#mn').style.scale = 1.14 - .14 * pop;
+    $('#mn').style.translate = `0 ${(1 - pop) * -24}px`;
+    const prev = k ? METRICS[k - 1][3] : 0;
+    $('#ring').style.strokeDasharray = `${RING_C * lerp(prev, m[3], expo(lk / .4))} ${RING_C}`;
+    [$('#metric'), $('#s1 .ring')].forEach((e) => { e.style.opacity = 1 - gone; e.style.scale = 1 - .08 * gone; e.style.filter = gone ? `blur(${gone * 10}px)` : ''; }); }
+
+  // 2 · tap "לא זוכר"
+  { const l = L('s2'), d = $('#dunno'), sel = expo((l - 2.15) / .25);
+    if (l > 1.6 && l < 2.8) { const [x, y] = center(d); tapAt(x, y, (l - 1.95) / .6); }
+    d.style.background = l > 2.15 ? mix('#16141D', '#F3F1F8', sel) : '';
+    d.style.color = l > 2.15 ? mix('#F3F1F8', '#0E0D12', sel) : '';
+    d.style.scale = 1 - .05 * Math.sin(clamp((l - 2.05) / .25) * Math.PI);
+    $$('.chips span:not(#dunno)').forEach((c) => { if (l > 2.15) c.style.opacity = +c.style.opacity * (1 - .65 * sel); }); }
+
+  // 3 · logo; the tear fills inside the P, then falls out of it
+  { const l = L('s3'), logo = $('#logo'), gone = easeIn((l - 3.3) / .4);
+    logo.style.opacity = expo(l / .7) * (1 - gone);
+    logo.style.scale = 1.05 - .05 * expo(l / 1.4);
+    const pt = $('#ptear'), fill = expo((l - .5) / .9);
+    pt.style.transformBox = 'fill-box'; pt.style.transformOrigin = '50% 60%';
+    pt.style.scale = l < 3.3 ? fill : 0;
+    teasers.forEach((s, i) => { const p = expo((l - 1.7 - i * .06) / .7), g = easeIn((l - 3.25) / .35);
+      s.style.opacity = p * (1 - g); s.style.translate = `0 ${(1 - p) * 50}px`;
+      const path = s.firstChild; path.setAttribute('d', polar({ base: path.dataset.b, n: +path.dataset.n, R: 40, cx: 50, cy: 50, round: .25, tremble: .05, phase: l * 7 + i })); }); }
+
+  // the tear: from the logo's P (836, 795) to the pendant (540, 860); spikes grow when "עומס הדחקה" lands
+  { const a = sec('s3').s + 3.3, end = sec('s5a').s, el = $('#tear');
+    if (t < a || t >= end) el.style.display = 'none';
+    else {
+      el.style.display = '';
+      const p = inout((t - a) / 1.7), drop = easeIn((t - a) / .5) * (1 - p);
+      const x = lerp(836.7, 540, p), y = lerp(795.5, 860, p) - Math.sin(p * Math.PI) * 120 + drop * 40, S = lerp(140, 440, p);
+      Object.assign(el.style, { left: x - S / 2 + 'px', top: y - S / 2 + 'px', width: S + 'px', height: S + 'px' });
+      const l4 = t - sec('s4').s, sharp = inout((l4 - 3.05) / .7);
+      $('#tearShape').setAttribute('d', polar({ base: 'drop', n: 11, R: 40, cx: 50, cy: 50, round: 1 - .92 * sharp, tremble: .03 * sharp, phase: t * 9 }));
+    } }
+
+  // 4 · the chain grows up from the pendant; "training load" gets struck out
+  { const l = L('s4'), p = inout((l - .05) / 1.1);
+    beads.forEach(({ c, f }) => { c.style.opacity = clamp((p - f) * 12); });
+    $('#bail').style.opacity = expo(l / .3);
+    $('#strike4').style.scale = `${inout((l - 2.65) / .35)} 1`; }
+
+  // 5 · each measure: its shape changes with its number (soft when it came out, spiky when it stayed in)
+  MEASURES.forEach((m) => { const s = sec(m.id); if (t < s.s || t > s.e + T_IN) return;
+    const l = t - s.s, el = s.el, p = inout((l - .8) / 1.4), round = lerp(m.from, m.to, p);
+    el.querySelector('.mshape').setAttribute('d', polar({ base: m.base, n: m.n, R: 300, cx: 540, cy: 1270, round, tremble: .05 * (1 - round), phase: l * 8 }));
+    el.querySelector('.mshape').style.transform = `rotate(${(l * 5).toFixed(2)}deg)`;
+    el.querySelector('.mshape').style.transformOrigin = '540px 1270px';
+    if (m.count) el.querySelector('.sv').textContent = Math.round(m.count * p); });
+
+  // 5e · all four, spiky, then they let go one after another
+  { const l = L('s5e');
+    gridPaths.forEach((g, i) => { const [x, y, b, n] = GRID[i], r = inout((l - 1.9 - i * .1) / .8), inn = expo((l - .3 - i * .06) / .7);
+      g.setAttribute('d', polar({ base: b, n, R: 135 * (.6 + .4 * inn), cx: x, cy: y, round: r, tremble: .07 * (1 - r), phase: l * 9 + i }));
+      g.style.opacity = inn; gnames[i].style.opacity = inn * (1 - easeIn((l - 3.7) / .3)); });
+    const h = $('#s5e .loud'); if (l > 1.9 && h.dataset.v !== '2') { h.innerHTML = 'קווים רכים<br>כשהוא יוצא.'; h.dataset.v = '2'; }
+    if (l <= 1.9 && h.dataset.v !== '1') { h.innerHTML = 'קוצים כשמשהו<br>נשאר בפנים.'; h.dataset.v = '1'; }
+    const sw = Math.abs(l - 1.9) < .25 ? 1 - Math.abs(l - 1.9) / .25 : 0;      // the line blinks through a blur as it changes
+    if (l > 1.6 && l < 2.2) { h.style.filter = `blur(${sw * 12}px)`; h.style.opacity = 1 - .8 * sw; } }
+
+  // 6 · "fine." gets fat, the mic counts it, then it's struck out
+  { const l = L('s6'), w = inout((l - .9) / 1.1), tov = $('#tov');
+    tov.style.fontWeight = Math.round(lerp(100, 900, w));
+    const ticks = [1.5, 1.85, 2.15, 2.4, 2.6, 2.75];
+    const said = ticks.filter((k) => l >= k).length;
+    $('#c6').textContent = said;
+    const last = ticks[said - 1] ?? -9; $('#c6').style.display = 'inline-block'; $('#c6').style.scale = 1 + .22 * (1 - expo((l - last) / .3));
+    $('#tov i').style.scale = `${inout((l - 3.1) / .35)} 1`;
+    // the mic trace scrolls; each "fine" leaves a bump
+    let d = ''; for (let j = 0; j <= 160; j++) { const tau = l - 2 + (j / 160) * 2;
+      let v = .06 * Math.sin(tau * 37) * Math.sin(tau * 5.3);
+      ticks.forEach((k) => { const z = (tau - k) / .07; v += Math.exp(-z * z) * Math.sin(tau * 90) * .9; });
+      d += `${j ? 'L' : 'M'}${(800 - j * 5).toFixed(1)} ${(70 - v * 60).toFixed(1)}`; }
+    $('#wave path').setAttribute('d', d);
+    $('#wave').style.opacity = expo((l - 1.1) / .6) * (1 - easeIn((l - 5.1) / .3)); }
+
+  // 7 · the index climbs, the shape spikes; a five-minute call with dad brings it down
+  { const l = L('s7'), up = expo((l - .3) / 1.6), down = inout((l - 3.9) / 2.0);
+    const v = 775 * up - 365 * down;
+    $('#c7').textContent = fmt(v);
+    const round = down, R = 170 + 60 * up - 20 * down;
+    const sh = $('#mplShape');
+    sh.setAttribute('d', polar({ base: 'burst', n: 13, R, cx: 540, cy: 980, round: round * .95, tremble: .07 * up * (1 - round), phase: l * 11 }));
+    sh.setAttribute('fill', mix('#9B6BFF', '#3DDC97', down));
+    sh.style.opacity = expo((l - .3) / .6) * (1 - easeIn((l - 7.3) / .3));
+    $('#alert').style.opacity = +$('#alert').style.opacity * (1 - inout((l - 4.2) / .5));
+    const talk = $('#talk'), call = $('#call'), sw = inout((l - 3.35) / .35);
+    if (l > 2.7 && l < 3.6) { const [x, y] = center(talk); tapAt(x, y, (l - 2.85) / .6); }
+    talk.querySelector('.pill').style.scale = 1 - .06 * Math.sin(clamp((l - 3.0) / .25) * Math.PI);
+    talk.style.opacity = +talk.style.opacity * (1 - sw);
+    call.style.opacity = sw * (1 - easeIn((l - 7.3) / .3));
+    call.style.translate = `0 ${(1 - sw) * 40}px`;
+    const secsTalked = Math.round(312 * clamp((l - 3.6) / 2.2));
+    $('#tm').textContent = `${String(Math.floor(secsTalked / 60)).padStart(2, '0')}:${String(secsTalked % 60).padStart(2, '0')}`;
+    $('#callsub').textContent = l > 3.6 ? 'בשיחה' : 'לא דיברתם 9 ימים'; }
+
+  // 8 · two notifications land on her phone, newest on top
+  { const l = L('s8'), n1 = $('#n1'), n2 = $('#n2');
+    const a = expo((l - 1.3) / .7), b = expo((l - 2.3) / .7), push = inout((l - 2.3) / .5), out = easeIn((l - 4.9) / .3);
+    n1.style.opacity = Math.min(1, a * 1.5) * (1 - out); n1.style.translate = `0 ${(1 - a) * -180 + push * 300}px`; n1.style.scale = 1 - .03 * push;
+    n2.style.opacity = Math.min(1, b * 1.5) * (1 - out); n2.style.translate = `0 ${(1 - b) * -180}px`; }
+
+  // 9 · stars count up
+  { const l = L('s9'); $('#c9').textContent = fmt(340 * expo((l - .35) / 1.4)); }
+
+  // 10 · end card: the tear fills once more; "גבר" swells from thin to fat
+  { const l = L('s10'), logo = $('#logo2');
+    logo.style.opacity = expo(l / .6); logo.style.scale = 1.04 - .04 * expo(l / 1.2);
+    const pt = $('#ptear2'); pt.style.transformBox = 'fill-box'; pt.style.transformOrigin = '50% 60%';
+    pt.style.scale = expo((l - .3) / .9);
+    $('#gever').style.fontWeight = Math.round(lerp(200, 900, inout((l - .9) / 1.0))); }
+}
+
+// fit the 1080×1920 stage to the window (not when recording)
+const fit = () => { if (!window.REC) $('#stage').style.scale = Math.min(innerWidth / 1080, innerHeight / 1920); };
+addEventListener('resize', fit); fit();
+window.render = render;
+
+const q = new URLSearchParams(location.search);
+document.fonts.ready.then(() => {
+  if (window.REC) return;
+  if (q.has('t')) return render(+q.get('t'));
+  const t0 = performance.now();
+  const loop = (now) => { render(((now - t0) / 1000) % DUR); requestAnimationFrame(loop); };
+  requestAnimationFrame(loop);
+});
+</script>
+</body>
+</html>
