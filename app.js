@@ -977,7 +977,7 @@
     suAt = n;
     suSteps.forEach((s, i) => { s.hidden = i !== n; });
     $$('#su-prog li').forEach((li, i) => li.classList.toggle('is-on', i <= n));
-    $('#su-back').style.visibility = n > 0 && n < 5 ? 'visible' : 'hidden';
+    $('#su-back').style.visibility = n < 5 ? 'visible' : 'hidden';
     clearTimeout(pairT); clearTimeout(calT); cancelAnimationFrame(calRaf);
     const step = suSteps[n];
     if (n === 1) {                                         // pairing: a short search, then connected
@@ -992,8 +992,8 @@
       const t0 = performance.now();
       const spin = (t) => {
         arcs.forEach((el, i) => {
-          const k = (t - t0) / 1000, r = .5 + .5 * Math.sin(k * 1.4 + i * 1.6);   // it keeps changing its mind: saw, smooth, saw
-          el.setAttribute('d', ringArc(.28, r, k * 3));
+          const k = (t - t0) / 1000, r = .5 + .5 * Math.sin(k * 1.4 + i * 1.6);   // it keeps changing its mind, colour by colour
+          el.setAttribute('d', ringArc(.28, 1, 0));
           el.style.stroke = kbColor(r);
           el.style.transform = `rotate(${((k * 220 + i * 70) % 360).toFixed(1)}deg)`;
         });
@@ -1009,8 +1009,18 @@
     (step.querySelector('button:not(:disabled), input') || step).focus({ preventScroll: true });
   };
   // setup opens on the logo crying once, then the first step
+  // the two screens before onboarding: new or returning, then what WHEEP is
+  const suPre = (id) => {
+    setup.classList.add('is-pre');
+    suSteps.forEach((s) => { s.hidden = true; });
+    $$('.su-pre', setup).forEach((s) => { s.hidden = s.id !== id; });
+    $(`#${id} button`).focus({ preventScroll: true });
+  };
+  const suBegin = () => { setup.classList.remove('is-pre'); $$('.su-pre', setup).forEach((s) => { s.hidden = true; }); suGo(0); };
+  $('#su-new').addEventListener('click', () => suPre('su-intro'));
+  $('#su-start').addEventListener('click', suBegin);
   const openSetup = () => {
-    setup.hidden = false; suGo(0);
+    setup.hidden = false; suPre('su-welcome');
     const sp = $('#su-splash'); sp.hidden = false; sp.classList.remove('is-out');
     // aim the tear at the floor: how far it falls (in logo units) and where it lands
     const box = sp.getBoundingClientRect(), tear = $('.lg-tear', sp).getBoundingClientRect(), logo = $('.wheep-logo', sp);
@@ -1027,7 +1037,7 @@
     show('today');
   };
   setup.addEventListener('click', (e) => {
-    const go = e.target.closest('.su-go, [data-perm]');
+    const go = e.target.closest('.su-step .su-go, [data-perm]');
     if (!go) return;
     if (suAt === 5) return closeSetup();
     suGo(suAt + 1);
@@ -1037,8 +1047,10 @@
   const suDetails = () => { $('.su-go', suSteps[2]).disabled = !($$('input', suSteps[2]).every((i) => i.checkValidity()) && $('input[name="su-cry"]:checked')); };
   suSteps[2].addEventListener('input', suDetails);
   suSteps[2].addEventListener('change', suDetails);
-  $('#su-back').addEventListener('click', () => suGo(Math.max(0, suAt - 1)));
-  $('#su-skip').addEventListener('click', closeSetup);
+  // back from the first step returns to what WHEEP is; skip passes over one step, never the whole setup
+  $('#su-back').addEventListener('click', () => (suAt === 0 ? suPre('su-intro') : suGo(suAt - 1)));
+  $('#su-skip').addEventListener('click', () => (suAt === 5 ? closeSetup() : suGo(suAt + 1)));
+  $('#su-user').addEventListener('click', closeSetup);
   setup.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSetup(); });
   $$('[data-setup]').forEach((b) => b.addEventListener('click', openSetup));
 
