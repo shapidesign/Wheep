@@ -16,7 +16,8 @@ function createStory(svg, day) {
   };
   const gretaList = [];   // every Greta text breathes: { t, base, amp, phase }
   const txt = (parent, str, x, y, size, o = {}) => {
-    const t = el('text', { x, y, 'font-size': size, 'text-anchor': o.anchor || 'start', style: `direction:${o.ltr ? 'ltr' : 'rtl'};font-family:${o.face || 'Greta'}` }, parent);
+    // fill follows the ground: white on ink, ink on the feeling (svg text defaults to black, which vanished in the intro)
+    const t = el('text', { x, y, 'font-size': size, fill: 'currentColor', 'text-anchor': o.anchor || 'start', style: `direction:${o.ltr ? 'ltr' : 'rtl'};font-family:${o.face || 'Greta'}` }, parent);
     t.textContent = str;
     if (!o.face) { const w = o.w ?? 50; gretaList.push({ t, base: w, amp: o.amp ?? 22, phase: gretaList.length * .9 }); t.style.fontVariationSettings = `'wght' ${w}`; }
     return t;
@@ -143,7 +144,7 @@ function createStory(svg, day) {
     return p;
   });
   const mark = el('path', { fill: 'currentColor' }, head);
-  const wordmark = el('text', { x: 104, y: 104, 'font-size': 38, style: 'direction:ltr;font-family:Greta' }, head);
+  const wordmark = el('text', { x: 104, y: 104, 'font-size': 38, fill: 'currentColor', style: 'direction:ltr;font-family:Greta' }, head);
   wordmark.textContent = 'wheep';
   const headName = txt(head, day.name, 1020, 104, 36, { w: 70, amp: 15 });
   fits.push([headName, 520]);

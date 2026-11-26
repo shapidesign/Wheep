@@ -11,9 +11,9 @@
   .call { display: grid; gap: 3vh; align-content: center; }
   .call h1 { font-size: clamp(40px, 5.2vw, 96px); line-height: 1; font-variation-settings: 'wght' 95; }
   .call p { font-size: clamp(18px, 1.6vw, 28px); line-height: 1.4; max-width: 30ch; color: rgba(255, 255, 255, .8); }
-  .qr { background: #fff; padding: 18px; width: clamp(220px, 24vw, 420px); aspect-ratio: 1; }
+  .qr { display: block; background: #fff; padding: 12px; width: clamp(140px, 12vw, 220px); aspect-ratio: 1; }
   .qr svg { width: 100%; height: 100%; display: block; }
-  .url { font-size: 15px; direction: ltr; text-align: right; color: rgba(255, 255, 255, .55); word-break: break-all; }
+  .qr:focus-visible { outline: 3px solid #FFD23F; outline-offset: 4px; }
   .now { font-size: clamp(16px, 1.3vw, 22px); color: rgba(255, 255, 255, .7); }
   .now b { color: #fff; font-variation-settings: 'wght' 90; font-weight: inherit; }
   .stage svg { display: block; width: 100%; max-height: 92vh; }
@@ -24,8 +24,7 @@
   <section class="call">
     <h1>מה עבר עליך היום?</h1>
     <p>סרקו, כתבו את השם שלכם, והחיישן יספר לכם על היום: מה הרגשתם, מתי, וכמה רחוק זה היה ממה שהראיתם.</p>
-    <div class="qr" id="qr" role="img" aria-label="קוד QR לעמוד האישי"></div>
-    <div class="url" id="url"></div>
+    <a class="qr" id="qr" aria-label="לעמוד האישי: הקלידו שם וסנכרנו את החיישן"></a>
     <div class="now" id="now" aria-live="polite"></div>
   </section>
   <section class="stage"><svg id="stage"></svg></section>
@@ -38,9 +37,12 @@
 <script src="story-core.js"></script>
 <script src="story.js"></script>
 <script>
-  // the QR points at this deployment's own me.html, wherever it is hosted
-  const target = new URL('me.html', location.href).href;
-  document.getElementById('url').textContent = target;
+  // the QR (and the link under it) opens the visitor's page. Hosted: this deployment's own me.html.
+  // Running locally, a phone can't reach localhost, so it points at the public GitHub Pages copy instead.
+  const PUBLIC = 'https://shapidesign.github.io/Wheep/v2/me.html';
+  const local = location.protocol === 'file:' || /^(localhost|127\.|\[::1\]|.*\.local$)/.test(location.hostname);
+  const target = local ? PUBLIC : new URL('me.html', location.href).href;
+  document.getElementById('qr').href = target;
   try {
     const qr = qrcode(0, 'M'); qr.addData(target); qr.make();
     document.getElementById('qr').innerHTML = qr.createSvgTag({ cellSize: 8, margin: 0, scalable: true });

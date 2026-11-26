@@ -1,0 +1,16 @@
+/* WHEEP · the page switch between the app and the daily summary (index.html ↔ v2/wrapped.html). Not .switch: the app uses that for toggles. */
+.page-switch {
+  position: fixed; z-index: 50; top: max(20px, env(safe-area-inset-top)); left: max(20px, env(safe-area-inset-left));   /* the corner: the app's phone owns the centre */
+  display: flex; gap: 4px; padding: 4px;
+  background: #24211C; border: 1px solid rgba(255, 255, 255, .14); border-radius: 999px;
+  font-family: Greta, Georgia, serif; direction: rtl;
+}
+.page-switch a {
+  padding: 9px 18px; border-radius: 999px; font-size: 16px; line-height: 1; text-decoration: none;
+  color: #B8B2A8; font-variation-settings: 'wght' 55;
+  transition: background-color .2s cubic-bezier(.16, 1, .3, 1), color .2s cubic-bezier(.16, 1, .3, 1);
+}
+.page-switch a:hover { color: #fff; }
+.page-switch a[aria-current="page"] { background: #fff; color: #16130F; font-variation-settings: 'wght' 85; }
+.page-switch a:focus-visible { outline: 2px solid #FFD23F; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .page-switch a { transition: none; } }

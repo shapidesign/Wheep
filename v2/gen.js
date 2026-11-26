@@ -9,7 +9,6 @@ function nameSeed(name, date) {
   for (const ch of String(name).trim() + '|' + date) h = (h * 31 + ch.charCodeAt(0)) % 100003;
   return h / 997;
 }
-const hh = h => { const H = Math.floor(h), M = Math.round((h - H) * 60); return String(H).padStart(2, '0') + ':' + String(M).padStart(2, '0'); };
 
 // the day in feelings: 7–10 stretches from 07:00 to 23:30; the top feeling holds the most time
 function genMix(seed, top) {
@@ -29,49 +28,28 @@ function genMix(seed, top) {
   return { segs, shares };
 }
 
-// per feeling: the figure, its unit, what the 24h line shows, and two dry lines. r(i) is this day's dice.
-const GEN_TEMPLATES = {
-  anger: r => {
-    const n = 1 + Math.floor(r(1) * 4), marks = [];
-    for (let i = 0; i < n; i++) marks.push([7.5 + r(10 + i) * 15, i === n - 1 ? 1 : null]);
-    marks.sort((a, b) => a[0] - b[0]);
-    return { num: String(n), count: true, unit: n === 1 ? 'פעם הרמת את הקול' : 'פעמים הרמת את הקול', marks, spans: [],
-      label: marks.map(m => hh(m[0])).join(' · '), b: n === 1 ? 'פעם אחת, ולא בכוונה.' : 'רובן היו על דברים קטנים.', s: 'האחרונה הייתה הכי חזקה.', kOut: .3, kIn: .95 };
-  },
-  press: r => {
-    const a = 8.5 + r(1) * 3, b = a + 1 + r(2) * 2, c = 13.5 + r(3) * 3, d = c + .8 + r(4) * 2;
-    const tot = (b - a) + (d - c), H = Math.floor(tot), M = Math.round((tot - H) * 60);
-    return { num: `${H}:${String(M).padStart(2, '0')}`, count: false, unit: 'שעות של דופק גבוה במנוחה', marks: [], spans: [[a, b], [c, d]],
-      label: `${hh(a)} עד ${hh(b)} · ${hh(c)} עד ${hh(d)}`, b: 'כשאלו אמרת שהכל טוב.', s: 'הגוף לא הסכים.', kOut: .2, kIn: .88 };
-  },
-  fear: r => {
-    const t = 9 + r(1) * 12, bpm = 112 + Math.floor(r(2) * 26), m = 3 + Math.floor(r(3) * 12);
-    return { num: String(bpm), count: false, unit: 'דופק שיא', marks: [[t, 1]], spans: [], label: hh(t),
-      b: `משהו הקפיץ אותך ב־${hh(t)}.`, s: `אחרי ${m} דקות הדופק ירד.`, kOut: .34, kIn: .82 };
-  },
-  cry: r => {
-    const t = 6.5 + r(1) * 16, m = 1 + Math.floor(r(2) * 6);
-    return { num: String(m), count: false, unit: m === 1 ? 'דקה של בכי' : 'דקות של בכי', marks: [[t, 0]], spans: [[t, t + m / 60]], label: hh(t),
-      b: m === 1 ? 'בכית דקה אחת.' : `בכית ${m} דקות.`, s: 'אחר כך הדופק נרגע.', kOut: .62, kIn: .08 };
-  },
-  joy: r => {
-    const n = 5 + Math.floor(r(1) * 9), polite = 1 + Math.floor(r(2) * 3), marks = [];
-    for (let i = 0; i < n; i++) marks.push([7.5 + r(10 + i) * 15.5, i < polite ? 1 : 0]);
-    marks.sort((a, b) => a[0] - b[0]);
-    return { num: String(n), count: true, unit: 'צחוקים', marks, spans: [], label: `${n - polite} אמיתיים · ${polite} מנומסים`,
-      b: 'רוב הצחוקים היו אמיתיים.', s: polite === 1 ? 'אחד היה מנומס.' : `${polite} היו מנומסים.`, kOut: .5, kIn: .04 };
-  },
-  shame: r => {
-    const n = 1 + Math.floor(r(1) * 3), t = 12 + r(2) * 9;
-    return { num: String(n), count: false, unit: n === 1 ? 'פעם שתקת כשרצית לדבר' : 'פעמים שתקת כשרצית לדבר', marks: [[t, 1]], spans: [], label: hh(t),
-      b: 'היה לך מה להגיד.', s: 'בחרת לשתוק.', kOut: .36, kIn: .74 };
-  },
-  release: r => {
-    const a = 9 + r(1) * 4, h = 3 + Math.floor(r(2) * 6);
-    return { num: String(h), count: false, unit: 'שעות רגועות', marks: [], spans: [[a, a + h]], label: `${hh(a)} עד ${hh(a + h)}`,
-      b: 'היה שקט.', s: 'בחוץ ובפנים, אותה צורה.', kOut: .1, kIn: 0 };
-  },
-};
+// six curated (fake) people. A visitor's name syncs to one of them; the day in feelings still varies per name.
+// marks: [hour, k] (k: 0 round, 1 spiky, null = the day's k) · spans: [from, to] · b/s: the fact, then what the data adds
+const PROFILES = [
+  { emo: 'anger', kOut: .28, kIn: .94, num: '4', count: true, unit: 'פעמים הרמת את הקול',
+    marks: [[7.9, null], [8.3, null], [13.1, null], [19.6, 1]], spans: [], label: 'שלוש בדרך, אחת בארוחת ערב',
+    b: 'בבוקר זה היה על הכביש.', s: 'בערב זה היה על מי שישב מולך.' },
+  { emo: 'press', kOut: .18, kIn: .9, num: '5:40', count: false, unit: 'שעות של דופק גבוה במנוחה',
+    marks: [], spans: [[8.5, 11.5], [15, 17.7]], label: 'בישיבות, ובדרך הביתה',
+    b: 'אמרת "אין בעיה" ארבע פעמים.', s: 'הדופק ספר אחרת.' },
+  { emo: 'fear', kOut: .3, kIn: .85, num: '131', count: false, unit: 'דופק שיא',
+    marks: [[22.4, 1]], spans: [], label: '22:24, הודעה מהבנק',
+    b: 'פתחת הודעה מהבנק בלילה.', s: 'לקח לך 40 דקות להירדם.' },
+  { emo: 'cry', kOut: .6, kIn: .06, num: '3', count: false, unit: 'דקות של בכי',
+    marks: [[21.2, 0]], spans: [[21.2, 21.25]], label: '21:10, בסוף סרט',
+    b: 'בכית בסוף הסרט.', s: 'אמרת שזה מהעייפות.' },
+  { emo: 'joy', kOut: .45, kIn: .05, num: '14', count: true, unit: 'צחוקים',
+    marks: [[7.6, 0], [9.2, 1], [10.4, 0], [11.9, 0], [12.6, 0], [13.3, 1], [15.1, 0], [16.4, 0], [17.8, 0], [18.9, 0], [19.7, 0], [20.5, 1], [21.4, 0], [22.6, 0]],
+    spans: [], label: '11 אמיתיים · 3 מנומסים', b: 'רוב היום צחקת באמת.', s: 'שלושה צחוקים היו בשביל אחרים.' },
+  { emo: 'shame', kOut: .35, kIn: .78, num: '2', count: false, unit: 'פעמים שתקת כשרצית לדבר',
+    marks: [[11.5, 1], [20.3, 1]], spans: [], label: 'בישיבה, ובשיחה עם אבא',
+    b: 'היה לך מה להגיד, פעמיים.', s: 'בשתי הפעמים בלעת את זה.' },
+];
 
 const WEEKDAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 
@@ -80,13 +58,12 @@ function makeDay(opts) {
   const date = opts.date || new Date();
   const dstr = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}`;
   const seed = nameSeed(opts.name, dstr);
-  const top = opts.top || GEN_KEYS[Math.floor(mHash(seed, 1, 1) * GEN_KEYS.length)];
-  const data = GEN_TEMPLATES[top](i => mHash(seed, 50, i));
-  const { segs, shares } = genMix(seed, top);
-  return { name: opts.name.trim(), day: WEEKDAYS[date.getDay()], date: dstr, emo: top, seed, segs, shares, ...data };
+  const profile = opts.top ? PROFILES.find(p => p.emo === opts.top) : PROFILES[Math.floor(mHash(seed, 1, 1) * PROFILES.length)];
+  const { segs, shares } = genMix(seed, profile.emo);
+  return { name: opts.name.trim(), day: WEEKDAYS[date.getDay()], date: dstr, seed, segs, shares, ...profile };
 }
 
 // sensor id shown while "detecting": stable per name
 function sensorId(name) { return 'WHEEP-' + Math.floor(nameSeed(name, 'id') * 997 % 65535).toString(16).toUpperCase().padStart(4, '0'); }
 
-if (typeof module !== 'undefined') module.exports = { makeDay, genMix, sensorId, nameSeed, GEN_KEYS };
+if (typeof module !== 'undefined') module.exports = { makeDay, genMix, sensorId, nameSeed, GEN_KEYS, PROFILES };

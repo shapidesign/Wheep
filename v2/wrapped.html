@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WHEEP · Wrapped יומי</title>
 <link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="../switch.css">
 <style>
-  main { max-width: 1400px; margin: 0 auto; padding: 40px 24px 96px; }
+  main { max-width: 1400px; margin: 0 auto; padding: 96px 24px 96px; }   /* top room for the switch */
   header h1 { font-size: clamp(48px, 7vw, 96px); line-height: .95; font-variation-settings: 'wght' 90; }
   header p { font-size: 19px; margin-top: 12px; max-width: 600px; line-height: 1.4; }
   header a { color: inherit; }
@@ -21,6 +22,10 @@
 </style>
 </head>
 <body>
+<nav class="page-switch" aria-label="WHEEP">
+  <a href="../index.html">לאפליקציה</a>
+  <a href="wrapped.html" aria-current="page">לסיכום</a>
+</nav>
 <main>
   <header>
     <h1>מה עבר עליך היום.</h1>
