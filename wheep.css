@@ -31,7 +31,7 @@
   --m-release: #3DDC97;
   --m-joy: #FFD23F;
   --m-fear: #C8FF3D;
-  --m-sad: #3D6BFF;
+  --m-sad: #3FC8F5;
   --m-shame: #FF9F1C;
   --m-silence: var(--ink-2);
   color-scheme: dark;
@@ -1677,3 +1677,19 @@ html.track .mw-tile .mw-shape { position: absolute; inset: 4px 4px 12px; width: 
 html.track .mw-tile b { position: absolute; inset-inline-start: 5px; bottom: 2px; font-size: 11px; line-height: 1; color: var(--ink); --gw: 72; }
 html.track .mw-key { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 html.track .mw-key .mk-shape { width: 18px; height: 18px; flex: none; margin-inline-start: 8px; }
+
+/* ── v3 · matching the posters ── */
+/* Secolo letter by letter: each letter on one of the four cuts, tracked +20 */
+html.track .sl.c19 { font-family: Secolo19, Greta, serif; }
+html.track .sl.c20 { font-family: Secolo20, Greta, serif; }
+html.track .sl.c21 { font-family: Secolo21, Greta, serif; }
+html.track .sl.c22 { font-family: Secolo22, Greta, serif; }
+html.track .page-title, html.track .dnav-day > span, html.track .su-h, html.track .panel-h, html.track .ab-title, html.track .call-name,
+html.track .metric b, html.track .gain-bal b, html.track .post-stats dd, html.track .emo-det .panel-val b, html.track .dial-read b, html.track .rings-mid b,
+html.track .emo-h, html.track .talk-h, html.track .ts-h, html.track .more > summary span { letter-spacing: .02em; }
+/* one large background shape per screen: tone on tone, under everything, bleeding off the top corner, turning slowly */
+.ghost { position: absolute; z-index: -1; top: -70px; inset-inline-end: -120px; width: 360px; height: 360px; pointer-events: none; overflow: visible; animation: ghost-turn 120s linear infinite; }
+@keyframes ghost-turn { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .ghost { animation: none; } }
+/* the logo's word holds its widest box, so the mark stays put while the letters breathe */
+.lk-word { justify-content: flex-start; }

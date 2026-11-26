@@ -35,7 +35,7 @@
     release: '#3DDC97',  // שחרור
     joy: '#FFD23F',      // הנאה
     fear: '#C8FF3D',     // פחד
-    sad: '#3D6BFF',      // עצב
+    sad: '#3FC8F5',      // עצב: the feeling crying measures, in the tears colour
     shame: '#FF9F1C',    // בושה
     silence: '#B0AEAB',  // שתיקה: grey on purpose, nothing came out
     person: '#2F2B25',   // avatars: people are not measures
@@ -96,6 +96,14 @@
     return d + 'Z';
   };
   $$('[data-logo]').forEach((el) => { el.innerHTML = `<svg viewBox="-52 -52 104 104" aria-hidden="true"><path/></svg><span class="lk-word">${[...'wheep'].map((c) => `<span>${c}</span>`).join('')}</span>`; });
+  // every lockup shares the font and the letters, so one visible word gives the width (in em) for all of them
+  document.fonts.ready.then(() => {
+    const words = $$('[data-logo] .lk-word'), w = words.find((x) => x.offsetParent);
+    if (!w) return;
+    [...w.children].forEach((s) => { s.style.fontVariationSettings = "'wght' 100"; });
+    const em = (w.getBoundingClientRect().width / parseFloat(getComputedStyle(w).fontSize) + .04).toFixed(3);
+    words.forEach((x) => { x.style.width = `${em}em`; });
+  });
   const paintLogo = (t) => {
     const s = logoState(t), d = logoPath(s, 50, t / 12000);
     $$('[data-logo] path, [data-mark] path').forEach((p) => { p.setAttribute('d', d); p.setAttribute('fill', s.c); });
@@ -103,8 +111,43 @@
     if (!reduced) requestAnimationFrame(paintLogo);
   };
   requestAnimationFrame(paintLogo);
+  const SECOLO_SEL = '.page-title, .dnav-day > span, .su-h, .panel-h, .ab-title, .call-name, .metric b, .gain-bal b, .post-stats dd, .emo-det .panel-val b, .dial-read b, .rings-mid b, .emo-h, .talk-h, .ts-h, .more > summary span';
+  let secTick = 0;
+  const secolo = () => {
+    secTick++;
+    $$(SECOLO_SEL).forEach((el) => {
+      if (!el.offsetParent) return;
+      // split any fresh text (the app rewrites numbers) into one span per letter
+      [...el.childNodes].forEach((nd) => {
+        if (nd.nodeType !== 3 || !nd.textContent.trim()) return;
+        // one inline wrapper per text run, so a flex heading still sees one item
+        const wrap = document.createElement('span'); wrap.className = 'sw';
+        [...nd.textContent].forEach((ch) => {
+          if (ch === ' ') { wrap.append(' '); return; }
+          const s = document.createElement('span'); s.className = `sl c${19 + Math.floor(Math.random() * 4)}`; s.textContent = ch; wrap.append(s);
+        });
+        nd.replaceWith(wrap);
+      });
+      if (reduced) return;
+      // each letter snaps on its own beat: a quarter of them every 100 ms, so every letter every 0.4 s
+      el.querySelectorAll(':scope > .sw > .sl').forEach((s, i) => {
+        if ((i + secTick) % 4) return;
+        const cur = +s.className.slice(-2); let nx = 19 + Math.floor(Math.random() * 3); if (nx >= cur) nx++;
+        s.className = `sl c${nx}`;
+      });
+    });
+  };
+  setInterval(secolo, 100);
+
   // static shapes in the markup (the necklace's pendant): "n k r cx cy"
   $$('[data-shape]').forEach((p) => { const [n, k, r, cx, cy] = p.dataset.shape.split(' ').map(Number); p.setAttribute('d', shapePath(n, k, r, cx, cy)); });
+
+  const GHOST = { today: 9, emo: 3, crew: 6, gain: 6, trends: 5, profile: 9 };
+  Object.entries(GHOST).forEach(([id, n]) => {
+    const sc = $(`#screen-${id}`); if (!sc) return;
+    sc.insertAdjacentHTML('afterbegin', `<svg class="ghost" viewBox="-52 -52 104 104" aria-hidden="true">${shapeEl(`ghost:${id}`, n, .5, 50, 0, 0, '#26221C')}</svg>`);
+  });
+  const ghostK = (id, k, n) => { const p = $(`[data-id="ghost:${id}"]`); if (!p) return; p.dataset.k = Math.min(1, Math.max(0, k)).toFixed(3); if (n) p.dataset.n = n; };
 
   /* ── device scaling (desktop presentation) ── */
   const device = $('#device');
@@ -311,6 +354,7 @@
         <small><span>${m.sub}</span><span class="m-goal">${m.goal}</span></small></li>`).join('');
     if (prevVals.length) $$('#metric-grid .metric').forEach((li, i) => { if (li.querySelector('b').textContent !== prevVals[i]) fx(li, 'is-up'); });
     const m = liveMpl();
+    ghostK('today', m / 1000);
     if (isToday()) { paintDialNums(true); coachLine(); }
     // every 25 MPL let go of is worth 10 points
     if (m <= lastMpl - 25) { const steps = Math.floor((lastMpl - m) / 25); earn(`MPL ירד ב-${steps * 25}`, steps * 10); lastMpl -= steps * 25; }
@@ -396,7 +440,7 @@
   // Same number, two bodies; the type follows the measure as it moves (D.cur: 0 held in, 1 let out).
   const voice = (el, k) => {
     k = Math.max(0, Math.min(1, k));
-    el.style.fontFamily = `Secolo${19 + Math.round(k * 3)}, Greta, serif`;
+    // the cut now snaps per letter (secolo()); the reading's state lives in the ring and its mark
   };
   const mplEl = $('#rings-mpl');
   const frame = (t) => {
@@ -683,6 +727,7 @@
     R.setAttribute('aria-label', `עוצמת הרגשות השבוע: ${EMO.map((e) => `${e.name} ${e.v}`).join(', ')}`);
     $('#emo-pick').innerHTML = EMO.map((e) => `<button type="button" role="radio" aria-checked="${e.id === emoSel}" data-emo="${e.id}">${picto(e)}<span>${e.name}</span></button>`).join('');
     const e = EMO.find((x) => x.id === emoSel);
+    ghostK('emo', 1 - e.out, FN[e.id]);
     $('#emo-det').innerHTML = `<div class="panel-row"><h2 class="panel-h emo-h">${picto(e)}${e.name}</h2>
       <span class="panel-val"><b class="num">${e.v}</b> מתוך <span class="num">99</span></span></div>
       <p class="emo-out">יצא החוצה <b class="num">${Math.round(e.out * 100)}%</b> · השאר נשאר בפנים</p>
@@ -778,6 +823,7 @@
     $('#gain-bal').textContent = GAIN.bal.toLocaleString('he-IL');
     const next = SHOP.find((x) => !x.done && x.c > GAIN.bal) || SHOP.find((x) => !x.done);
     $('#gain-bar').style.width = next ? `${Math.min(100, GAIN.bal / next.c * 100)}%` : '100%';
+    ghostK('gain', next ? 1 - Math.min(1, GAIN.bal / next.c) : 0);
     $('#gain-next-t').innerHTML = next ? (next.c > GAIN.bal ? `עוד <b class="num">${next.c - GAIN.bal}</b> ל${next.t}` : `אפשר לממש: ${next.t}`) : 'מימשת הכל.';
     const sum = GAIN.led.reduce((n, l) => n + l[1], 0);
     $('#led-sum').innerHTML = sum ? `<span class="num">+${sum}</span> היום` : '';
