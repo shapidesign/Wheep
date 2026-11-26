@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHEEP · Wrapped יומי</title>
+<link rel="stylesheet" href="v2.css">
+<style>
+  main { max-width: 1400px; margin: 0 auto; padding: 40px 24px 96px; }
+  header h1 { font-size: clamp(48px, 7vw, 96px); line-height: .95; font-variation-settings: 'wght' 90; }
+  header p { font-size: 19px; margin-top: 12px; max-width: 600px; line-height: 1.4; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; margin-top: 40px; }
+  .grid a { display: block; }
+  .poster { display: block; width: 100%; height: auto; }
+  .poster text { font-family: Greta; }
+  body.solo { display: grid; place-items: center; min-height: 100vh; background: #000; }
+  body.solo main { padding: 0; }
+  body.solo header { display: none; }
+  body.solo .grid { margin: 0; display: block; }
+  body.solo .poster { width: min(100vw, 80vh); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>מה עבר עליך היום.</h1>
+    <p>שבוע אחד, שבעה פוסטרים בלופ של 4.8 שניות. כל אחד מסכם יום: מה נמדד ומתי. בחצי הראשון הסימנים נחתמים על ציר היום, באמצע הצורה הגדולה מראה מה היה בפנים, ובסוף הכול מתנקה לקראת הסיבוב הבא. לחיצה פותחת פוסטר לבד.</p>
+  </header>
+  <div class="grid" id="grid"></div>
+</main>
+<script src="shape.js"></script>
+<script src="motion.js"></script>
+<script src="days.js"></script>
+<script>
+  const W = 1080, H = 1350, NS = 'http://www.w3.org/2000/svg';
+  const q = new URLSearchParams(location.search), one = q.get('day');
+  const fixedT = q.has('t') ? +q.get('t') : null;      // ?t=1.2 freezes the loop at that second
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const el = (tag, attrs = {}, parent) => {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    if (parent) parent.append(e);
+    return e;
+  };
+  const greta = (e, w) => e.style.fontVariationSettings = `'wght' ${Math.max(0, Math.min(100, w)).toFixed(1)}`;
+  const secolo = (e, i) => e.style.fontFamily = SECOLO[((i % 4) + 4) % 4];
+
+  // the 24h line
+  const TL = { x0: 60, x1: 1020, y: 1088 };
+  const hx = h => TL.x0 + h / 24 * (TL.x1 - TL.x0);
+
+  function poster(d, i) {
+    const e = EMO[d.emo], pal = palette(e.c), seed = +(i * 1.7).toFixed(2), id = 'p' + i;
+    const left = i % 2 === 1, cx = left ? 130 : 950, cy = 500, R = 400;   // the shape bleeds off one edge, the figure stands on the other side
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, class: 'poster', role: 'img',
+      'aria-label': `${d.day}: ${d.num} ${d.unit}. ${d.label}. ${d.b} ${d.s}` });
+    const defs = el('defs', {}, svg);
+    el('rect', { width: W, height: H, fill: pal.m }, svg);
+
+    // depth 1 · the feeling word, huge and on its side, in the light tint
+    const vx = left ? 720 : 360;
+    const vword = el('text', { 'font-size': 300, fill: pal.a, style: 'direction:rtl', 'text-anchor': 'middle',
+      transform: `translate(${vx} 560) rotate(${left ? 90 : -90})` }, svg);
+    vword.textContent = e.he;
+
+    // depth 2 · concentric bands of the shape itself (the pattern), then the shape
+    const bands = [{ s: 1.5, c: pal.b }, { s: 1.25, c: pal.a }].map(b => ({ ...b, p: el('path', { fill: b.c }, svg) }));
+    const hero = el('path', { fill: pal.k }, svg);
+    const clip = el('clipPath', { id: id + 'h' }, defs);
+    const heroClip = el('path', {}, clip);
+
+    // the figure: ink on the ground, white wherever it crosses the shape
+    const fig = el('g', {}, svg);
+    const fx = left ? 1010 : 70;
+    const num = el('text', { x: fx, y: 640, 'font-size': 340, 'text-anchor': left ? 'end' : 'start', style: 'direction:ltr' }, fig);
+    const unit = el('text', { x: fx, y: 712, 'font-size': 48, 'text-anchor': left ? 'start' : 'end', style: 'direction:rtl' }, fig);
+    unit.textContent = d.unit;
+    el('use', { href: `#${id}f`, fill: pal.k }, svg);
+    fig.setAttribute('id', id + 'f');
+    defs.append(fig);
+    const ko = el('g', { 'clip-path': `url(#${id}h)` }, svg);
+    el('use', { href: `#${id}f`, fill: pal.w }, ko);
+
+    // the 24h line: axis, hours, spans, marks, the time that matters
+    el('rect', { x: TL.x0, y: TL.y - 2, width: TL.x1 - TL.x0, height: 4, fill: pal.k }, svg);
+    for (const h of [0, 6, 12, 18, 24]) {
+      el('rect', { x: hx(h) - 2, y: TL.y - 2, width: 4, height: 16, fill: pal.k }, svg);
+      const t = el('text', { x: hx(h), y: TL.y + 44, 'font-size': 26, fill: pal.k, 'text-anchor': 'middle', style: 'direction:ltr' }, svg);
+      t.textContent = String(h).padStart(2, '0');
+      greta(t, 40);
+    }
+    const spans = d.spans.map(([a, b]) => ({ a, b, r: el('rect', { y: TL.y - 14, height: 24, fill: pal.k }, svg) }));
+    const marks = d.marks.map(([h, k], j) => ({ x: hx(h), k, j, p: el('path', { fill: pal.k }, svg) }));
+    const label = el('text', { x: TL.x1, y: TL.y - 104, 'font-size': 30, fill: pal.k, style: 'direction:rtl', 'text-anchor': 'start' }, svg);
+    label.textContent = d.label;
+    greta(label, 70);
+
+    // the sentence, top info, out/in
+    const hb = el('text', { x: 1020, y: 1222, 'font-size': 70, fill: pal.k, style: 'direction:rtl', 'text-anchor': 'start' }, svg);
+    const hs = el('text', { x: 1020, y: 1300, 'font-size': 70, fill: pal.k, style: 'direction:rtl', 'text-anchor': 'start' }, svg);
+    hb.textContent = d.b; hs.textContent = d.s;
+    const info = el('text', { x: 1020, y: 80, 'font-size': 36, fill: pal.k, style: 'direction:rtl', 'text-anchor': 'start' }, svg);
+    info.textContent = `${d.day} ${d.date}`;
+    greta(info, 60);
+    const mark = el('path', { fill: pal.k }, svg);
+    const wordmark = el('text', { x: 104, y: 80, 'font-size': 38, fill: pal.k, style: 'direction:ltr' }, svg);
+    wordmark.textContent = 'wheep';
+    const io = el('text', { x: 60, y: 1300, 'font-size': 44, fill: pal.k, style: 'direction:rtl', 'text-anchor': 'end' }, svg);
+
+    return { d, e, svg, seed, cx, cy, R, left, vword, vx, bands, hero, heroClip, num, spans, marks, hb, hs, mark, wordmark, io };
+  }
+
+  const grid = document.getElementById('grid');
+  const P = DAYS.map((d, i) => {
+    if (one !== null && +one !== i + 1) return null;
+    const a = document.createElement('a');
+    a.href = one === null ? `?day=${i + 1}` : '?';
+    const p = poster(d, i);
+    a.append(p.svg); grid.append(a);
+    return p;
+  }).filter(Boolean);
+  if (one !== null) document.body.classList.add('solo');
+
+  function draw(T) {
+    const ph = mPhase(T), b = Math.floor(T / BEAT);
+    for (const p of P) {
+      const { d, e, seed } = p, n = e.n, k = d.kOut + (d.kIn - d.kOut) * ph;
+      // the focal moment: beat 6, the shape cuts from what he showed to what was inside, with a hit
+      const hit = 1 + .09 * mHit(T, 6) + .05 * mHit(T, 0);
+      const rot = mRot(T, n, p.left ? -1 : 1);
+      const heroD = shapePath(n, k, p.R * hit, p.cx, p.cy, rot);
+      p.hero.setAttribute('d', heroD); p.heroClip.setAttribute('d', heroD);
+      p.bands.forEach((band, j) => band.p.setAttribute('d', shapePath(n, k, p.R * band.s * hit, p.cx, p.cy, -rot * (j + 1) * .5)));
+      secolo(p.vword, b + 2);
+      p.vword.setAttribute('transform', `translate(${p.vx} ${560 + mPick(T, seed, 7, [-90, 0, 90], 2)}) rotate(${p.left ? 90 : -90})`);
+
+      // the figure: counts up with the marks on count days, cuts between Secolo 19–22 on every beat
+      p.num.textContent = d.count ? String(mCount(T, d.marks.length)) : d.num;
+      secolo(p.num, b);
+
+      // the 24h line: spans wipe in on beat 1 and out on beat 11, marks stamp in one by one and pop out in reverse
+      p.spans.forEach(s => {
+        const f = mPop(T, BEAT, BEAT * 11);
+        s.r.setAttribute('x', hx(s.a)); s.r.setAttribute('width', Math.max(6, (hx(s.b) - hx(s.a)) * f) * (f > 0));
+      });
+      const nm = p.marks.length;
+      p.marks.forEach(m => {
+        const pop = mPop(T, mStampAt(m.j, nm), mClearAt(m.j, nm));
+        const mk = m.k === null ? k : (ph > .5 ? m.k : Math.min(m.k, .34));   // a fake one only shows its spikes inside
+        m.p.setAttribute('d', pop > 0 ? shapePath(n, mk, 32 * pop, m.x, TL.y - 46, rot) : '');
+      });
+
+      greta(p.hb, 100 - 70 * ph); greta(p.hs, 10 + 70 * ph);
+      greta(p.wordmark, 100 * (1 - k));
+      p.mark.setAttribute('d', shapePath(n, k, 22, 72, 68, rot));
+      p.io.textContent = ph < .5 ? 'בחוץ' : 'בפנים';
+      secolo(p.io, ph < .5 ? 0 : 3);
+    }
+  }
+  function frame(t) { draw(mT(t / 1000)); requestAnimationFrame(frame); }
+  // reduced motion: hold the frame where everything is on the line and the inside is showing
+  document.fonts.ready.then(() => fixedT !== null || reduce ? draw(mT(fixedT ?? BEAT * 8)) : requestAnimationFrame(frame));
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHEEP · לוגו</title>
+<link rel="stylesheet" href="v2.css">
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 32px 24px 96px; }
+  .hero { min-height: 72vh; display: grid; place-items: center; border-bottom: 2px solid var(--ink); }
+  .lockup { display: flex; align-items: center; gap: .18em; direction: ltr; font-size: clamp(72px, 15vw, 200px); line-height: 1; }
+  .lockup svg { width: .82em; height: .82em; flex: none; overflow: visible; }
+  .word { display: inline-flex; letter-spacing: -.02em; padding-bottom: .12em; }
+  .word span { display: inline-block; }
+  .cap { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; font-size: 15px; }
+  .cap b { font-variation-settings: 'wght' 80; }
+
+  h2 { font-size: 36px; margin: 64px 0 8px; font-variation-settings: 'wght' 80; }
+  .note { font-size: 17px; max-width: 640px; line-height: 1.45; }
+  .frames { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; margin-top: 24px; background: var(--panel); border: 2px solid var(--panel); }
+  .frames div { aspect-ratio: 5/3; display: grid; place-items: center; font-size: clamp(22px, 3.4vw, 44px); }
+  .frames .lockup { font-size: inherit; }
+  .frames small { font-size: 12px; align-self: end; justify-self: start; padding: 0 10px 8px; }
+  .frames div { display: grid; grid-template-rows: 1fr auto; }
+  .sizes { display: flex; align-items: end; gap: 40px; margin-top: 24px; flex-wrap: wrap; }
+  .icon { border-radius: 22%; display: grid; place-items: center; }
+  .icon svg { width: 62%; height: 62%; }
+  @media (max-width: 760px) { .frames { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="lockup" id="hero" aria-label="wheep"></div>
+  </section>
+  <div class="cap"><span>עכשיו: <b id="now"></b></span><span>הלוגו לא נראה פעמיים אותו דבר</span></div>
+
+  <h2>איך זה עובד</h2>
+  <p class="note">הסימן הוא צורת הרגש, והוא נודד ביניהם: פחד, הנאה, בכי, שחרור, בושה, כעס, הדחקה. כשהרגש kiki, האותיות נעשות דקות וחדות; כשהוא bouba, הן מתעבות ומתעגלות. Greta Serif משתנה בציר wght מ־0 עד 100, וכל אות זזה בעיכוב קטן אחרי קודמתה, כמו נשימה.</p>
+
+  <h2>שמונה רגעים מתוך אינסוף</h2>
+  <div class="frames" id="frames"></div>
+
+  <h2>אייקון</h2>
+  <div class="sizes" id="sizes"></div>
+</main>
+<script src="shape.js"></script>
+<script>
+  const ORDER = Object.keys(EMO);                    // fear … press, n = 3 … 9
+  const LETTERS = 'wheep';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // state of the logo at time t (ms): which feeling, how sharp
+  function state(t) {
+    const cyc = 4200;                                // ms per feeling
+    const pos = (t / cyc) % ORDER.length;
+    const i = Math.floor(pos), f = pos - i;
+    const a = EMO[ORDER[i]], b = EMO[ORDER[(i + 1) % ORDER.length]];
+    const m = f < .7 ? 0 : (f - .7) / .3;              // hold 70%, melt 30%
+    const ease = m * m * (3 - 2 * m);
+    // n wraps 9 → 3 through a soft blob so the jump never shows
+    const n = b.n > a.n ? a.n + (b.n - a.n) * ease : (ease < .5 ? a.n : b.n);
+    const k = .5 + .5 * Math.sin(t / 1700 + i);        // quality breathes bouba ↔ kiki
+    const blob = b.n < a.n ? Math.sin(Math.PI * ease) : 0; // round off during the wrap
+    return { n, k: k * (1 - blob) + .34 * blob, color: ease < .5 ? a.c : b.c, he: (ease < .5 ? a : b).he, t };
+  }
+
+  function build(el) {
+    el.innerHTML = '<svg viewBox="-52 -52 104 104"><path/></svg><span class="word">' +
+      [...LETTERS].map(c => `<span>${c}</span>`).join('') + '</span>';
+    return { path: el.querySelector('path'), spans: el.querySelectorAll('.word span') };
+  }
+  function paint(L, s, ink = true) {
+    L.path.setAttribute('d', shapePath(s.n, s.k, 50, 0, 0, s.t / 12000));
+    L.path.setAttribute('fill', s.color);
+    L.spans.forEach((sp, j) => {
+      const kj = .5 + .5 * Math.sin(s.t / 1700 - j * .55);     // same breath, delayed per letter
+      sp.style.fontVariationSettings = `'wght' ${(100 * (1 - kj)).toFixed(1)}`;
+    });
+  }
+
+  const hero = build(document.getElementById('hero'));
+  const now = document.getElementById('now');
+
+  // frozen moments
+  const frames = document.getElementById('frames');
+  const BG = [['var(--paper)', 'var(--ink)'], ['#24211C', '#FFFFFF'], ['#FFD23F', '#16130F'], ['#9B6BFF', '#16130F']];
+  for (let i = 0; i < 8; i++) {
+    const t = 1300 + i * 4100 * 1.07;
+    const s = state(t), [bg, fg] = BG[i % 4];
+    const d = document.createElement('div');
+    d.style.background = bg; d.style.color = fg;
+    d.innerHTML = `<div class="lockup"></div><small>${s.he} · ${s.k.toFixed(2)}</small>`;
+    frames.append(d);
+    const L = build(d.querySelector('.lockup'));
+    paint(L, { ...s, color: bg === s.color ? fg : s.color });
+  }
+
+  // app icons at several sizes
+  const sizes = document.getElementById('sizes'), icons = [];
+  for (const px of [180, 96, 48, 24]) {
+    const d = document.createElement('div');
+    d.className = 'icon'; d.style.cssText = `width:${px}px;height:${px}px;background:var(--panel)`;
+    d.innerHTML = '<svg viewBox="-52 -52 104 104"><path/></svg>';
+    sizes.append(d); icons.push(d.querySelector('path'));
+  }
+
+  function loop(t) {
+    const s = state(t);
+    paint(hero, s);
+    now.textContent = `${s.he}, ${s.k < .4 ? 'רך' : s.k > .6 ? 'חד' : 'באמצע'}`;
+    icons.forEach(p => { p.setAttribute('d', shapePath(s.n, s.k, 50, 0, 0, t / 12000)); p.setAttribute('fill', s.color); });
+    if (!reduce) requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+</script>
+</body>
+</html>

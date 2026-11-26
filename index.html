@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0B0A10">
+<meta name="theme-color" content="#16130F">
 <title>WHEEP · תחזית רגשית</title>
-<link rel="icon" href="favicon.svg?v=86" type="image/svg+xml">
-<link rel="apple-touch-icon" href="favicon.svg?v=86">
-<link rel="stylesheet" href="wheep.css?v=86">
+<link rel="icon" href="favicon.svg?v=87" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg?v=87">
+<link rel="stylesheet" href="wheep.css?v=87">
 <script>document.documentElement.classList.add('track');   // one skin: the dark tracker</script>
 </head>
 <body>
 
 <aside class="exhibit" aria-label="על האבטיפוס">
-  <p class="exhibit-name"><img src="shapes/logo.svg?v=86" alt="WHEEP" width="160" height="57"></p>
+  <p class="exhibit-name"><span class="lockup" data-logo role="img" aria-label="wheep"></span></p>
   <p class="exhibit-line">אבטיפוס ספקולטיבי · דצמבר 2026</p>
   <p class="exhibit-text">מה אם גבריות הייתה נמדדת בבכי, הדחקה ושחרור כעסים, ולא בכמה אתה חזק, כמה אתה עשיר וכמה הגוף שלך מתאושש אחרי אימון?</p>
   <p class="exhibit-fine">הנתונים, האנשים וקופת רווחה באפליקציה בדיוניים.</p>
@@ -43,7 +43,7 @@
       <section class="screen is-active" id="screen-today" role="tabpanel" aria-labelledby="tab-today" tabindex="-1">
         <!-- the tracker's skeleton: date, three dials, a coach line, the day's log. Only what is measured changed. -->
         <header class="dash-head">
-          <span class="patch-chip" title="שרשרת WHEEP · מחוברת"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2c.5 7 3.5 10 7 10s6.5-3 7-10"/><path class="pd" d="M12 12c1.7 2.1 3.2 3.7 3.2 5.6a3.2 3.2 0 0 1-6.4 0c0-1.9 1.5-3.5 3.2-5.6z"/></svg><b class="num">64%</b></span>
+          <span class="patch-chip" title="שרשרת WHEEP · מחוברת"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2c.5 7 3.5 10 7 10s6.5-3 7-10"/><path class="pd" data-shape="5 .3 4.6 12 16.6"/></svg><b class="num">64%</b></span>
           <div class="dnav">
             <button type="button" class="dnav-btn" id="dnav-prev" aria-label="יום קודם"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
             <h1 class="dnav-day"><span id="hero-day">היום</span><small id="dnav-date">ג׳ <span class="num">15.12</span></small></h1>
@@ -231,10 +231,10 @@
 
         <section class="panel device-card" aria-labelledby="dev-h">
           <svg class="patch" viewBox="0 0 120 80" aria-hidden="true">
-            <defs><radialGradient id="g-patch" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#F3F1F8" stop-opacity=".22"/><stop offset="1" stop-color="#F3F1F8" stop-opacity=".06"/></radialGradient></defs>
-            <path d="M18 2C21 32 38 42 60 42S99 32 102 2" fill="none" stroke="rgba(243,241,248,.45)" stroke-width="2" stroke-linecap="round" stroke-dasharray=".1 5"/>
-            <path d="M60 41C64.5 48 71 54 71 61.5A11 11 0 0 1 49 61.5C49 54 55.5 48 60 41Z" fill="url(#g-patch)" stroke="rgba(243,241,248,.35)"/>
-            <circle cx="60" cy="62" r="3.5" fill="#3FC8F5"/>
+            <defs><radialGradient id="g-patch" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".22"/><stop offset="1" stop-color="#FFFFFF" stop-opacity=".06"/></radialGradient></defs>
+            <path d="M18 2C21 32 38 42 60 42S99 32 102 2" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2" stroke-linecap="round" stroke-dasharray=".1 5"/>
+            <path data-shape="5 .3 13 60 58" fill="url(#g-patch)"/>
+            <circle cx="60" cy="58" r="3.5" fill="#3FC8F5"/>
           </svg>
           <div>
             <h2 class="panel-h" id="dev-h">שרשרת WHEEP</h2>
@@ -324,7 +324,7 @@
     <section class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="ab-h" hidden>
 
       <div class="about" id="about">
-        <h1 class="ab-title" id="ab-h"><span class="app-ic" aria-hidden="true"><img src="shapes/favicon.svg?v=86" alt=""></span>מה זה WHEEP</h1>
+        <h1 class="ab-title" id="ab-h"><span class="app-ic" aria-hidden="true"><svg viewBox="-52 -52 104 104" data-mark><path/></svg></span>מה זה WHEEP</h1>
         <p class="ab-lead">WHEEP מודד ארבעה דברים בכל יום, וכל אחד מהם הוא צורה: קוצים כשמשהו נשאר בפנים, קווים רכים כשהוא יוצא. הצורה מתארת את המדד, לא אותך.</p>
         <ul class="ab-map" id="ab-map"></ul>
         <div class="ab-shape">
@@ -345,12 +345,12 @@
         <button class="su-skip" type="button" id="su-skip">דלג</button>
       </div>
 
-      <!-- the logo opens setup: the P wells up and cries a few drops; they pool on the floor and the pool floods the screen -->
-      <div class="su-splash" id="su-splash" aria-hidden="true"><div class="su-flood"></div><svg class="wheep-logo" viewBox="-4 -4 247.21 150" role="img" aria-label="WHEEP"><path d="M47.07 0.150002H49.36L39.03 85.78H36.74L24.68 5.91L12.63 85.78H10.33L0 0.150002H2.3L11.72 79.18L23.53 0.150002H25.83L37.71 78.65L47.07 0.150002Z"/><path d="M84.95 0H91.41V85.64H84.95V42.32H68.02V85.64H61.56V0H68.02V36.32H84.95V0Z"/><path d="M134.74 0V12.87H115.23V34.74H131.87V46.18H115.23V72.77H134.74V85.64H103.75V0H134.74Z"/><path d="M161 18.87V33.31H178.08V50.04H161V66.77H180.95V85.64H144.5V0H180.95V18.87H161Z"/><path class="lg-p" d="M232.32 8.58C227.733 2.86 221.42 0 213.38 0H189.27V85.64H210.79V63.05H213.38C221.413 63.05 227.727 60.3567 232.32 54.97C236.913 49.5833 239.21 42.0767 239.21 32.45C239.21 22.2633 236.913 14.3067 232.32 8.58ZM212.94 46.79C206.45 46.79 201.09 41.4 201.09 34.87C201.09 27.72 208.4 18.6 212.94 13.31C217.47 18.91 224.89 27.41 224.89 34.87C224.89 41.4 219.53 46.79 212.94 46.79Z" fill-rule="evenodd"/><path class="lg-eye" d="M212.94 46.79C206.45 46.79 201.09 41.4 201.09 34.87C201.09 27.72 208.4 18.6 212.94 13.31C217.47 18.91 224.89 27.41 224.89 34.87C224.89 41.4 219.53 46.79 212.94 46.79Z"/><path class="lg-tear" style="--d:1.0s" d="M212.94 46.79C206.45 46.79 201.09 41.4 201.09 34.87C201.09 27.72 208.4 18.6 212.94 13.31C217.47 18.91 224.89 27.41 224.89 34.87C224.89 41.4 219.53 46.79 212.94 46.79Z"/><path class="lg-tear" style="--d:1.5s" d="M212.94 46.79C206.45 46.79 201.09 41.4 201.09 34.87C201.09 27.72 208.4 18.6 212.94 13.31C217.47 18.91 224.89 27.41 224.89 34.87C224.89 41.4 219.53 46.79 212.94 46.79Z"/><path class="lg-tear" style="--d:1.85s" d="M212.94 46.79C206.45 46.79 201.09 41.4 201.09 34.87C201.09 27.72 208.4 18.6 212.94 13.31C217.47 18.91 224.89 27.41 224.89 34.87C224.89 41.4 219.53 46.79 212.94 46.79Z"/><path class="lg-tear" style="--d:2.1s" d="M212.94 46.79C206.45 46.79 201.09 41.4 201.09 34.87C201.09 27.72 208.4 18.6 212.94 13.31C217.47 18.91 224.89 27.41 224.89 34.87C224.89 41.4 219.53 46.79 212.94 46.79Z"/></svg></div>
+      <!-- the logo opens setup: the mark drifts through the feelings, the letters breathe with it -->
+      <div class="su-splash" id="su-splash" aria-hidden="true"><span class="lockup" data-logo></span></div>
 
       <!-- before onboarding: new or returning, then one screen on what WHEEP is -->
       <div class="su-pre" id="su-welcome" hidden>
-        <img class="su-mark" src="shapes/logo.svg?v=86" alt="WHEEP" width="200" height="72">
+        <span class="lockup su-mark" data-logo role="img" aria-label="wheep"></span>
         <p class="su-lead su-tag">מודד את מה שנשאר בפנים.</p>
         <div class="su-pre-acts">
           <button class="su-go" type="button" id="su-new">אני חדש באפליקציה</button>
@@ -371,7 +371,7 @@
 
       <div class="su-step" data-step="0" hidden>
         <p class="su-badge">מכשיר חדש · שרשרת WHEEP</p>
-        <svg class="su-patch" viewBox="0 0 160 110" aria-hidden="true"><path class="chain" d="M22 2C26 46 50 60 80 60S134 46 138 2"/><path class="pend" d="M80 58C86 68 95 77 95 88A15 15 0 0 1 65 88C65 77 74 68 80 58Z"/><circle class="su-dot" cx="80" cy="89" r="5"/></svg>
+        <svg class="su-patch" viewBox="0 0 160 110" aria-hidden="true"><path class="chain" d="M22 2C26 46 50 60 80 60S134 46 138 2"/><path class="pend" data-shape="5 .3 17 80 86"/><circle class="su-dot" cx="80" cy="89" r="5"/></svg>
         <h1 class="su-h">בוא תראה כמה אתה גבר באמת</h1>
         <ul class="su-log">
           <li><b class="is-out">לא מודד</b>עומס אימון</li>
@@ -383,7 +383,7 @@
       </div>
 
       <div class="su-step" data-step="1" hidden>
-        <svg class="su-patch" viewBox="0 0 160 110" aria-hidden="true"><path class="chain" d="M22 2C26 46 50 60 80 60S134 46 138 2"/><path class="pend" d="M80 58C86 68 95 77 95 88A15 15 0 0 1 65 88C65 77 74 68 80 58Z"/><circle class="su-dot" cx="80" cy="89" r="5"/></svg>
+        <svg class="su-patch" viewBox="0 0 160 110" aria-hidden="true"><path class="chain" d="M22 2C26 46 50 60 80 60S134 46 138 2"/><path class="pend" data-shape="5 .3 17 80 86"/><circle class="su-dot" cx="80" cy="89" r="5"/></svg>
         <h1 class="su-h">ענוד את השרשרת</h1>
         <p class="su-lead">התליון נח על עצם החזה, מתחת לגרון.</p>
         <p class="su-status" id="su-pair" aria-live="polite">מחפש שרשרת…</p>
@@ -411,7 +411,7 @@
         <h1 class="su-h">הרשאות</h1>
         <p class="su-lead">WHEEP סופר גם את מה שלא נאמר.</p>
         <div class="su-alert" role="group" aria-labelledby="su-alert-h">
-          <span class="app-ic" aria-hidden="true"><img src="shapes/favicon.svg?v=86" alt=""></span>
+          <span class="app-ic" aria-hidden="true"><svg viewBox="-52 -52 104 104" data-mark><path/></svg></span>
           <p class="su-alert-h" id="su-alert-h">‏"WHEEP" מבקש גישה למיקרופון</p>
           <p class="su-alert-p">כדי לזהות אנחות, שתיקות ארוכות ו"הכל טוב".</p>
           <div class="su-alert-btns"><button type="button" data-perm="no">לא לאפשר</button><button type="button" data-perm="yes">אישור</button></div>
@@ -444,6 +444,7 @@
 </div>
 
 
-<script src="app.js?v=86"></script>
+<script src="v2/shape.js?v=87"></script>
+<script src="app.js?v=87"></script>
 </body>
 </html>

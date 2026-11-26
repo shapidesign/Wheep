@@ -37,18 +37,37 @@
     fear: '#C8FF3D',     // פחד
     sad: '#3D6BFF',      // עצב
     shame: '#FF9F1C',    // בושה
-    silence: '#ABA6BC',  // שתיקה: grey on purpose, nothing came out
-    person: '#221F2B',   // avatars: people are not measures
+    silence: '#B0AEAB',  // שתיקה: grey on purpose, nothing came out
+    person: '#2F2B25',   // avatars: people are not measures
   };
-  // the shape set drawn in Figma (wheep-shapes): one file per measure and per emotion, white, recoloured here
-  const FIG = { fear: ['pachad', 116, 114], anger: ['kaas', 155.846, 155.846], sad: ['bechi', 123, 173], shame: ['hadhaka', 138.656, 138.656],
-    joy: ['hanaa', 126, 126], talk: ['hanaa', 126, 126], release: ['shichrur', 134.1, 149], press: ['hadhaka', 138.656, 138.656], cry: ['bechi', 123, 173] };
-  let figN = 0;
-  const fig = (key, color, cls = 'fig', x, y, size = 48) => {
-    const [f, w, hh] = FIG[key], k = size / Math.max(w, hh), iw = w * k, ih = hh * k, id = `fg${++figN}`;
+  /* v2: one shape language (shape.js). n = points, owned by each feeling; k = 0 bouba (let out) … 1 kiki (held in).
+     The shape's sharpness is the message: what is held in reads sharp, what got out reads soft. */
+  const FN = { fear: 3, joy: 4, talk: 4, cry: 5, sad: 5, release: 6, empathy: 6, shame: 7, anger: 8, press: 9, silence: 9 };
+  const FK = { fear: .7, joy: .05, talk: .15, cry: .25, sad: .4, release: 0, empathy: .05, shame: .6, anger: .85, press: .9, silence: .5 };
+  const fig = (key, color, cls = 'fig', x, y, size = 48, k = FK[key]) => {
     const pos = x == null ? '' : ` x="${x}" y="${y}" width="${size}" height="${size}"`;
-    return `<svg class="${cls}" viewBox="0 0 ${size} ${size}"${pos} aria-hidden="true"><mask id="${id}"><image href="shapes/${f}.svg" x="${((size - iw) / 2).toFixed(2)}" y="${((size - ih) / 2).toFixed(2)}" width="${iw.toFixed(2)}" height="${ih.toFixed(2)}"/></mask><rect width="${size}" height="${size}" fill="${color}" mask="url(#${id})"/></svg>`;
+    return `<svg class="${cls}" viewBox="-52 -52 104 104"${pos} aria-hidden="true"><path d="${shapePath(FN[key] || 9, k ?? .5, 50)}" fill="${color}"/></svg>`;
   };
+
+  /* ── the logo: lowercase wheep in Greta, plus the shape mark. It never holds one form. ── */
+  const LOGO = ['fear', 'joy', 'cry', 'release', 'shame', 'anger', 'press'];
+  const logoState = (t) => {
+    const pos = (t / 4200) % LOGO.length, i = Math.floor(pos), f = pos - i;
+    const A = LOGO[i], B = LOGO[(i + 1) % LOGO.length], m = f < .7 ? 0 : (f - .7) / .3, e = m * m * (3 - 2 * m);
+    const nA = FN[A], nB = FN[B], n = nB > nA ? nA + (nB - nA) * e : (e < .5 ? nA : nB);
+    const blob = nB < nA ? Math.sin(Math.PI * e) : 0, k = .5 + .5 * Math.sin(t / 1700 + i);
+    return { n, k: k * (1 - blob) + .34 * blob, c: PAL[e < .5 ? A : B], t };
+  };
+  $$('[data-logo]').forEach((el) => { el.innerHTML = `<svg viewBox="-52 -52 104 104" aria-hidden="true"><path/></svg><span class="lk-word">${[...'wheep'].map((c) => `<span>${c}</span>`).join('')}</span>`; });
+  const paintLogo = (t) => {
+    const s = logoState(t), d = shapePath(s.n, s.k, 50, 0, 0, t / 12000);
+    $$('[data-logo] path, [data-mark] path').forEach((p) => { p.setAttribute('d', d); p.setAttribute('fill', s.c); });
+    $$('[data-logo] .lk-word').forEach((w) => [...w.children].forEach((sp, j) => { sp.style.fontVariationSettings = `'wght' ${(100 * (.5 - .5 * Math.sin(t / 1700 - j * .55))).toFixed(1)}`; }));
+    if (!reduced) requestAnimationFrame(paintLogo);
+  };
+  requestAnimationFrame(paintLogo);
+  // static shapes in the markup (the necklace's pendant): "n k r cx cy"
+  $$('[data-shape]').forEach((p) => { const [n, k, r, cx, cy] = p.dataset.shape.split(' ').map(Number); p.setAttribute('d', shapePath(n, k, r, cx, cy)); });
 
   /* ── device scaling (desktop presentation) ── */
   const device = $('#device');
@@ -121,8 +140,9 @@
   // three palette steps: held in / between / let out
   const kbColor = (round) => (round < .34 ? PAL.press : round < .67 ? PAL.silence : PAL.release);
   // a flat shape in its measure's colour
+  const N_OF = Object.fromEntries(Object.entries(PAL).map(([id, c]) => [c, FN[id] || 9]));
   const mini = (round, cls = 'mini', dashed = false, label = '', fill, base = 'burst', n = 9, shadow = false) => {
-    const d = polar({ round, R: 18, base, n });
+    const d = shapePath(N_OF[fill] || 9, 1 - round, 19, 24, 24);
     return `<svg class="${cls}" viewBox="0 0 48 48" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}><path d="${d}" fill="${fill || kbColor(round)}"${dashed ? ' opacity=".4"' : ''}/></svg>`;
   };
 
@@ -248,7 +268,7 @@
   const renderMetrics = () => {
     const prevVals = $$('#metric-grid .metric b').map((b) => b.textContent);
     $('#metric-grid').innerHTML = METRICS.map((m) => `
-      <li class="metric" style="--mc:${m.fill}">${fig(m.id, m.fill, 'fig metric-shape')}
+      <li class="metric" style="--mc:${m.fill}">${fig(m.id, m.fill, 'fig metric-shape', undefined, undefined, 48, 1 - m.round())}
         <span class="m-name">${m.name}</span><b class="num">${m.val()}</b>
         <span class="m-bar" aria-hidden="true"><i style="width:${Math.max(4, Math.round(m.round() * 100))}%"></i></span>
         <small><span>${m.sub}</span><span class="m-goal">${m.goal}</span></small></li>`).join('');
@@ -308,7 +328,7 @@
         ${DIALS.map((g, i) => `<g class="ring" data-ring="${g.id}" style="--rc:${RCOL[g.id]}">
           <circle class="ring-track" cx="${RC0}" cy="${RC0}" r="${RR[i]}"/>
           <path class="ring-ol"/><path class="ring-arc"/>
-          ${fig(g.id, '#0B0A10', 'ring-icon', RC0 - 8, RC0 - RR[i] - 8, 16)}
+          ${fig(g.id, '#16130F', 'ring-icon', RC0 - 8, RC0 - RR[i] - 8, 16)}
         </g>`).join('')}
       </svg>
       <span class="rings-mid"><b class="num" id="rings-mpl">775</b><small>MPL</small></span>
@@ -335,12 +355,11 @@
       else D.num.textContent = v;
     });
   };
-  // the readings are set in Hammer Pro's live axes: held in = heavy and squeezed narrow, let out = light and wide.
+  // the readings are set in Greta's live axes: held in = heavy and squeezed narrow, let out = light and wide.
   // Same number, two bodies; the type follows the measure as it moves (D.cur: 0 held in, 1 let out).
   const voice = (el, k) => {
     k = Math.max(0, Math.min(1, k));
-    el.style.fontWeight = Math.round(900 - 600 * k);
-    el.style.fontStretch = `${Math.round(50 + 100 * k)}%`;
+    el.style.fontVariationSettings = `'wght' ${Math.round(100 - 85 * k)}, 'wdth' ${Math.round(25 + 75 * k)}`;
   };
   const mplEl = $('#rings-mpl');
   const frame = (t) => {
@@ -592,7 +611,7 @@
       states: [['הקלה', 3], ['שמחה', 2], ['גאווה', 1]], trigger: 'שיחה עם עידו', did: 'צחקת' },
   ]);
   // an emotion's mark: its own shape from the set
-  const picto = (e, cls = 'picto', x, y, size) => fig(e.id, e.fill, cls, x, y, size || 48);
+  const picto = (e, cls = 'picto', x, y, size) => fig(e.id, e.fill, cls, x, y, size || 48, 1 - e.out);
   let emoSel = 'fear';
   const RC = { x: 170, y: 200, R: 110 };
   const rPt = (i, v) => {
@@ -607,7 +626,7 @@
     [20, 40, 60, 80].forEach((v) => { const [, y] = rPt(0, v); g += `<text x="${RC.x - 4}" y="${y + 3.5}" text-anchor="end" class="r-tick num">${v}</text>`; });
     const now = pts(EMO.map((e) => e.v));
     {
-      g += `<defs>${EMO.map((e, i) => { const [x, y] = rPt(i, e.v); return `<linearGradient id="ray-${e.id}" gradientUnits="userSpaceOnUse" x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}"><stop offset="0" stop-color="#F3F1F8" stop-opacity=".85"/><stop offset="1" stop-color="${e.fill}"/></linearGradient>`; }).join('')}</defs>`;
+      g += `<defs>${EMO.map((e, i) => { const [x, y] = rPt(i, e.v); return `<linearGradient id="ray-${e.id}" gradientUnits="userSpaceOnUse" x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".85"/><stop offset="1" stop-color="${e.fill}"/></linearGradient>`; }).join('')}</defs>`;
       EMO.forEach((e, i) => {
         const [x, y] = rPt(i, e.v), on = e.id === emoSel;
         g += `<line x1="${RC.x}" y1="${RC.y}" x2="${x}" y2="${y}" stroke="url(#ray-${e.id})" stroke-width="${on ? 17 : 13}" stroke-linecap="round"/>`;
@@ -827,9 +846,9 @@
     g += `<line x1="${L}" x2="${R}" y1="${base}" y2="${base}" class="c-base"/>`;
     // the event lane: what happened, under the day it happened
     const ev = [];
-    if (r.mark != null) ev.push([r.mark, 'בכי', `<path d="${polar({ round: .9, R: 7, cx: x(r.mark), cy: lane, base: 'drop', n: 7 })}" fill="#3FC8F5" class="c-ev"/>`]);
+    if (r.mark != null) ev.push([r.mark, 'בכי', `<path d="${shapePath(5, .1, 7, x(r.mark), lane)}" fill="#3FC8F5" class="c-ev"/>`]);
     if (r.gap != null) ev.push([r.gap, 'חיישן', `<rect x="${x(r.gap) - 6}" y="${lane - 6}" width="12" height="12" rx="3" fill="url(#g-hatch)" class="c-ev"/>`]);
-    if (r.unverified != null && tearState !== 'rejected') ev.push([r.unverified, tearState === 'confirmed' ? 'בבדיקה' : 'דמעה?', `<circle cx="${x(r.unverified)}" cy="${lane}" r="6.5" fill="#F3F1F8" class="c-ev" stroke-dasharray="${tearState === 'confirmed' ? '0' : '3 2'}"/>`]);
+    if (r.unverified != null && tearState !== 'rejected') ev.push([r.unverified, tearState === 'confirmed' ? 'בבדיקה' : 'דמעה?', `<circle cx="${x(r.unverified)}" cy="${lane}" r="6.5" fill="#FFFFFF" class="c-ev" stroke-dasharray="${tearState === 'confirmed' ? '0' : '3 2'}"/>`]);
     ev.forEach(([i, label, mark], k) => {
       g += `<line x1="${x(i)}" x2="${x(i)}" y1="${P[i] == null ? top : y(P[i])}" y2="${lane - 8}" class="c-drop"/>${mark}<text x="${x(i)}" y="${lane + 20 + (k % 2) * 15}" text-anchor="middle" class="c-ev-t">${label}</text>`;
     });
@@ -1022,13 +1041,8 @@
   const openSetup = () => {
     setup.hidden = false; suPre('su-welcome');
     const sp = $('#su-splash'); sp.hidden = false; sp.classList.remove('is-out');
-    // aim the tear at the floor: how far it falls (in logo units) and where it lands
-    const box = sp.getBoundingClientRect(), tear = $('.lg-tear', sp).getBoundingClientRect(), logo = $('.wheep-logo', sp);
-    const unit = logo.getBoundingClientRect().width / logo.viewBox.baseVal.width;
-    logo.style.setProperty('--fall', `${((box.bottom - tear.bottom) / unit).toFixed(1)}px`);
-    sp.style.setProperty('--x', `${(tear.left + tear.width / 2 - box.left).toFixed(1)}px`);
-    setTimeout(() => sp.classList.add('is-out'), reduced ? 600 : 3800);
-    setTimeout(() => { sp.hidden = true; }, reduced ? 900 : 4300);
+    setTimeout(() => sp.classList.add('is-out'), reduced ? 600 : 2600);
+    setTimeout(() => { sp.hidden = true; }, reduced ? 900 : 3100);
   };
   const closeSetup = () => {
     setup.hidden = true;

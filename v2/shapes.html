@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHEEP · צורות הרגש</title>
+<link rel="stylesheet" href="v2.css">
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 48px 24px 96px; }
+  h1 { font-size: clamp(56px, 9vw, 128px); line-height: .9; font-variation-settings: 'wght' 90; }
+  h1 i { font-family: GretaI; font-variation-settings: 'wght' 10; }
+  .lede { max-width: 620px; margin-top: 20px; font-size: 21px; line-height: 1.4; }
+
+  .lab { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 32px; }
+  .lab svg { width: 100%; max-height: 520px; }
+  .ctl { display: grid; gap: 22px; align-content: start; }
+  .ctl label { display: grid; gap: 8px; font-size: 15px; }
+  .ctl output { font-family: Greta; font-variation-settings: 'wght' 70; font-size: 34px; direction: ltr; text-align: right; }
+  input[type=range] { width: 100%; accent-color: var(--ink); direction: ltr; }
+  .ends { display: flex; justify-content: space-between; font-size: 13px; direction: ltr; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { border: 1.5px solid var(--ink); border-radius: 99px; padding: 4px 12px; background: none; font: inherit; font-size: 15px; cursor: pointer; }
+  .chips button[aria-pressed=true] { background: var(--ink); color: var(--paper); }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 64px; }
+  th { font-weight: 400; font-size: 14px; text-align: center; padding: 8px 0; border-bottom: 2px solid var(--ink); }
+  th:first-child { text-align: start; }
+  td { border-bottom: 1px solid var(--rule); padding: 10px 0; text-align: center; }
+  td:first-child { text-align: start; white-space: nowrap; }
+  td:first-child b { display: block; font-size: 26px; font-variation-settings: 'wght' 80; }
+  td:first-child span { font-size: 14px; }
+  td svg { width: 92px; height: 92px; }
+  @media (max-width: 760px) { .lab { grid-template-columns: 1fr; } td svg { width: 44px; height: 44px; } td:first-child b { font-size: 18px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>צורה אחת,<br><i>כל הרגשות.</i></h1>
+  <p class="lede">לכל רגש יש מספר קצוות משלו, מ־3 ומעלה. איכות הרגש מזיזה אותו בין bouba (רך, יוצא החוצה) ל־kiki (חד, נשאר בפנים). הצורה אף פעם לא עומדת במקום.</p>
+
+  <section class="lab">
+    <svg viewBox="-110 -110 220 220" aria-label="צורת רגש חיה"><path id="live"/></svg>
+    <div class="ctl">
+      <div class="chips" id="chips"></div>
+      <label>קצוות <output id="nOut"></output><input id="n" type="range" min="3" max="12" step="1"></label>
+      <label>איכות <output id="kOut"></output><input id="k" type="range" min="0" max="1" step=".01" value=".5">
+        <span class="ends"><span>bouba</span><span>kiki</span></span></label>
+      <label><span><input id="breathe" type="checkbox" checked> נשימה (אנימציה)</span></label>
+    </div>
+  </section>
+
+  <table id="grid"><thead><tr><th>רגש</th></tr></thead><tbody></tbody></table>
+</main>
+<script src="shape.js"></script>
+<script>
+  const KS = [0, .25, .5, .75, 1];
+  const head = document.querySelector('#grid thead tr');
+  KS.forEach(k => head.insertAdjacentHTML('beforeend', `<th>${k === 0 ? 'bouba' : k === 1 ? 'kiki' : k}</th>`));
+  const body = document.querySelector('#grid tbody');
+  for (const [key, e] of Object.entries(EMO)) {
+    body.insertAdjacentHTML('beforeend', `<tr><td><b>${e.he}</b><span>${e.n} קצוות</span></td>` +
+      KS.map(k => `<td><svg viewBox="-52 -52 104 104"><path fill="${e.c}" d="${shapePath(e.n, k, 50)}"/></svg></td>`).join('') + '</tr>');
+  }
+
+  const $ = id => document.getElementById(id);
+  let cur = 'joy';
+  const chips = $('chips');
+  for (const [key, e] of Object.entries(EMO)) {
+    const b = document.createElement('button');
+    b.textContent = e.he; b.onclick = () => pick(key);
+    b.dataset.k = key; chips.append(b);
+  }
+  function pick(key) {
+    cur = key; $('n').value = EMO[key].n;
+    chips.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === key));
+  }
+  pick(cur);
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) $('breathe').checked = false;
+  function frame(t) {
+    const n = +$('n').value, k0 = +$('k').value, on = $('breathe').checked;
+    const k = on ? Math.min(1, Math.max(0, k0 + .08 * Math.sin(t / 900))) : k0;
+    const rot = on ? t / 9000 : 0;
+    const match = Object.entries(EMO).find(([, e]) => e.n === n);
+    $('live').setAttribute('d', shapePath(n, k, 100, 0, 0, rot));
+    $('live').setAttribute('fill', match ? match[1].c : 'var(--ink)');
+    $('nOut').textContent = n; $('kOut').textContent = k0.toFixed(2);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+</script>
+</body>
+</html>
