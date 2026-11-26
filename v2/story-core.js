@@ -1,8 +1,8 @@
 /* WHEEP · the story's timeline, shared by story.js (web) and the After Effects build (pasted into expressions).
    ES5 on purpose. One day, six scenes, then it loops. Change S_PACE to slow everything down or speed it up together. */
-var S_PACE = 1.5;                                                       // 1 = the original 16 s story
-var STORY_DUR = 16 * S_PACE, S_BEAT = .4 * S_PACE;
-var SCENES = [0, 2.2, 5.0, 7.8, 10.6, 13.6, 16];
+var S_PACE = 2;                                                         // 1 = the original 16 s story; 2 gives time to read
+var SCENES = [0, 2.2, 5.0, 7.8, 10.6, 13.6, 17];                         // the closing lines get the longest scene
+var STORY_DUR = SCENES[SCENES.length - 1] * S_PACE, S_BEAT = .4 * S_PACE;
 for (var si_ = 0; si_ < SCENES.length; si_++) SCENES[si_] *= S_PACE;
 // a moment inside scene i, dt seconds (at pace 1) after it starts
 function sAt(i, dt) { return SCENES[i] + dt * S_PACE; }
@@ -56,7 +56,7 @@ function sGretaAxes(T, base, amp, phase) {
   var t = 2 * Math.PI * sWrap(T); phase = phase || 0;
   return [sGreta(T, base, amp, phase), 82 + 18 * (.5 + .5 * Math.sin(t / 8 + phase * 1.3)), 50 + 50 * Math.sin(t / 4 + phase + Math.PI / 2)];
 }
-// Greta letter by letter, every letter on its own axes, slow enough to read. Periods (s) divide the 24 s loop, so it closes.
+// Greta letter by letter, every letter on its own axes, slow enough to read. Every period is the loop divided by a whole number, so it closes at any pace.
 //   wght: a slow wave travelling along the line, plus each letter's own drift
 //   wdth: each letter narrows and widens at its own pace (70–100)
 //   OPTI: a slow swell between thin and fat contrast
@@ -65,10 +65,10 @@ var S_GRETA = { amp: 1, spread: 1 };
 function sHash(a, b) { var x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); }
 function sLetter(T, i, base, amp, seed) {
   var t = sWrap(T), tau = 2 * Math.PI, A = amp * S_GRETA.amp, sp = S_GRETA.spread;
-  var p1 = [6, 8, 12][Math.floor(sHash(i, seed) * 3)], p2 = [8, 12, 24][Math.floor(sHash(i + 7, seed) * 3)];
-  var w = base + A * .75 * Math.sin(tau * t / 6 - i * .3 * sp + seed) + A * .35 * sp * Math.sin(tau * t / p1 + i * 2.1);
+  var D = STORY_DUR, p1 = D / [3, 4, 5][Math.floor(sHash(i, seed) * 3)], p2 = D / [1, 2, 3][Math.floor(sHash(i + 7, seed) * 3)];
+  var w = base + A * .75 * Math.sin(tau * t / (D / 4) - i * .3 * sp + seed) + A * .35 * sp * Math.sin(tau * t / p1 + i * 2.1);
   var wd = 100 - Math.min(30, 30 * S_GRETA.amp * sp) * (.5 + .5 * Math.sin(tau * t / p2 + i * 1.7 * sp + seed));
-  var op = 50 + 50 * Math.min(1, S_GRETA.amp) * Math.sin(tau * t / 12 + i * .5 * sp + seed);
+  var op = 50 + 50 * Math.min(1, S_GRETA.amp) * Math.sin(tau * t / (D / 2) + i * .5 * sp + seed);
   return [Math.max(0, Math.min(100, w)), wd, op];
 }
 

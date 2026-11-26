@@ -27,10 +27,10 @@
 <body>
   <section class="call">
     <h1>מה עבר עליך היום?</h1>
-    <p>סרקו, כתבו את השם שלכם, והחיישן יספר לכם על היום: מה הרגשתם, מתי, וכמה רחוק זה היה ממה שהראיתם.</p>
-    <a class="qr" id="qr" aria-label="לעמוד האישי: הקלידו שם וסנכרנו את החיישן"></a>
+    <p>סרוק, כתוב את השם שלך, והחיישן יספר לך על היום שלך: מה הרגשת, מתי, וכמה רחוק זה היה ממה שהראית.</p>
+    <a class="qr" id="qr" aria-label="לעמוד האישי שלך: הקלד את השם שלך וסנכרן את החיישן"></a>
     <div class="here">
-      <label for="here">או כתבו את השם כאן</label>
+      <label for="here">או כתוב את השם שלך כאן</label>
       <input id="here" maxlength="20" autocomplete="off" enterkeyhint="done" placeholder="השם שלך">
     </div>
     <div class="now" id="now" aria-live="polite"></div>
@@ -45,6 +45,7 @@
 <script src="gen.js"></script>
 <script src="story-core.js"></script>
 <script src="story.js"></script>
+<script src="sync.js"></script>
 <script>
   // the QR (and the link under it) opens the visitor's page. Hosted: this deployment's own me.html.
   // Running locally, a phone can't reach localhost, so it points at the public GitHub Pages copy instead.
@@ -86,6 +87,8 @@
       if (name && name !== visitor) show(name, null, performance.now(), true);
     }, 450);
   });
+  // a name from a visitor's phone (through the relay in sync.js): same as typing it here
+  syncListen(name => { document.getElementById('here').value = ''; show(name, null, performance.now(), true); });
   document.fonts.ready.then(() => reduce ? next(0) : requestAnimationFrame(tick));
 </script>
 </body>

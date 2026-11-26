@@ -1,4 +1,4 @@
-/* WHEEP · the wrapped story (web). One day, six scenes on a 24 s loop (1080×1350):
+/* WHEEP · the wrapped story (web). One day, six scenes on a 34 s loop (1080×1350):
    0 intro (the name) · 1 the feeling that led the day · 2 the figure and when it happened
    3 outside vs inside · 4 the day in feelings · 5 the two lines, then back to the start.
    Three layouts, so neighbouring stories don't move alike (LAYOUT, by feeling; opts.layout overrides):
@@ -83,6 +83,7 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
       h.textContent = '';
       chars.forEach(ch => { const s = el('tspan', {}, h); s.textContent = ch; letters.push({ s, g, i: i++, fv: '', o: '' }); });
     });
+    g.count = i;
   };
 
   svg.setAttribute('viewBox', `0 0 ${SW} ${SH}`);
@@ -213,11 +214,11 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
     txt(G[3], U.sharp, k2x(1), 692, 28, { anchor: 'middle', w: 50, amp: 20, scene: 3, d: .85 });
     const line = rect(G[3], col.x0, 779, 0, 2, 'currentColor');
     const gapBar = rect(G[3], k2x(ka), 774, 0, 12, 'currentColor');
-    const close = Math.abs(k2x(day.kIn) - k2x(day.kOut)) < 120;
+    const close = Math.abs(k2x(day.kIn) - k2x(day.kOut)) < 170;   // the labels are about 150 wide
     [[day.kOut, U.outside, 0, 1.3], [day.kIn, U.inside, close ? 1 : 0, 1.5]].forEach(([kk, label, row, d]) => {
       const g = build(el('g', {}, G[3]), 3, d, 16);
       rect(g, k2x(kk) - 1, 780, 2, 50 + row * 40, 'currentColor');
-      txt(g, label, k2x(kk), 862 + row * 40, 32, { anchor: 'middle', w: 80, amp: 24 });
+      txt(g, label, Math.max(col.x0 + 75, Math.min(col.x1 - 75, k2x(kk))), 862 + row * 40, 32, { anchor: 'middle', w: 80, amp: 24 });   // kept inside the column
     });
     const nowP = build(el('path', { fill: 'currentColor' }, G[3]), 3, 1.4, 0);
     fits.push([txt(G[3], meaningStr, col.x1, 1000, 40, { w: 45, scene: 3, d: 1.8 }), col.x1 - col.x0, 52]);
@@ -401,7 +402,8 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
       const fv = `'wght' ${Math.round(a[0])}, 'wdth' ${Math.round(a[1])}, 'OPTI' ${Math.round(a[2] / 2) * 2}`;
       if (fv !== L.fv) { L.fv = fv; L.s.style.fontVariationSettings = fv; }
       if (g.reveal != null) {
-        const v = Math.min(sOut((T - g.reveal - L.i * .05 * P) / (.35 * P)), sScene(T, g.sc)).toFixed(2);
+        const st = Math.min(.08, 1.6 / g.count);   // a steady typing pace, but a long line still lands in time to be read
+        const v = Math.min(sOut((T - g.reveal - L.i * st) / (.35 * P)), sScene(T, g.sc)).toFixed(2);
         if (v !== L.o) { L.o = v; L.s.setAttribute('opacity', v); }
       }
     });

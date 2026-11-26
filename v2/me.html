@@ -53,7 +53,7 @@
   <div class="top"><svg viewBox="-52 -52 104 104" aria-hidden="true"><path id="topMark" fill="#fff"/></svg><span>wheep</span></div>
   <svg class="hero-mark" viewBox="-60 -60 120 120" aria-hidden="true"><path id="bigMark" fill="#fff"/></svg>
   <h1 id="askTitle">היום שלך, בסיכום אחד.</h1>
-  <p class="sub">החיישן מדד את היום. נחבר אותו, ותקבל סיפור קצר על מה שהרגשת ומתי.</p>
+  <p class="sub">החיישן מדד את היום שלך. נחבר אותו, ותקבל סיפור קצר על מה שהרגשת ומתי.</p>
   <form id="form" novalidate>
     <label for="name">איך קוראים לך?</label>
     <input id="name" name="name" autocomplete="given-name" maxlength="20" required placeholder="השם שלך">
@@ -73,9 +73,9 @@
 <section class="screen" id="story">
   <svg id="storySvg"></svg>
   <div class="dock">
-    <label class="sr" for="liveName">השם בסיכום</label>
+    <label class="sr" for="liveName">השם שלך בסיכום</label>
     <input id="liveName" maxlength="20" autocomplete="given-name" enterkeyhint="done" aria-describedby="liveHint">
-    <span class="sr" id="liveHint">שינוי השם מתחיל את הסיפור מחדש בשם החדש</span>
+    <span class="sr" id="liveHint">אם תשנה את השם, הסיפור שלך יתחיל מחדש בשם החדש</span>
     <button class="quiet" type="button" id="again">מההתחלה</button>
     <button class="primary" type="button" id="save">שמור תמונה</button>
   </div>
@@ -89,6 +89,7 @@
 <script src="story-core.js"></script>
 <script src="story.js"></script>
 <script src="summary.js"></script>
+<script src="sync.js"></script>
 <script>
   const $ = id => document.getElementById(id);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -118,7 +119,7 @@
   $('form').addEventListener('submit', ev => {
     ev.preventDefault();
     const name = $('name').value.trim().replace(/\s+/g, ' ');
-    if (!name) { $('err').textContent = 'צריך שם כדי לחבר את החיישן.'; $('name').focus(); return; }
+    if (!name) { $('err').textContent = 'כתוב את השם שלך כדי לחבר את החיישן.'; $('name').focus(); return; }
     $('err').textContent = '';
     detect(name);
   });
@@ -131,12 +132,12 @@
     const ul = $('status'); ul.textContent = '';
     const line = html => { const li = document.createElement('li'); li.innerHTML = html; ul.append(li); requestAnimationFrame(() => li.classList.add('on')); };
     const bar = $('barFill'); bar.style.width = '0';
-    line('מחפש חיישן WHEEP בסביבה…'); await wait(1300);
+    line('מחפש את חיישן ה־WHEEP שלך…'); await wait(1300);
     line(`נמצא חיישן: <b>${sensorId(name)}</b>`); await wait(900);
-    line('מסנכרן את היום…');
+    line('מסנכרן את היום שלך…');
     for (let p = 0; p <= 100; p += 4) { bar.style.width = p + '%'; await wait(55); }
     const day = makeDay({ name, date: new Date() });
-    line(`מוכן. הרגש שהוביל היום: <b>${EMO[day.emo].he}</b>`); await wait(1000);
+    line(`מוכן. הרגש שהוביל את היום שלך: <b>${EMO[day.emo].he}</b>`); await wait(1000);
     scanning = false;
     play(day);
   }
@@ -151,6 +152,7 @@
     if (document.activeElement !== $('liveName')) $('liveName').value = day.name;
     if (reduce) { story.draw(sAt(4, 1.5)); story = null; }
     history.replaceState(null, '', `?name=${encodeURIComponent(day.name)}`);
+    syncSend(day.name);   // the exhibition screen picks it up and plays this story too
   }
   let typing = null;
   $('liveName').addEventListener('input', () => {

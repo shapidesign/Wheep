@@ -60,7 +60,7 @@ function summarySVG(day, fontCSS = '') {
   R(60, 934, 960, 2, pal.k);
   const ka = Math.min(day.kOut, day.kIn), kb = Math.max(day.kOut, day.kIn);
   R(k2x(ka), 929, Math.max(4, k2x(kb) - k2x(ka)), 12, pal.k);
-  const close = Math.abs(k2x(day.kIn) - k2x(day.kOut)) < 120;
+  const close = Math.abs(k2x(day.kIn) - k2x(day.kOut)) < 170;   // the labels are about 150 wide
   [[day.kOut, COPY.ui.outside, 0], [day.kIn, COPY.ui.inside, close ? 1 : 0]].forEach(([k, l, row]) => {
     R(k2x(k) - 1, 935, 2, 22 + row * 30, pal.k);
     T(l, k2x(k), 980 + row * 30, 26, { anchor: 'middle', w: 80 });
