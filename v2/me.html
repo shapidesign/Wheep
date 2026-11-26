@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16130F">
+<title>WHEEP · היום שלך</title>
+<link rel="stylesheet" href="v2.css">
+<style>
+  /* the visitor's phone: dark, like the app */
+  :root { --ground: #16130F; --panel: #24211C; --line: rgba(255, 255, 255, .22); }
+  body { background: var(--ground); color: #fff; min-height: 100svh; font-variation-settings: 'wght' 40; }
+  ::selection { background: #FFD23F; color: var(--ground); }
+  .screen { min-height: 100svh; display: none; flex-direction: column; padding: 28px 22px calc(28px + env(safe-area-inset-bottom)); max-width: 520px; margin: 0 auto; }
+  .screen.on { display: flex; }
+  .top { display: flex; justify-content: space-between; align-items: center; direction: ltr; }
+  .top svg { width: 30px; height: 30px; }
+  .top span { font-size: 22px; font-variation-settings: 'wght' 90; }
+  .hero-mark { width: min(60vw, 260px); aspect-ratio: 1; margin: 48px auto 32px; display: block; }
+  h1 { font-size: clamp(36px, 10vw, 48px); line-height: 1.05; font-variation-settings: 'wght' 90; }
+  .sub { font-size: 19px; line-height: 1.45; margin-top: 12px; color: rgba(255, 255, 255, .78); max-width: 34ch; }
+  form { margin-top: auto; display: grid; gap: 14px; padding-top: 32px; }
+  label { font-size: 17px; font-variation-settings: 'wght' 70; }
+  input { font: inherit; font-size: 24px; color: #fff; background: var(--panel); border: 1.5px solid var(--line); border-radius: 0; padding: 14px 16px; font-variation-settings: 'wght' 60; }
+  input:focus-visible, button:focus-visible { outline: 3px solid #FFD23F; outline-offset: 3px; }
+  .err { color: #FF9F1C; font-size: 16px; min-height: 1.4em; }
+  button { font: inherit; font-size: 21px; padding: 16px 18px; border: 0; border-radius: 0; cursor: pointer; font-variation-settings: 'wght' 85; }
+  .primary { background: #fff; color: var(--ground); }
+  .primary:active { transform: translateY(1px); }
+  .quiet { background: transparent; color: #fff; border: 1.5px solid var(--line); }
+  /* detecting */
+  .status { list-style: none; margin-top: 8px; display: grid; gap: 12px; font-size: 20px; }
+  .status li { opacity: 0; transform: translateY(8px); transition: opacity .35s cubic-bezier(.16, 1, .3, 1), transform .35s cubic-bezier(.16, 1, .3, 1); }
+  .status li.on { opacity: 1; transform: none; }
+  .status b { font-variation-settings: 'wght' 90; font-weight: inherit; direction: ltr; unicode-bidi: isolate; }
+  .bar { height: 6px; background: var(--line); margin-top: 22px; }
+  .bar i { display: block; height: 100%; width: 0; background: #fff; transition: width .2s linear; }
+  /* the story */
+  #story.screen { padding: 0; max-width: none; background: #000; justify-content: center; }
+  #story svg { display: block; width: min(100vw, calc(100svh * 1080 / 1350 - 72px * 1080 / 1350)); height: auto; margin: 0 auto; }
+  .actions { display: flex; gap: 10px; padding: 12px 22px calc(12px + env(safe-area-inset-bottom)); justify-content: center; }
+  .actions button { flex: 1; max-width: 220px; font-size: 18px; padding: 13px; }
+  @media (prefers-reduced-motion: reduce) { .status li { transition: none; } }
+</style>
+</head>
+<body>
+
+<section class="screen on" id="ask" aria-labelledby="askTitle">
+  <div class="top"><svg viewBox="-52 -52 104 104" aria-hidden="true"><path id="topMark" fill="#fff"/></svg><span>wheep</span></div>
+  <svg class="hero-mark" viewBox="-60 -60 120 120" aria-hidden="true"><path id="bigMark" fill="#fff"/></svg>
+  <h1 id="askTitle">היום שלך, בסיכום אחד.</h1>
+  <p class="sub">החיישן מדד את היום. נחבר אותו, ותקבל סיפור קצר על מה שהרגשת ומתי.</p>
+  <form id="form" novalidate>
+    <label for="name">איך קוראים לך?</label>
+    <input id="name" name="name" autocomplete="given-name" maxlength="20" required placeholder="השם שלך">
+    <p class="err" id="err" role="alert"></p>
+    <button class="primary" type="submit">חבר את החיישן</button>
+  </form>
+</section>
+
+<section class="screen" id="detect" aria-live="polite">
+  <div class="top"><svg viewBox="-52 -52 104 104" aria-hidden="true"><path id="topMark2" fill="#fff"/></svg><span>wheep</span></div>
+  <svg class="hero-mark" viewBox="-60 -60 120 120" aria-hidden="true"><path id="scanMark" fill="#fff"/></svg>
+  <h1 id="hello"></h1>
+  <ul class="status" id="status"></ul>
+  <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
+</section>
+
+<section class="screen" id="story">
+  <svg id="storySvg"></svg>
+  <div class="actions">
+    <button class="quiet" type="button" id="again">מההתחלה</button>
+    <button class="quiet" type="button" id="other">שם אחר</button>
+  </div>
+</section>
+
+<script src="shape.js"></script>
+<script src="motion.js"></script>
+<script src="days.js"></script>
+<script src="gen.js"></script>
+<script src="story-core.js"></script>
+<script src="story.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const show = id => document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+
+  // idle mark: drifts through all seven feelings (the logo's behaviour)
+  const FEELS = Object.keys(EMO);   // not KEYS: shape.js owns that name
+  function markAt(t) {
+    const pos = (t / 2600) % FEELS.length, i = Math.floor(pos), f = pos - i;
+    const a = EMO[FEELS[i]].n, b = EMO[FEELS[(i + 1) % FEELS.length]].n;
+    const nn = b > a ? a + (b - a) * mSmooth(f) : (f < .5 ? a : b);
+    return { n: nn, k: .5 + .5 * Math.sin(t / 1400) };
+  }
+  let scanning = false, story = null, storyStart = 0;
+  function tick(t) {
+    const m = markAt(t);
+    const d = shapePath(m.n, m.k, 48, 0, 0, t / 6000);
+    $('topMark').setAttribute('d', d); $('topMark2').setAttribute('d', d);
+    $('bigMark').setAttribute('d', shapePath(m.n, m.k, 56, 0, 0, t / 6000));
+    if (scanning) $('scanMark').setAttribute('d', shapePath(m.n, .5 + .5 * Math.sin(t / 260), 40 + 10 * Math.sin(t / 180), 0, 0, t / 900));
+    if (story) story.draw((t - storyStart) / 1000);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // 1 · the name
+  $('form').addEventListener('submit', ev => {
+    ev.preventDefault();
+    const name = $('name').value.trim().replace(/\s+/g, ' ');
+    if (!name) { $('err').textContent = 'צריך שם כדי לחבר את החיישן.'; $('name').focus(); return; }
+    $('err').textContent = '';
+    detect(name);
+  });
+
+  // 2 · "detecting" the sensor (the read is real for the story: same name, same day, same data)
+  const wait = ms => new Promise(r => setTimeout(r, reduce ? Math.min(ms, 150) : ms));
+  async function detect(name) {
+    show('detect'); scanning = true;
+    $('hello').textContent = `${name}, מחפשים את החיישן שלך.`;
+    const ul = $('status'); ul.textContent = '';
+    const line = html => { const li = document.createElement('li'); li.innerHTML = html; ul.append(li); requestAnimationFrame(() => li.classList.add('on')); };
+    const bar = $('barFill'); bar.style.width = '0';
+    line('מחפש חיישן WHEEP בסביבה…'); await wait(1300);
+    line(`נמצא חיישן: <b>${sensorId(name)}</b>`); await wait(900);
+    line('מסנכרן את היום…');
+    for (let p = 0; p <= 100; p += 4) { bar.style.width = p + '%'; await wait(55); }
+    const day = makeDay({ name, date: new Date() });
+    line(`מוכן. הרגש שהוביל היום: <b>${EMO[day.emo].he}</b>`); await wait(1000);
+    scanning = false;
+    play(day);
+  }
+
+  // 3 · the story
+  function play(day) {
+    show('story');
+    story = createStory($('storySvg'), day);
+    storyStart = performance.now();
+    if (reduce) { story.draw(12.6); story = null; }
+    history.replaceState(null, '', `?name=${encodeURIComponent(day.name)}`);
+  }
+  $('again').addEventListener('click', () => { storyStart = performance.now(); });
+  $('other').addEventListener('click', () => { story = null; history.replaceState(null, '', location.pathname); show('ask'); $('name').select(); });
+
+  // a shared link (?name=) goes straight to the story
+  const pre = new URLSearchParams(location.search).get('name');
+  document.fonts.ready.then(() => { if (pre) play(makeDay({ name: pre.slice(0, 20), date: new Date() })); });
+</script>
+</body>
+</html>

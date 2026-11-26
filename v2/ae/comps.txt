@@ -1,0 +1,7 @@
+STORY 01 · ראשון
+STORY 02 · שני
+STORY 03 · שלישי
+STORY 04 · רביעי
+STORY 05 · חמישי
+STORY 06 · שישי
+STORY 07 · שבת

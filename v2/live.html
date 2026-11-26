@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHEEP · חי</title>
+<link rel="stylesheet" href="v2.css">
+<style>
+  /* the exhibition screen: a QR on the right, a live story on the left */
+  body { background: #16130F; color: #fff; min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: 4vw; padding: 4vh 5vw; font-variation-settings: 'wght' 40; }
+  .call { display: grid; gap: 3vh; align-content: center; }
+  .call h1 { font-size: clamp(40px, 5.2vw, 96px); line-height: 1; font-variation-settings: 'wght' 95; }
+  .call p { font-size: clamp(18px, 1.6vw, 28px); line-height: 1.4; max-width: 30ch; color: rgba(255, 255, 255, .8); }
+  .qr { background: #fff; padding: 18px; width: clamp(220px, 24vw, 420px); aspect-ratio: 1; }
+  .qr svg { width: 100%; height: 100%; display: block; }
+  .url { font-size: 15px; direction: ltr; text-align: right; color: rgba(255, 255, 255, .55); word-break: break-all; }
+  .now { font-size: clamp(16px, 1.3vw, 22px); color: rgba(255, 255, 255, .7); }
+  .now b { color: #fff; font-variation-settings: 'wght' 90; font-weight: inherit; }
+  .stage svg { display: block; width: 100%; max-height: 92vh; }
+  @media (max-width: 800px) { body { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <section class="call">
+    <h1>מה עבר עליך היום?</h1>
+    <p>סרקו, כתבו את השם שלכם, והחיישן יספר לכם על היום: מה הרגשתם, מתי, וכמה רחוק זה היה ממה שהראיתם.</p>
+    <div class="qr" id="qr" role="img" aria-label="קוד QR לעמוד האישי"></div>
+    <div class="url" id="url"></div>
+    <div class="now" id="now" aria-live="polite"></div>
+  </section>
+  <section class="stage"><svg id="stage"></svg></section>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="shape.js"></script>
+<script src="motion.js"></script>
+<script src="days.js"></script>
+<script src="gen.js"></script>
+<script src="story-core.js"></script>
+<script src="story.js"></script>
+<script>
+  // the QR points at this deployment's own me.html, wherever it is hosted
+  const target = new URL('me.html', location.href).href;
+  document.getElementById('url').textContent = target;
+  try {
+    const qr = qrcode(0, 'M'); qr.addData(target); qr.make();
+    document.getElementById('qr').innerHTML = qr.createSvgTag({ cellSize: 8, margin: 0, scalable: true });
+  } catch (e) { document.getElementById('qr').textContent = target; }
+
+  // attract mode: a new (made-up) visitor's day every story; ?names=a,b,c sets the list
+  const names = (new URLSearchParams(location.search).get('names') || 'נועה,אבי,מאיה,רון,דניאל,שירה,איתי').split(',').map(s => s.trim()).filter(Boolean);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let idx = -1, story = null, start = 0;
+  function next(t) {
+    idx = (idx + 1) % names.length;
+    story = createStory(document.getElementById('stage'), makeDay({ name: names[idx], date: new Date() }));
+    start = t;
+    document.getElementById('now').innerHTML = `עכשיו על המסך: <b>${names[idx]}</b>`;
+  }
+  function tick(t) {
+    if (!story || t - start > STORY_DUR * 1000) next(t);
+    story.draw((t - start) / 1000);
+    requestAnimationFrame(tick);
+  }
+  document.fonts.ready.then(() => reduce ? (next(0), story.draw(12.6)) : requestAnimationFrame(tick));
+</script>
+</body>
+</html>

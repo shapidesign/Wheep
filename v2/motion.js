@@ -65,7 +65,21 @@ function mClearAt(i, n) { return BEAT * (11 + (n - 1 - i) / Math.max(1, n) * .55
 function mCount(T, n) { var c = 0; for (var i = 0; i < n; i++) if (mPop(T, mStampAt(i, n), mClearAt(i, n)) > .5) c++; return c; }
 // a hit: jumps on the beat `beat` and settles back within it
 function mHit(T, beat) { var u = T / BEAT - beat; return u >= 0 && u < 1 ? 1 - mEase(u) : 0; }
+// SHAPES flow, type snaps. 0 = out, 1 = in: hold out (beats 0–4), rise (4–7), hold in (7–10), return (10–12).
+// smootherstep has zero slope at both ends, so the holds and the loop seam never jerk. lag (in beats) lets layers trail.
+function mSmooth(u) { u = Math.min(1, Math.max(0, u)); return u * u * u * (u * (u * 6 - 15) + 10); }
+function mState(T, lag) {
+  var x = mT(T - (lag || 0) * BEAT) / BEAT;
+  if (x < 4) return 0;
+  if (x < 7) return mSmooth((x - 4) / 3);
+  if (x < 10) return 1;
+  return 1 - mSmooth((x - 10) / 2);
+}
+// continuous rotation: whole teeth per loop, so it closes
+function mSpin(T, n, dir, teeth) { return dir * (teeth || 1) * (2 * Math.PI / n) * mT(T) / LOOP; }
+// a slow breath, twice per loop
+function mBreath(T, amt) { return 1 + amt * Math.sin(4 * Math.PI * mT(T) / LOOP); }
 // the four drawn keyframes of the shape (clover, soft square, rounded star, needle)
 var M_KEYS = [0, .34, .67, 1];
 
-if (typeof module !== 'undefined') module.exports = { LOOP: LOOP, BEATS: BEATS, BEAT: BEAT, mT: mT, mHash: mHash, mEase: mEase, mBeat: mBeat, mSeq: mSeq, mPick: mPick, mPhase: mPhase, mRot: mRot, mFlip: mFlip, mPack: mPack, mPop: mPop, mStampAt: mStampAt, mClearAt: mClearAt, mCount: mCount, mHit: mHit, M_KEYS: M_KEYS };
+if (typeof module !== 'undefined') module.exports = { LOOP: LOOP, BEATS: BEATS, BEAT: BEAT, mT: mT, mHash: mHash, mEase: mEase, mBeat: mBeat, mSeq: mSeq, mPick: mPick, mPhase: mPhase, mRot: mRot, mFlip: mFlip, mPack: mPack, mPop: mPop, mStampAt: mStampAt, mClearAt: mClearAt, mCount: mCount, mHit: mHit, mSmooth: mSmooth, mState: mState, mSpin: mSpin, mBreath: mBreath, M_KEYS: M_KEYS };
