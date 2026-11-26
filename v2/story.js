@@ -1,8 +1,8 @@
-/* WHEEP · the wrapped story (web). One day as ten stories (1080×1350), like a Wrapped:
+/* WHEEP · the wrapped story (web). One day as eleven stories (1080×1350), like a Wrapped:
    0 intro: the name, "ככה עבר עליך היום", the shape   1 the words you said   2 guess: which feeling led your day?
    3 the minutes of that feeling   4 the day in three chapters   5 the top five moments (ink)
    6 your daily portrait: the day's stretches as shapes, packed   7 your type (outside × inside)
-   8 how are your friends?   9 the share card (also the picture the share button sends).
+   8 how are your friends?   9 tomorrow: one thing to keep doing   10 the share card (also the picture the share button sends).
    One tight grid (6 columns), type sized to fill its measure, one shape layer per poster (shapes have no bands),
    Secolo mixed letter by letter, Greta breathing letter by letter. Timeline in story-core.js; words in copy.js.
    Needs shape.js, motion.js, days.js (palette, SECOLO), copy.js, story-core.js; gen.js for the friends. */
@@ -19,6 +19,16 @@ const WHEEP_TYPES = {
   hs: { name: 'קיפוד', line: 'בחוץ היית חד. בפנים היה רך יותר.' },
   hh: { name: 'סערה גלויה', line: 'חד בחוץ וחד בפנים. לא הסתרת.' },
 };
+// paper grain: one 256×256 tile of grey noise, made once per page and shared by every story
+let GRAIN_URL = null;
+function grainTile() {
+  if (GRAIN_URL) return GRAIN_URL;
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d'), im = x.createImageData(256, 256);
+  for (let i = 0; i < im.data.length; i += 4) { const v = 128 + (Math.random() - .5) * 110; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; }
+  x.putImageData(im, 0, 0);
+  return (GRAIN_URL = c.toDataURL('image/png'));
+}
 const typeKey = d => (d.kOut >= .55 ? 'h' : 's') + (d.kIn >= .55 ? 'h' : 's');
 
 function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs past the frame to the real screen edge
@@ -28,9 +38,10 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
   const X = c => W - M - c * (COL + G);
   const TOP = M + 52, BOT = H - M - 44, NSC = SCENES.length - 1;
   const B = opts.bleed ? 3000 : 0;
-  const CUT = .4, IN = .7, STAG = .09, INK = '#16130F';
+  const CUT = .4, IN = .65, STAG = .05, INK = '#16130F';
   const TRACK = -.02;   // Secolo tracking, in em
   const ease = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 4);
+  const outQ5 = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 5);
   const osc = (t, a, b, per, ph = 0) => a + (b - a) * (.5 - .5 * Math.cos(2 * Math.PI * t / per + ph));
   const ck = k => Math.max(0, Math.min(1, k));
   const mixHex = (a, b, t) => '#' + [1, 3, 5].map(i => Math.round(parseInt(a.substr(i, 2), 16) + (parseInt(b.substr(i, 2), 16) - parseInt(a.substr(i, 2), 16)) * t).toString(16).padStart(2, '0')).join('');
@@ -47,6 +58,9 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
   const sumH = perHour.reduce((a, b) => a + b, 0), wordsAt = perHour.map(v => v / sumH * words), peak = wordsAt.indexOf(Math.max(...wordsAt));
   const overlap = (s, a, b) => Math.max(0, Math.min(s.to, b) - Math.max(s.from, a));
   const chapter = (a, b) => { const t = {}; day.segs.forEach(s => t[s.emo] = (t[s.emo] || 0) + overlap(s, a, b)); return Object.entries(t).sort((x, y) => y[1] - x[1])[0][0]; };
+  // MPL (masculinity pressure level, 0–1000) of a stretch of the day: held-in feelings press it up, letting out brings it down
+  const MPL_BASE = { press: 760, anger: 650, shame: 600, fear: 560, joy: 260, cry: 300, release: 160 };
+  const mplOf = (s, j) => Math.round(Math.min(990, (MPL_BASE[s.emo] ?? 500) + (h(70 + j) - .5) * 180));
   const type = WHEEP_TYPES[typeKey(day)];
   const typePct = 8 + Math.floor(h(9) * 30);
   const friends = typeof makeDay === 'function' && typeof MOCK_NAMES !== 'undefined'
@@ -233,10 +247,10 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
         shape(E.n, u => osc(u, .05, .95, 3, i), rh * .27, X(1) + 10, y + rh / 2, E.c, { at });
         Sx(feel(s.emo), X(1) - rh * .38, y + rh * .52, rh * .42, { fill: E.c, i: 4 + i * 2, seed: i + 2 });
         breathe(T(`${hh(s.from)} עד ${hh(s.to)}`, X(1) - rh * .38, y + rh * .84, 26, { fill: fg, i: 4 + i * 2 }), 50, 12);
-        const bw = (X(3.4) - M) * (s.to - s.from) / longest, bar = add(el('rect', { x: M, y: y + rh * .3, height: rh * .4, width: 0, fill: E.c }));
-        live(u => bar.setAttribute('width', bw * sOut((u - at) / .8)));
-        const m = Math.round((s.to - s.from) * 60), lab = Sx('0', M + 10, y + rh * .62, rh * .3, { fill: INK, anchor: 'end', seed: i + 4 });
-        live(u => setText(lab, Math.round(m * sOut((u - at) / .8)) + `'`));
+        // the bar is the moment's MPL (0–1000), growing from the left; the figure rides at its end
+        const v = mplOf(s, i), full = X(3.4) - M - 150, bar = add(el('rect', { x: M, y: y + rh * .3, height: rh * .4, width: 0, fill: E.c }));
+        const lab = Sx('0', M, y + rh * .63, rh * .3, { fill: fg, anchor: 'end', seed: i + 4 });
+        live(u => { const g = sOut((u - at) / .9), w = full * v / 1000 * g; bar.setAttribute('width', w); lab.setAttribute('x', M + w + 14); setText(lab, fmt(v * g)); });
       });
     },
     // 7 · the daily portrait: every stretch of the day becomes its feeling's shape, sized by how long it lasted,
@@ -330,9 +344,40 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
       const t1 = Sx(copyFill(U.friendCall, { name: need.name }), W - M - 30, cy + 100, 80, { fill: P.w, i: 10, seed: 5 }); fit(t1, MEAS - 260, 90);
       shrink(breathe(T(copyFill(U.friendWhy, { feel: feel(need.emo) }), W - M - 30, cy + 160, 30, { fill: P.w, i: 11 }), 50), MEAS - 260);
     },
+    // 10 · tomorrow: one thing to keep doing, from your own day. Today's inside shape eases toward a softer one,
+    //      then three small things you can do, each with what it would take off your MPL.
+    () => {
+      const fg = frame(9, P.m, U.nextNote), key = typeKey(day), soft = Math.max(.05, Math.min(day.kIn, day.kOut) - .25);
+      title(fg, U.next);
+      const hd = Sx(U['next_' + key], W - M, 0, 300, { fill: fg, i: 2 }), f = fit(hd, MEAS, 210); hang(hd, TOP + 96, f);
+      const nb = TOP + 96 + f * .74;
+      shrink(breathe(T(copyFill(U['nextWhy_' + key], { feel: feel(day.emo) }), W - M, nb + 64, 40, { fill: fg, i: 3 }), 55), MEAS);
+      // today → tomorrow: your inside shape, and the same shape softening
+      const r1 = nb + 112, r2 = r1 + 400, sy = r1 + 210, cxR = W - M - MEAS / 4, cxL = M + MEAS / 4;
+      rule(r1, fg, 4);
+      [[U.today, cxR, () => day.kIn, .5], [U.tomorrow, cxL, u => sLerp(day.kIn, soft, sFlow((u - 1.6) / 1.6)), .8]].forEach(([lab, cx, kf, at], j) => {
+        T(lab, cx, r1 + 56, 30, { fill: fg, w: 70, anchor: 'middle', i: 5 + j });
+        shape(n, kf, 130, cx, sy, INK, { at, spin: .04, dir: j ? -1 : 1 });
+      });
+      // the arrow between them draws from the reading side
+      const ay = sy, ax1 = cxR - 170, ax0 = cxL + 170, ar = add(el('path', { fill: 'none', stroke: fg, 'stroke-width': 3 }));
+      live(u => { const g = outQ5((u - 1.2) / .8), x = ax1 - (ax1 - ax0) * g; ar.setAttribute('d', g > 0 ? `M${ax1} ${ay}L${x} ${ay}` + (g > .95 ? `M${ax0 + 22} ${ay - 16}L${ax0} ${ay}L${ax0 + 22} ${ay + 16}` : '') : ''); });
+      // three small things, each with its MPL
+      rule(r2, fg, 8);
+      const acts = [[copyFill(U.act1, { name: friends.length ? friends.reduce((a, b) => Math.abs(b.kIn - b.kOut) > Math.abs(a.kIn - a.kOut) ? b : a).name : '' }), 25], [U.act2, 15], [U.act3, 10]];
+      const rh = (BOT - r2 - 20) / acts.length;
+      acts.forEach(([txt, d], j) => {
+        const y = r2 + j * rh, at = 2 + j * .2;
+        if (j) rule(y, fg, 9 + j, M, W - M, 1);
+        shape(n, () => soft, rh * .22, W - M - rh * .22, y + rh / 2, INK, { at, spin: 0, still: true });
+        shrink(breathe(T(txt, W - M - rh * .6, y + rh / 2 + 13, 36, { fill: fg, i: 9 + j }), 60), MEAS - rh * .6 - 220);
+        const m = Sx('0', M, y + rh / 2 + 22, 64, { fill: fg, anchor: 'start', i: 9 + j, seed: j + 2 }); m.setAttribute('direction', 'ltr');   // '−25 MPL' reads left to right
+        live(u => setText(m, '−' + Math.round(d * sOut((u - at) / .6)) + ' MPL'));
+      });
+    },
     // 10 · the share card: everything on one poster, made to be sent (the share button sends this one)
     () => {
-      const fg = frame(9, P.m, U.shareNote);
+      const fg = frame(10, P.m, U.shareNote);
       breathe(T(U.shareTitle, W - M, TOP + 54, 34, { fill: fg, i: 1 }), 60);
       const nm = T(day.name, W - M, 0, 300, { fill: fg, i: 2 }), f = fit(nm, MEAS, 300); hang(nm, TOP + 86, f); breathe(nm, 95, 10);
       // the shape and the type, side by side
@@ -365,19 +410,122 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
     },
   ];
 
-  // built on the first draw, once the fonts are in
-  let scenes = null;
+  // built on the first draw, once the fonts are in.
+  // On top of every poster: a light paper grain (one noise tile, made once per page, repeated, blended 'overlay').
+  // Between stories, a transition from the posters' own language, a different one per cut (TRANS):
+  //   iris     the next poster opens out of its feeling's shape, growing from where the eye already is
+  //   columns  the six grid columns drop in one after another, from the reading side
+  //   deal     a paper card is dealt in from below, turned, and lands on the stack
+  //   push     the new poster slides in from the left (forward, in Hebrew) and pushes the old one out, with parallax
+  // Inside each poster the elements build in: lines of type rise out of a mask, rules draw from the reading side,
+  // everything else lifts and fades. Enter = ease-out, exit is the cut itself; 50 ms stagger, most important first.
+  let scenes = null, grain, shadow, clipEl, clipRect, clipPath, clipCols;
+  const uid = 'w' + Math.random().toString(36).slice(2, 8);
+  // the cut INTO story i (0 = the loop back). An iris needs a change of ground to be seen, so it goes where colour meets ink.
+  const TRANS = ['deal', 'iris', 'columns', 'deal', 'push', 'columns', 'deal', 'iris', 'push', 'deal', 'iris'];
+  const TDUR = { iris: .95, columns: .85, deal: .8, push: .75 };
+  const inOut = x => x < .5 ? 16 * x ** 5 : 1 - Math.pow(-2 * x + 2, 5) / 2;            // quint in-out: moving between positions
+  const outQ = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 5);                   // quint out: arriving
+  const land = x => { const c = 1.1, y = x - 1; return 1 + (c + 1) * y * y * y + c * y * y; };   // back out: a card that lands
   function build() {
-    scenes = POSTERS.map(make => { S = { g: el('g'), dyn: [], ins: [] }; svg.append(S.g); make(); S.g.style.display = 'none'; return S; });
+    scenes = POSTERS.map(make => {
+      S = { g: el('g'), dyn: [], ins: [] }; svg.append(S.g); make();
+      // build-ins: masks for type, a draw direction for rules
+      S.ins.forEach(x => {
+        if (x.tagName === 'text') {
+          const bb = x.getBBox(); if (!bb.height) return;
+          const id = uid + 'm' + Math.random().toString(36).slice(2, 8), cp = el('clipPath', { id });
+          cp.append(el('rect', { x: -B - 200, y: bb.y - 6, width: W + 2 * B + 400, height: bb.height + 12 }));   // vertical only: counters grow, labels move
+          const wrap = el('g', { 'clip-path': `url(#${id})` }); x.replaceWith(wrap); wrap.append(cp, x);
+          x._kind = 'mask'; x._h = bb.height + 12;
+        } else if (x.tagName === 'rect' && +x.getAttribute('height') <= 2 && +x.getAttribute('width') > 40) {
+          x._kind = 'rule'; x._x2 = +x.getAttribute('x') + +x.getAttribute('width');
+        } else x._kind = 'lift';
+      });
+      S.g.style.display = 'none'; return S;
+    });
+    const defs = el('defs');
+    const pat = el('pattern', { id: uid + 'g', width: 256, height: 256, patternUnits: 'userSpaceOnUse' });
+    const img = el('image', { width: 256, height: 256, href: grainTile() }); img.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', grainTile());
+    pat.append(img); defs.append(pat);
+    const blur = el('filter', { id: uid + 's', x: '-20%', y: '-20%', width: '140%', height: '140%' }); blur.append(el('feGaussianBlur', { stdDeviation: 22 })); defs.append(blur);
+    clipEl = el('clipPath', { id: uid + 'c' });
+    clipRect = el('rect'); clipPath = el('path'); clipCols = Array.from({ length: 6 }, () => el('rect'));
+    defs.append(clipEl); svg.prepend(defs);
+    shadow = el('rect', { x: 0, y: 24, width: W, height: H, fill: INK, opacity: 0, filter: `url(#${uid}s)` }); svg.append(shadow);
+    grain = el('rect', { x: -B, y: -B, width: W + 2 * B, height: H + 2 * B, fill: `url(#${uid}g)`, 'pointer-events': 'none' });
+    grain.style.mixBlendMode = 'overlay'; grain.setAttribute('opacity', .22); svg.append(grain);
   }
-  let shown = -1;
+  const useClip = (...nodes) => { if (clipEl.firstChild !== nodes[0] || clipEl.childNodes.length !== nodes.length) clipEl.replaceChildren(...nodes); };
+  const reset = g => { g.removeAttribute('transform'); g.removeAttribute('clip-path'); };
+  let shown = -1, under = -1;
   function draw(TT) {
     if (!scenes) build();
     TT = sWrap(TT);
     let i = 0; while (i < NSC - 1 && TT >= SCENES[i + 1]) i++;
-    if (i !== shown) { if (shown >= 0) scenes[shown].g.style.display = 'none'; scenes[i].g.style.display = ''; shown = i; }
     const sc = scenes[i], u = Math.max(0, TT - SCENES[i]);
-    sc.ins.forEach(x => { const v = ease((u - +x.dataset.i * STAG) / IN); x.setAttribute('opacity', v.toFixed(3)); x.setAttribute('transform', `translate(0 ${((1 - v) * 28).toFixed(1)})`); });
+    if (i !== shown) {   // the new poster goes on top; the one it covers stays visible under it until the cut is done
+      if (under >= 0 && under !== shown) { scenes[under].g.style.display = 'none'; reset(scenes[under].g); }
+      under = shown; shown = i;
+      sc.g.style.display = '';
+      svg.insertBefore(shadow, grain); svg.insertBefore(sc.g, grain);
+    }
+    const kind = TRANS[i], D = TDUR[kind], q = Math.min(1, u / D), cutting = q < 1 && under >= 0 && under !== i;
+    const ug = cutting ? scenes[under].g : null, cx = W / 2, cy = H / 2, X0 = -B, Y0 = -B, WW = W + 2 * B, HH = H + 2 * B;
+    shadow.setAttribute('opacity', 0);
+    if (cutting) {
+      ug.style.display = '';
+      sc.g.setAttribute('clip-path', `url(#${uid}c)`);
+      if (kind === 'iris') {
+        // the next feeling's shape opens from the centre; soft (k .34) so its valleys also cover the corners
+        const p = inOut(q), r = 30 + p * (Math.hypot(WW, HH) * .75);
+        clipPath.setAttribute('d', shapePath(n, .34, r, cx, cy, p * 1.2)); useClip(clipPath);
+        sc.g.removeAttribute('transform');
+        ug.setAttribute('transform', `translate(${cx} ${cy}) scale(${(1 + .06 * p).toFixed(4)}) translate(${-cx} ${-cy})`);   // the old one pushes back
+      } else if (kind === 'columns') {
+        // six columns of the grid, right to left, each falling in with its own ease
+        // the columns are the poster's own sixths; the outer two run on to the screen edges
+        const cw = W / 6;
+        clipCols.forEach((r, j) => {
+          const v = outQ((q * D - j * .07) / (D - .35)), x0 = j === 5 ? -B : W - (j + 1) * cw, x1 = j === 0 ? W + B : W - j * cw;
+          r.setAttribute('x', x0 - .5); r.setAttribute('width', x1 - x0 + 1); r.setAttribute('y', Y0); r.setAttribute('height', HH * v);
+        });
+        useClip(...clipCols);
+        sc.g.removeAttribute('transform');
+        ug.setAttribute('transform', `translate(0 ${(60 * outQ(q)).toFixed(1)})`);
+      } else if (kind === 'push') {
+        // forward in Hebrew is to the left: the new poster comes from the left, the old one leaves right, slower (parallax)
+        const p = inOut(q), off = (W + B) * (1 - p);
+        clipRect.setAttribute('x', X0); clipRect.setAttribute('y', Y0); clipRect.setAttribute('width', WW); clipRect.setAttribute('height', HH); useClip(clipRect);
+        sc.g.setAttribute('transform', `translate(${(-off).toFixed(1)} 0)`);
+        ug.setAttribute('transform', `translate(${(W * .35 * p).toFixed(1)} 0)`);
+      } else {   // deal
+        const p = land(q), k = 1 - p;
+        clipRect.setAttribute('x', 0); clipRect.setAttribute('y', 0); clipRect.setAttribute('width', W); clipRect.setAttribute('height', H); useClip(clipRect);
+        const tf = `translate(${(-60 * k).toFixed(1)} ${(H * .85 * k).toFixed(1)}) rotate(${(-9 * k).toFixed(2)} ${cx} ${cy})`;
+        sc.g.setAttribute('transform', tf);
+        shadow.setAttribute('transform', tf); shadow.setAttribute('opacity', (.4 * Math.max(0, Math.min(1, k * 3))).toFixed(3));
+        ug.setAttribute('transform', `translate(${cx} ${cy}) scale(${(1 - .035 * (1 - k)).toFixed(4)}) translate(${-cx} ${-cy})`);
+      }
+    } else {
+      // a dealt card is the frame while it flies; after it lands its ground runs out to the real edge (phone, kiosk)
+      const g = kind === 'deal' && B ? outQ((u - D) / .35) : 1;
+      if (g < 1 && under >= 0 && under !== i) {
+        clipRect.setAttribute('x', -B * g); clipRect.setAttribute('y', -B * g); clipRect.setAttribute('width', W + 2 * B * g); clipRect.setAttribute('height', H + 2 * B * g);
+        useClip(clipRect); sc.g.setAttribute('clip-path', `url(#${uid}c)`); sc.g.removeAttribute('transform');
+      } else {
+        reset(sc.g);
+        if (under >= 0 && under !== i) { scenes[under].g.style.display = 'none'; reset(scenes[under].g); under = -1; }
+      }
+    }
+    // build-ins start as the cut settles
+    const b0 = under >= 0 && under !== i ? D * .45 : .1;
+    sc.ins.forEach(x => {
+      const v = outQ((u - b0 - +x.dataset.i * STAG) / IN);
+      if (x._kind === 'mask') { x.setAttribute('transform', `translate(0 ${((1 - v) * x._h).toFixed(1)})`); x.setAttribute('opacity', v > 0 ? 1 : 0); }
+      else if (x._kind === 'rule') x.setAttribute('transform', `translate(${x._x2} 0) scale(${v.toFixed(4)} 1) translate(${-x._x2} 0)`);
+      else { x.setAttribute('opacity', v.toFixed(3)); x.setAttribute('transform', `translate(0 ${((1 - v) * 24).toFixed(1)})`); }
+    });
     sc.dyn.forEach(f => f(u, TT));
   }
   return { draw, day };

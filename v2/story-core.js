@@ -1,8 +1,8 @@
 /* WHEEP · the story's timeline, shared by story.js (web) and the After Effects build (pasted into expressions).
-   ES5 on purpose. One day, ten stories, then it loops. Change S_PACE to slow everything down or speed it up together. */
+   ES5 on purpose. One day, eleven stories, then it loops. Change S_PACE to slow everything down or speed it up together. */
 var S_PACE = 2.8;                                                       // scales every story's hold together (S_HOLD is set at 2.8)
-// ten stories, each held this many seconds (at S_PACE 2.8): intro, words, guess, minutes, chapters, top 5, portrait, type, friends, share
-var S_HOLD = [6, 7, 8.5, 7, 7.5, 8, 8.5, 8.5, 8, 9.5];
+// eleven stories, each held this many seconds (at S_PACE 2.8): intro, words, guess, minutes, chapters, top 5, portrait, type, friends, tomorrow, share
+var S_HOLD = [6, 7, 8.5, 7, 7.5, 8, 8.5, 8.5, 8, 8.5, 9.5];
 var SCENES = [0];
 for (var sh_ = 0; sh_ < S_HOLD.length; sh_++) SCENES.push(SCENES[sh_] + S_HOLD[sh_] / 2.8);
 var STORY_DUR = SCENES[SCENES.length - 1] * S_PACE, S_BEAT = .4 * S_PACE;

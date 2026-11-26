@@ -1,7 +1,7 @@
 /* WHEEP · the final poster as a picture, for saving and sharing.
    The story draws its last poster (the share card) off screen, fully built; it is serialised with the fonts embedded
    and drawn into a canvas, so the PNG is exactly the poster on screen.
-   posterPNG(day) → PNG Blob (2×). savePoster(day) / sharePoster(day, url). Needs story.js and everything it needs. */
+   posterPNG(day) → JPEG Blob (2×, the name stays for old callers). savePoster(day) / sharePoster(day, url). Needs story.js and everything it needs. */
 
 const POSTER_FONTS = [
   ['Greta', 'fonts/GretaSerifVF.ttf', 'truetype', 'font-weight:100 900'],
@@ -45,12 +45,12 @@ async function posterPNG(day, scale = 2) {
       const c = document.createElement('canvas');
       c.width = 1080 * scale; c.height = 1350 * scale;
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      return await new Promise(r => c.toBlob(r, 'image/png'));
+      return await new Promise(r => c.toBlob(r, 'image/jpeg', .9));   // JPEG: the paper grain makes a PNG ~5 MB; this is ~1.5 MB
     } finally { URL.revokeObjectURL(url); }
   } finally { box.remove(); }
 }
 
-const posterFile = async day => new File([await posterPNG(day)], `wheep-${day.name}-${day.date.replace('.', '-')}.png`, { type: 'image/png' });
+const posterFile = async day => new File([await posterPNG(day)], `wheep-${day.name}-${day.date.replace('.', '-')}.jpg`, { type: 'image/jpeg' });
 function download(file) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(file); a.download = file.name;
