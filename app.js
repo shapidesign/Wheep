@@ -44,10 +44,30 @@
      The shape's sharpness is the message: what is held in reads sharp, what got out reads soft. */
   const FN = { fear: 3, joy: 4, talk: 4, cry: 5, sad: 5, release: 6, empathy: 6, shame: 7, anger: 8, press: 9, silence: 9 };
   const FK = { fear: .7, joy: .05, talk: .15, cry: .25, sad: .4, release: 0, empathy: .05, shame: .6, anger: .85, press: .9, silence: .5 };
+  // success moves the shape: k is the target, SHAPE_K the drawn value; morph() eases one toward the other
+  const SHAPE_K = new Map();
+  const shapeEl = (id, n, k, r, cx, cy, fill, extra = '') => {
+    const k0 = SHAPE_K.get(id) ?? k;
+    return `<path data-id="${id}" data-n="${n}" data-k="${k.toFixed(3)}" data-r="${r}" data-cx="${cx}" data-cy="${cy}" d="${shapePath(n, k0, r, cx, cy, 0, 120)}" fill="${fill}"${extra}/>`;
+  };
   const fig = (key, color, cls = 'fig', x, y, size = 48, k = FK[key]) => {
     const pos = x == null ? '' : ` x="${x}" y="${y}" width="${size}" height="${size}"`;
-    return `<svg class="${cls}" viewBox="-52 -52 104 104"${pos} aria-hidden="true"><path d="${shapePath(FN[key] || 9, k ?? .5, 50)}" fill="${color}"/></svg>`;
+    return `<svg class="${cls}" viewBox="-52 -52 104 104"${pos} aria-hidden="true">${shapeEl(`${cls}:${key}:${x ?? ''}`, FN[key] || 9, k ?? .5, 50, 0, 0, color)}</svg>`;
   };
+
+  // the morph: every visible shape eases toward its target sharpness and keeps a slow breath, so none ever freezes
+  const morph = (t) => {
+    $$('.screen:not([hidden]) path[data-k], .setup:not([hidden]) path[data-k], .talk-sheet:not([hidden]) path[data-k]').forEach((p, i) => {
+      const id = p.dataset.id, tgt = +p.dataset.k;
+      let cur = SHAPE_K.get(id) ?? tgt;
+      cur = reduced ? tgt : cur + (tgt - cur) * .045;
+      SHAPE_K.set(id, cur);
+      const k = reduced ? cur : Math.min(1, Math.max(0, cur + .035 * Math.sin(t / 1100 + i * 1.3)));
+      p.setAttribute('d', shapePath(+p.dataset.n, k, +p.dataset.r, +p.dataset.cx, +p.dataset.cy, 0, 120));
+    });
+    requestAnimationFrame(morph);
+  };
+  requestAnimationFrame(morph);
 
   /* ── the logo: lowercase wheep in Greta, plus the shape mark. It never holds one form. ── */
   const LOGO = ['fear', 'joy', 'cry', 'release', 'shame', 'anger', 'press'];
@@ -141,9 +161,9 @@
   const kbColor = (round) => (round < .34 ? PAL.press : round < .67 ? PAL.silence : PAL.release);
   // a flat shape in its measure's colour
   const N_OF = Object.fromEntries(Object.entries(PAL).map(([id, c]) => [c, FN[id] || 9]));
-  const mini = (round, cls = 'mini', dashed = false, label = '', fill, base = 'burst', n = 9, shadow = false) => {
-    const d = shapePath(N_OF[fill] || 9, 1 - round, 19, 24, 24);
-    return `<svg class="${cls}" viewBox="0 0 48 48" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}><path d="${d}" fill="${fill || kbColor(round)}"${dashed ? ' opacity=".4"' : ''}/></svg>`;
+  let miniN = 0;
+  const mini = (round, cls = 'mini', dashed = false, label = '', fill, base = 'burst', n = 9, shadow = false, id = `${cls}:${fill}:${++miniN}`) => {
+    return `<svg class="${cls}" viewBox="0 0 48 48" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}>${shapeEl(id, N_OF[fill] || 9, 1 - round, 19, 24, 24, fill || kbColor(round), dashed ? ' opacity=".4"' : '')}</svg>`;
   };
 
   /* ── the 16 days: 3.12 (last cry) → 18.12 (forecast); index 12 is today ── */
@@ -341,7 +361,7 @@
     </ul>`;
   const dialEls = DIALS.map((g, i) => {
     const li = $(`[data-dial="${g.id}"]`), ring = $(`[data-ring="${g.id}"]`);
-    return { g, r: RR[i], cur: g.round(), fr: g.frac(), arc: $('.ring-arc', ring), ol: $('.ring-ol', ring), num: $('.dial-read b', li), li };
+    return { g, r: RR[i], cur: g.round(), fr: g.frac(), arc: $('.ring-arc', ring), ol: $('.ring-ol', ring), num: $('.dial-read b', li), li, ic: $('.ring-icon path', ring) };
   });
   // as in the tracker: the rings, or any reading, open the deep dive (the trends)
   [$('#rings-btn'), ...dialEls.map((D) => D.li)].forEach((b) => b.addEventListener('click', () => show('trends')));
@@ -359,7 +379,7 @@
   // Same number, two bodies; the type follows the measure as it moves (D.cur: 0 held in, 1 let out).
   const voice = (el, k) => {
     k = Math.max(0, Math.min(1, k));
-    el.style.fontVariationSettings = `'wght' ${Math.round(100 - 85 * k)}, 'wdth' ${Math.round(25 + 75 * k)}`;
+    el.style.fontFamily = `Secolo${19 + Math.round(k * 3)}, Greta, serif`;
   };
   const mplEl = $('#rings-mpl');
   const frame = (t) => {
@@ -368,6 +388,7 @@
       const d = ringArc(D.fr, 1, 0, D.r, RC0, 0);                    // a clean, still arc: the reading, nothing else
       D.arc.setAttribute('d', d); D.ol.setAttribute('d', d);
       voice(D.num, D.cur);
+      D.ic.dataset.k = (1 - D.cur).toFixed(3);                       // the ring's mark softens as the ring fills
       if (D.g.id === 'press') voice(mplEl, D.cur);                   // the MPL in the middle is the held-in load
     });
     else dialEls.forEach((D) => { D.cur = D.g.round(); D.fr = D.g.frac(); });
@@ -575,12 +596,12 @@
         const li = ul.children[i], num = li.querySelector('b');
         if (+num.textContent === x.v) return;
         li.style.setProperty('--v', x.v); li.querySelector('.bar i').style.width = `${x.v}%`;
-        li.querySelector('.need-shape').outerHTML = mini(x.v / 100, 'mini need-shape', false, '', x.fill, x.base, x.n);
+        li.querySelector('.need-shape').outerHTML = mini(x.v / 100, 'mini need-shape', false, '', x.fill, x.base, x.n, false, `need:${x.id}`);
         countTo(num, +num.textContent, x.v); fx(li, 'is-up');
       });
       return;
     }
-    ul.innerHTML = NEEDS.map((x) => `<li class="need" style="--v:${x.v}">${mini(x.v / 100, 'mini need-shape', false, '', x.fill, x.base, x.n)}<span>${x.name}</span><span class="bar"><i style="width:${x.v}%;background:${x.fill}"></i></span><b class="num">${x.v}</b></li>`).join('');
+    ul.innerHTML = NEEDS.map((x) => `<li class="need" style="--v:${x.v}">${mini(x.v / 100, 'mini need-shape', false, '', x.fill, x.base, x.n, false, `need:${x.id}`)}<span>${x.name}</span><span class="bar"><i style="width:${x.v}%;background:${x.fill}"></i></span><b class="num">${x.v}</b></li>`).join('');
   };
   $('#acts').innerHTML = ACTS.map(([id, t, sub], i) => `<button type="button" class="act" data-i="${i}"><b>${t}</b><small>${sub}</small></button>`).join('');
   $('#acts').addEventListener('click', (e) => {

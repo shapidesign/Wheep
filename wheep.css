@@ -5,6 +5,8 @@
 /* v2 type: Greta Serif VF (Typotheque) reads, carries the logo and the live readings; Secolo (Michal Sahar) is the display for numbers and feeling words */
 @font-face { font-family: Greta; src: url(v2/fonts/GretaSerifVF.ttf) format('truetype-variations'), url(v2/fonts/GretaSerifVF.ttf) format('truetype'); font-weight: 1; --gw: 32 1000; font-display: swap; }
 @font-face { font-family: GretaI; src: url(v2/fonts/GretaSerif-ItalicVF.ttf) format('truetype-variations'), url(v2/fonts/GretaSerif-ItalicVF.ttf) format('truetype'); font-weight: 1; --gw: 32 1000; font-display: swap; }
+@font-face { font-family: Secolo19; src: url(v2/fonts/Secolo-19.otf) format('opentype'); font-display: swap; }
+@font-face { font-family: Secolo20; src: url(v2/fonts/Secolo-20.otf) format('opentype'); font-display: swap; }
 @font-face { font-family: Secolo21; src: url(v2/fonts/Secolo-21.otf) format('opentype'); font-display: swap; }
 @font-face { font-family: Secolo22; src: url(v2/fonts/Secolo-22.otf) format('opentype'); font-display: swap; }
 
@@ -1372,13 +1374,14 @@ html.track .panel-row .panel-h { border: 0; }
 
 /* large type and numbers: Hammer Pro, regular width */
 /* v2: headings are Greta, heavy; numbers are Secolo 21 */
-html.track .page-title, html.track .dnav-day > span, html.track .su-h, html.track .panel-h, h1, h2 { font-family: Greta, Georgia, serif; --gw: 84; letter-spacing: -.01em; }
+/* large text is Secolo (display); small body text is Greta */
+html.track .page-title, html.track .dnav-day > span, html.track .su-h, html.track .panel-h, html.track .ab-title, html.track .call-name, h1, h2 { font-family: Secolo22, Greta, serif; letter-spacing: 0; }
 /* Secolo is a display face: only at display sizes. Small numbers stay in Greta */
 html.track .num { font-family: Greta, Georgia, serif; }
 html.track .metric b, html.track .gain-bal b, html.track .post-stats dd, html.track .emo-det .panel-val b { font-family: Secolo21, Greta, serif; }
 /* numbers: Hammer Condensed */
-/* the live readings stay in Greta: its weight and width move with the value */
-html.track .dial-read b, html.track .rings-mid b { font-family: Greta, Georgia, serif; }
+/* the live readings: Secolo, cutting between its four cuts as the value moves (set by app.js) */
+html.track .dial-read b, html.track .rings-mid b { font-family: Secolo21, Greta, serif; }
 html.track .page-title { font-size: 34px; font-weight: 700; --gw: 72; letter-spacing: .01em; }
 html.track .panel-h { font-size: 19px; font-weight: 700; --gw: 72; letter-spacing: .01em; }
 
@@ -1499,7 +1502,7 @@ html.track .rings-card, html.track .coach-card { background: var(--panel); borde
 html.track .ring-ol { display: none; }
 html.track .ring-track { stroke-opacity: .18; }
 html.track .ring-icon path { stroke: var(--ground); stroke-width: 3; }
-html.track .rings-mid b { font-family: Greta, Georgia, serif; font-size: 44px; font-weight: 700; --gw: 72; letter-spacing: 0; }
+html.track .rings-mid b { font-family: Secolo21, Greta, serif; font-size: 44px; font-weight: 700; --gw: 72; letter-spacing: 0; }
 html.track .rings-mid small { color: var(--ink-3); font-weight: 400; --gw: 32; letter-spacing: .08em; }
 html.track .ring-legend .dial { background: var(--panel-2); border: 0; }
 html.track .ring-legend .dial-name { color: var(--ink-2); font-weight: 700; --gw: 72; }
@@ -1580,7 +1583,7 @@ html.track #gain-bar { background: var(--m-release); }   /* progress toward the 
 /* ── v13: one heading voice, a quiet next step, contacts, a win badge ── */
 /* section headings share the design-system Panel title: Hammer wide, 19/700 */
 html.track .panel-h, html.track .talk-h, html.track .ts-h, html.track .more > summary span {
-  font-family: Greta, Georgia, serif; font-size: 20px; --gw: 84; font-weight: 700; --gw: 72; letter-spacing: .01em; line-height: 1.2; color: var(--ink);
+  font-family: Secolo22, Greta, serif; font-size: 23px; font-weight: 700; --gw: 72; letter-spacing: .01em; line-height: 1.2; color: var(--ink);
 }
 html.track .talk-sub { color: var(--ink-2); }
 /* the warning and its next step read as one block */
@@ -1658,3 +1661,12 @@ b, strong, h1, h2, h3, th { --gw: 72; }
 html.track .emo-h { font-family: Secolo22, Greta, serif; font-size: 30px; --gw: 32; }
 /* the middle between the brutal week and the polished one: harder rules, smaller corners */
 :root { --r: 14px; }
+
+/* Secolo is narrow and high-contrast: at the same size it reads smaller than Greta, so display text runs ~20% larger */
+html.track .panel-h, html.track .talk-h, html.track .ts-h, html.track .more > summary span { font-size: 28px; line-height: 1.1; }
+html.track .dnav-day > span { font-size: 32px; }
+html.track .page-title { font-size: 42px; }
+html.track .su-h { font-size: 46px; }
+html.track .rings-mid b { font-size: 56px; }
+html.track .ring-legend .dial-read b { font-size: 36px; }
+html.track .metric b { font-size: 54px; }
