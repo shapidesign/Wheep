@@ -1,1 +1,4 @@
 .DS_Store
+
+# After Effects keeps its own backup copies here
+Auto-Save/

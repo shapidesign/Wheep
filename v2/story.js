@@ -6,7 +6,7 @@
 
 const SW = 1080, SH = 1350, SNS = 'http://www.w3.org/2000/svg';
 
-function createStory(svg, day) {
+function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs past the frame to the real screen edge
   const e = EMO[day.emo], pal = palette(e.c), n = e.n, id = 's' + Math.floor(Math.random() * 1e9);
   const el = (tag, attrs = {}, parent = svg) => {
     const x = document.createElementNS(SNS, tag);
@@ -22,7 +22,8 @@ function createStory(svg, day) {
     if (!o.face) { const w = o.w ?? 50; gretaList.push({ t, base: w, amp: o.amp ?? 22, phase: gretaList.length * .9 }); t.style.fontVariationSettings = `'wght' ${w}`; }
     return t;
   };
-  const setW = (t, w) => t.style.fontVariationSettings = `'wght' ${Math.max(0, Math.min(100, w)).toFixed(1)}`;
+  const setW = (t, w, wd = 100, op = 100) => t.style.fontVariationSettings =
+    `'wght' ${Math.max(0, Math.min(100, w)).toFixed(1)}, 'wdth' ${wd.toFixed(1)}, 'OPTI' ${Math.max(0, Math.min(100, op)).toFixed(1)}`;
   const secolo = (t, i) => t.style.fontFamily = SECOLO[((i % 4) + 4) % 4];
   const rect = (parent, x, y, w, h, fill) => el('rect', { x, y, width: w, height: h, fill }, parent);
 
@@ -50,9 +51,11 @@ function createStory(svg, day) {
   const defs = el('defs');
 
   // ground: ink, then the feeling's colour opens from the shape (and closes again at the end)
-  rect(svg, 0, 0, SW, SH, pal.k);
+  const B = opts.bleed ? 3000 : 0;   // with bleed the ground (and the shape) carry on past the frame
+  if (opts.bleed) svg.style.overflow = 'visible';
+  rect(svg, -B, -B, SW + 2 * B, SH + 2 * B, pal.k);
   const wipeClip = el('clipPath', { id: id + 'w' }, defs), wipeC = el('circle', {}, wipeClip);
-  rect(svg, 0, 0, SW, SH, pal.m).setAttribute('clip-path', `url(#${id}w)`);
+  rect(svg, -B, -B, SW + 2 * B, SH + 2 * B, pal.m).setAttribute('clip-path', `url(#${id}w)`);
 
   // the shape and two trailing bands of itself
   const band1 = el('path', { fill: pal.b }), band2 = el('path', { fill: pal.a }), hero = el('path', {});
@@ -164,7 +167,7 @@ function createStory(svg, day) {
     T = sWrap(T);
     const b = Math.floor(T / S_BEAT);
     const open = sOpen(T), h0 = sHero(T, day.kOut, day.kIn);
-    wipeC.setAttribute('cx', h0[0]); wipeC.setAttribute('cy', h0[1]); wipeC.setAttribute('r', open * 1900);
+    wipeC.setAttribute('cx', h0[0]); wipeC.setAttribute('cy', h0[1]); wipeC.setAttribute('r', open * (1900 + B));
     const onColour = open > .5;
     svg.style.color = onColour ? pal.k : pal.w;
 
@@ -186,10 +189,11 @@ function createStory(svg, day) {
     });
 
     // Greta breathes everywhere; the intro name and the closing lines carry their own story on top
-    gretaList.forEach(g => setW(g.t, sGreta(T, g.base, g.amp, g.phase)));
-    setW(introName, sGreta(T, 10 + 80 * sOut((T - .2) / 1.2), 10, 0));
+    gretaList.forEach(g => setW(g.t, ...sGretaAxes(T, g.base, g.amp, g.phase)));
+    const ax = (base, amp, ph) => { const v = sGretaAxes(T, base, amp, ph); return [v[0], v[1], v[2]]; };
+    setW(introName, ...ax(10 + 80 * sOut((T - .2) / 1.2), 10, 0));
     const turn = sOut((T - 14.4) / .4);
-    setW(lineA, sGreta(T, 100 - 65 * turn, 8, 0)); setW(lineB, sGreta(T, 30 + 65 * turn, 8, 1.5));
+    setW(lineA, ...ax(100 - 65 * turn, 8, 0)); setW(lineB, ...ax(30 + 65 * turn, 8, 1.5));
     setW(wordmark, 100 * (1 - h0[3]));
 
     // 1 · letter spacing pulls the word together, Secolo cuts on the beat

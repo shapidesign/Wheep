@@ -24,13 +24,17 @@ function main() {
   var folder = proj.items.addFolder("WHEEP wrapped story");
 
   // Greta Serif VF instances: registering them once makes setFont() in expressions find them (weight step 5)
-  var FONT_FN = "function F(w){w=Math.round(Math.max(0,Math.min(100,w))/5)*5;return \"GretaSerif_\"+w.toFixed(3)+\"wght_0ital\";}";
+  // all three axes: wght (step 5) × wdth (82 / 91 / 100) × OPTI (step 25); AE omits an axis at its default (100) from the name
+  var FONT_FN = "function F(w,wd,op){w=Math.round(Math.max(0,Math.min(100,w))/5)*5;wd=wd==null?100:(wd>95.5?100:(wd>86.5?91:82));" +
+    "op=op==null?100:Math.round(Math.max(0,Math.min(100,op))/25)*25;" +
+    "return \"GretaSerif_\"+w.toFixed(3)+\"wght_\"+(wd==100?\"\":wd.toFixed(3)+\"wdth_\")+(op==100?\"\":op.toFixed(3)+\"OPTI_\")+\"0ital\";}";
   (function registerInstances() {
     var tc = proj.items.addComp("_fonts", 100, 100, 1, 1, 30);
     var st = tc.layers.addText("a").property("ADBE Text Properties").property("ADBE Text Document");
     var td = st.value; td.font = GRETA; st.setValue(td);
     var fo = st.value.fontObject;   // never read fo.designVector: it crashes AE 27
-    for (var w = 0; w <= 100; w += 5) fo.postScriptNameForDesignVector([w, 100, 100]);
+    var WD = [82, 91, 100];
+    for (var w = 0; w <= 100; w += 5) for (var a = 0; a < 3; a++) for (var op = 0; op <= 100; op += 25) fo.postScriptNameForDesignVector([w, WD[a], op]);
     tc.remove();
   })();
 
@@ -90,8 +94,9 @@ function main() {
       if (o.box) { var bp = st.value.boxTextPos; pos = [x - bp[0], y - bp[1]]; }
       L.property("ADBE Transform Group").property("ADBE Position").setValue(pos);
       var font = o.face === "secolo" ? "setFont(" + SECOLO + "[(((b+" + (o.beat || 0) + ")%4)+4)%4])"
-        : "setFont(F(" + (o.wExpr || "sGreta(T," + (o.w == null ? 50 : o.w) + "," + (o.amp == null ? 22 : o.amp) + "," + (o.phase || 0) + ")") + "))";
-      st.expression = H0 + FONT_FN + "var s=text.sourceText.style." + font + ";" +
+        : (o.wExpr ? "setFont(F(" + o.wExpr + ",GA[1],GA[2]))" : "setFont(F(GA[0],GA[1],GA[2]))");
+      var axes = "var GA=sGretaAxes(T," + (o.w == null ? 50 : o.w) + "," + (o.amp == null ? 22 : o.amp) + "," + (o.phase || 0) + ");";
+      st.expression = H0 + FONT_FN + axes + "var s=text.sourceText.style." + font + ";" +
         (o.text ? "s=s.setText(" + o.text + ");" : "") + (o.track ? "s=s.setTracking(" + o.track + ");" : "") + "s;";
       // centred on its own measured box: AE's centre justification drifts for some RTL/number runs
       if (o.align === "center" && !o.box) L.property("ADBE Transform Group").property("ADBE Anchor Point").expression =

@@ -36,10 +36,14 @@
   .bar { height: 6px; background: var(--line); margin-top: 22px; }
   .bar i { display: block; height: 100%; width: 0; background: #fff; transition: width .2s linear; }
   /* the story */
-  #story.screen { padding: 0; max-width: none; background: #000; justify-content: center; }
-  #story svg { display: block; width: min(100vw, calc(100svh * 1080 / 1350 - 72px * 1080 / 1350)); height: auto; margin: 0 auto; }
-  .actions { display: flex; gap: 10px; padding: 12px 22px calc(12px + env(safe-area-inset-bottom)); justify-content: center; }
-  .actions button { flex: 1; max-width: 220px; font-size: 18px; padding: 13px; }
+  /* the story fills the phone: the frame is sized to the width, its ground runs on to the real screen edge */
+  #story.screen { position: fixed; inset: 0; padding: 0; max-width: none; overflow: hidden; background: var(--ground); }
+  #story svg { position: absolute; left: 50%; top: 46%; translate: -50% -50%; width: min(100vw, calc(86svh * 1080 / 1350)); height: auto; overflow: visible; }
+  .dock { position: absolute; inset: auto 0 0 0; display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center;
+    padding: 10px 14px calc(12px + env(safe-area-inset-bottom)); background: rgba(22, 19, 15, .86); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .dock input { font-size: 18px; padding: 11px 12px; min-width: 0; }
+  .dock button { font-size: 16px; padding: 12px 14px; white-space: nowrap; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   @media (prefers-reduced-motion: reduce) { .status li { transition: none; } }
 </style>
 </head>
@@ -68,9 +72,12 @@
 
 <section class="screen" id="story">
   <svg id="storySvg"></svg>
-  <div class="actions">
+  <div class="dock">
+    <label class="sr" for="liveName">השם בסיכום</label>
+    <input id="liveName" maxlength="20" autocomplete="given-name" enterkeyhint="done" aria-describedby="liveHint">
+    <span class="sr" id="liveHint">שינוי השם מתחיל את הסיפור מחדש בשם החדש</span>
     <button class="quiet" type="button" id="again">מההתחלה</button>
-    <button class="quiet" type="button" id="other">שם אחר</button>
+    <button class="primary" type="button" id="save">שמור תמונה</button>
   </div>
 </section>
 
@@ -80,6 +87,7 @@
 <script src="gen.js"></script>
 <script src="story-core.js"></script>
 <script src="story.js"></script>
+<script src="summary.js"></script>
 <script>
   const $ = id => document.getElementById(id);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -132,16 +140,35 @@
     play(day);
   }
 
-  // 3 · the story
+  // 3 · the story (full screen); the name stays editable: a new name restarts the story in that name
+  let current = null;
   function play(day) {
     show('story');
-    story = createStory($('storySvg'), day);
+    current = day;
+    story = createStory($('storySvg'), day, { bleed: true });
     storyStart = performance.now();
+    if (document.activeElement !== $('liveName')) $('liveName').value = day.name;
     if (reduce) { story.draw(12.6); story = null; }
     history.replaceState(null, '', `?name=${encodeURIComponent(day.name)}`);
   }
+  let typing = null;
+  $('liveName').addEventListener('input', () => {
+    clearTimeout(typing);
+    typing = setTimeout(() => {
+      const name = $('liveName').value.trim().replace(/\s+/g, ' ');
+      if (name && (!current || name !== current.name)) play(makeDay({ name, date: new Date() }));
+    }, 450);
+  });
+  $('liveName').addEventListener('keydown', ev => { if (ev.key === 'Enter') $('liveName').blur(); });
   $('again').addEventListener('click', () => { storyStart = performance.now(); });
-  $('other').addEventListener('click', () => { story = null; history.replaceState(null, '', location.pathname); show('ask'); $('name').select(); });
+  // 4 · the day as one still, saved as a PNG
+  $('save').addEventListener('click', async () => {
+    if (!current) return;
+    const b = $('save'), label = b.textContent;
+    b.disabled = true; b.textContent = 'שומר…';
+    try { await saveSummary(current); } catch (e) { b.textContent = 'לא נשמר, נסה שוב'; await wait(1600); }
+    b.disabled = false; b.textContent = label;
+  });
 
   // a shared link (?name=) goes straight to the story
   const pre = new URLSearchParams(location.search).get('name');

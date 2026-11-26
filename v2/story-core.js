@@ -39,4 +39,10 @@ function sBreath(T) { return 1 + .02 * Math.sin(4 * Math.PI * sWrap(T) / STORY_D
 // Greta breathing: a weight that oscillates around base; period 4 s (4 per loop), so it closes too
 function sGreta(T, base, amp, phase) { return Math.max(0, Math.min(100, base + amp * Math.sin(2 * Math.PI * sWrap(T) / 4 + (phase || 0)))); }
 
-if (typeof module !== 'undefined') module.exports = { STORY_DUR: STORY_DUR, SCENES: SCENES, S_BEAT: S_BEAT, S_K: S_K, S_LEAD: S_LEAD, S_TRAIL: S_TRAIL, sOut: sOut, sIn: sIn, sFlow: sFlow, sEnv: sEnv, sScene: sScene, sHero: sHero, sOpen: sOpen, sSpin: sSpin, sBreath: sBreath, sGreta: sGreta, sWrap: sWrap, sClamp: sClamp, sLerp: sLerp };
+// Greta on all three axes: weight breathes (4 s), width narrows and returns (8 s), optical size swings (4 s, a quarter out of step).
+// wdth only goes down from its default (100), so text measured at full width never overflows. Returns [wght, wdth, OPTI].
+function sGretaAxes(T, base, amp, phase) {
+  var t = 2 * Math.PI * sWrap(T); phase = phase || 0;
+  return [sGreta(T, base, amp, phase), 82 + 18 * (.5 + .5 * Math.sin(t / 8 + phase * 1.3)), 50 + 50 * Math.sin(t / 4 + phase + Math.PI / 2)];
+}
+if (typeof module !== 'undefined') module.exports = { STORY_DUR: STORY_DUR, SCENES: SCENES, S_BEAT: S_BEAT, S_K: S_K, S_LEAD: S_LEAD, S_TRAIL: S_TRAIL, sOut: sOut, sIn: sIn, sFlow: sFlow, sEnv: sEnv, sScene: sScene, sHero: sHero, sOpen: sOpen, sSpin: sSpin, sBreath: sBreath, sGreta: sGreta, sGretaAxes: sGretaAxes, sWrap: sWrap, sClamp: sClamp, sLerp: sLerp };
