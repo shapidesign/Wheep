@@ -54,7 +54,7 @@ One generator, `shape.js`: `shapePath(n, k, r, cx, cy, rot)`.
 - **k** moves through four drawn keyframes: clover (0), soft square (.34), rounded star (.67), needle star (1). Never draw a shape by hand. Pick n and k.
 - **No bands.** A shape is only its own form: no trailing outlines or rings around it.
 - **One shape layer per poster: the hero or the background, never both.** Either the feeling's shape stands in front and carries the day, or one or two background shapes carry it from behind. Scenes where the shape *is* the message (intro, the feeling, outside vs inside) use the hero; scenes led by type or data (what was measured, the day in feelings, the two lines) use the background. The hero is soft outside, its true quality inside. Small shapes appear only as data (one mark per event), never as a swarm.
-- **Background shapes, when the poster has no hero.** One or two large shapes, tone on tone: the ground mixed 14% toward ink (on the ink ground, `#26221C`). They sit right above the ground, under the frame and the type, placed in the areas the layout leaves empty. They use the feeling's n and take over the hero's story (the main one follows the scene's k: out ↔ in, or back to soft at the end; a second one morphs slowly, 7–11 s), turn slowly and grow in with the scene. Never in a feeling colour, never small, never more than two. (`story.js → ghost()`)
+- **Background shapes, when the poster has no hero.** One or two large shapes, tone on tone: the ground mixed 8% toward ink (so ink text over them keeps ≥4.5:1 on every feeling) (on the ink ground, `#26221C`). They sit right above the ground, under the frame and the type, placed in the areas the layout leaves empty. They use the feeling's n and take over the hero's story (the main one follows the scene's k: out ↔ in, or back to soft at the end; a second one morphs slowly, 7–11 s), turn slowly and grow in with the scene. Never in a feeling colour, never small, never more than two. (`story.js → ghost()`)
 - n can go fractional for transitions only (the logo melting between feelings). Content always uses a whole n.
 
 ## 3. Type: Secolo + Greta Serif VF
@@ -81,8 +81,8 @@ This is a wrapped for an app: it reveals the day step by step, so a person can t
 | 5 | three chapters | 7.5 | morning, afternoon, evening as three bands in the feeling that held each one, its shape cropped by the band, the word in Secolo |
 | 6 | top five | 8 | ink. The five longest stretches, ranked 1–5: shape and word in the feeling's colour, the hours, a bar with the minutes |
 | 7 | the daily portrait | 8.5 | ink. Every stretch of the day becomes its feeling's shape, sized by how long it lasted, packed into one form (`mPack`, seeded: no two portraits alike), each morphing on its own; the top three below |
-| 8 | the type | 8.5 | the type's name and line (סיר לחץ, קיפוד, מים שקטים, סערה גלויה), then a 2×2 table: outside (rows) × inside (columns), each quarter with its pair of shapes. The person's shape travels to their quarter, which turns ink while the others step back |
-| 9 | the friends | 8 | "מה שלום החברים שלך?" Four friends, each with their shape, feeling and gap; the one with the widest gap gets a nudge in an ink box ("אולי תתקשר ל…?") |
+| 8 | the type | 8.5 | three modules, top to bottom: the type's name and line; your two shapes side by side (what showed, what was inside, each morphing from soft to what it was) with the gap knocked out of the divider; then the four types as a hairline 2×2 table (outside rows, inside columns, labels outside the cells) where only yours fills, from the reading side (the one filled thing on the poster). The share of men of that type sits in the footer |
+| 9 | the friends | 8 | "מה שלום החברים שלך?" Four friends, each with their daily shape (it holds still: it is their day, not a motion), feeling and gap; the one with the widest gap gets a nudge in an ink box ("אולי תתקשר ל…?") |
 | 10 | the share card | 9.5 | "ככה עבר עליי היום", the name, the shape with the type and the leading feeling, three figures (words, minutes, the day's measure), and the day in feelings as one bar. The share button sends this poster |
 
 - **One tight grid.** Every poster is the same frame: 56 px margins, 6 columns with 16 px gutters, a progress bar, a top row (name · day and date · wheep) and a bottom row between two hairline rules. Inside it the type is sized to fill its measure (`fit()` measures Greta at wght 100 and Secolo at its widest cut), the data spans the full width, and rules split the poster into modules. No zone is left empty: what the type and data don't fill, the shape layer does. (This replaced the three layouts A · line, B · dial, C · grid.)
@@ -103,7 +103,7 @@ This is a wrapped for an app: it reveals the day step by step, so a person can t
 - **Build-up:** inside each scene the elements arrive one after another, 0.09 s apart (quartic ease-out over 0.7 s, rising 28 px). The name and the two closing lines write themselves in letter by letter.
 - **Data reveals:** the figures and shares count up, the 24h axis draws, ticks arrive, durations wipe in, events pop onto it; the gap fills on the scale as the inside shape turns; the day in feelings opens stretch by stretch, and the top three arrive 0.25 s apart.
 - **Pace:** 6.2–9.5 s per scene. The motion inside a poster runs in real seconds (it finishes in about 3–5 s), and `S_PACE` only sets how long each poster then holds.
-- **Reduced motion:** the story holds on scene 4 (the day in feelings).
+- **Reduced motion:** the story still plays every story from the start (phone and kiosk); each one appears fully built instead of moving.
 
 ## 7b. Text rules
 
@@ -111,7 +111,7 @@ This is a wrapped for an app: it reveals the day step by step, so a person can t
 - **Fit and wrap at the heaviest weight.** Greta breathes up to wght 100, so text is measured at 100. Names and units shrink to fit their width; sentences wrap to their column (web: measured tspans; AE: paragraph text boxes).
 - **No orphans:** wrapped lines are balanced (the narrowest width that keeps the same number of lines), and a last line of one word pulls one more down.
 - **Performance:** only scenes on screen are drawn, a letter is restyled only when its rounded axes change, and the week page draws only the stories in view.
-- **Contrast:** ink on the feeling, white on ink. The hero is placed in columns the type doesn't use (or bleeds off an edge), so ink type never sits on the ink shape; background shapes are tone on tone, so type reads over them. The "now" mark is ink, because white disappears on the light feelings.
+- **Contrast:** ink on the feeling, white on ink; every pair is ≥4.5:1 (the weakest, ink on holding-in purple, is 5.2; ink over a background shape on purple, 4.6). The hero is placed in columns the type doesn't use (or bleeds off an edge), so ink type never sits on the ink shape; background shapes are tone on tone, so type reads over them. The "now" mark is ink, because white disappears on the light feelings.
 
 ## 8. Files
 

@@ -112,7 +112,6 @@
     story = createStory(stage, makeDay({ name, date: new Date(), top }), { bleed: true });
     start = t; visitor = isVisitor ? name : null;
     caption();
-    if (reduce) story.draw(sAt(4, 1.5));
   }
   function next(t) {
     if (queue.length) return show(queue.shift(), null, t, true);
@@ -129,7 +128,9 @@
   function tick(t) {
     if (!story || t - start > STORY_DUR * 1000) next(t);   // one whole wrapped, then the next person
     const T = (t - start) / 1000;
-    story.draw(T);
+    // reduced motion still plays every story in turn; each one appears fully built instead of moving
+    let si = 0; while (si < SCENES.length - 2 && T >= SCENES[si + 1]) si++;
+    story.draw(reduce ? SCENES[si + 1] - .05 : T);
     // each person's last poster: the QR becomes theirs, so they can take the poster with them and share it
     const end = T >= SCENES[SCENES.length - 2];
     setQR(end ? `${target}?name=${encodeURIComponent(story.day.name)}` : target);
@@ -144,7 +145,7 @@
     typing = setTimeout(() => { const name = ev.target.value.trim().replace(/\s+/g, ' '); if (name) arrive(name); }, 450);
   });
   syncListen(name => { document.getElementById('here').value = ''; arrive(name); });
-  document.fonts.ready.then(() => reduce ? next(0) : requestAnimationFrame(tick));
+  document.fonts.ready.then(() => requestAnimationFrame(tick));
 </script>
 </body>
 </html>

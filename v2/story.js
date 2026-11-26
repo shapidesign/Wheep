@@ -108,14 +108,14 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
     const q = add(el('path', { fill }));
     live((u, TT) => {
       const v = u - (o.at ?? 0), s = o.at != null ? (v < 0 ? 0 : sBack(v / .45)) : (o.grow ?? .7) + (1 - (o.grow ?? .7)) * sFlow(v / .9);
-      const br = 1 + .025 * Math.sin(2 * Math.PI * TT / 3.2 + (o.ph || 0));
+      const br = o.still ? 1 : 1 + .025 * Math.sin(2 * Math.PI * TT / 3.2 + (o.ph || 0));   // o.still: no breath, no turn
       q.setAttribute('d', s > .01 ? shapePath(nn, ck(kf(v, TT)), r * s * br, cx, cy, (o.dir || 1) * v * (o.spin ?? .12), o.steps || 220) : '');
     });
     return q;
   };
   // background shapes: tone on tone, under the frame and the type. Only on posters whose shapes are data, not a hero.
   const ghost = (kf, r, cx, cy, ground, nn = n) => {
-    const q = el('path', { fill: ground === INK ? '#26221C' : mixHex(ground, INK, .14) });
+    const q = el('path', { fill: ground === INK ? '#26221C' : mixHex(ground, INK, .08) });   // .08: ink text over it keeps ≥4.5:1 on every feeling
     S.g.insertBefore(q, S.g.children[1]);
     live((u, TT) => q.setAttribute('d', shapePath(nn, ck(kf(u, TT)), r * (.85 + .15 * sFlow(u / 1.4)), cx, cy, -TT * .05, 200)));
   };
@@ -260,42 +260,50 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
         y += 92;
       });
     },
-    // 8 · your type: a 2×2 table, outside (rows) × inside (columns). The quarters come in, your shape travels to yours,
-    //     morphing from soft to what was inside; your quarter fills, the others step back.
+    // 8 · your type. Three modules, read top to bottom:
+    //     the name and its line (what you are), your two shapes side by side (why: what showed, what was inside, the gap),
+    //     then the four types as a 2×2 table where only yours is filled (where you sit among the others).
     () => {
-      const fg = frame(7, P.m, U.typeNote), key = typeKey(day), LAND = 3.2;
+      const fg = frame(7, P.m, copyFill(U.typePeers, { pct: typePct, type: type.name })), key = typeKey(day);
       title(fg, U.type);
-      const nm = Sx(type.name, W - M, 0, 300, { fill: fg, i: 2 }), f = fit(nm, MEAS, 260); hang(nm, TOP + 96, f);
-      shrink(breathe(T(type.line, W - M, TOP + 96 + f * .74 + 66, 42, { fill: fg, i: 3 }), 60), MEAS);
-      const top = TOP + 96 + f * .74 + 130, g = { x0: M + 60, x1: W - M, y0: top + 60, y1: BOT - 70 }, cw = (g.x1 - g.x0) / 2, chh = (g.y1 - g.y0) / 2;
-      // axis labels sit outside the table
-      T(U.insideAxis, (g.x0 + g.x1) / 2, g.y1 + 44, 26, { fill: fg, w: 60, anchor: 'middle', i: 4 });
-      T(U.softShort, g.x1 - 8, g.y0 - 16, 24, { fill: fg, w: 40, i: 4 }); T(U.sharpShort, g.x0 + 8, g.y0 - 16, 24, { fill: fg, w: 40, anchor: 'end', i: 4 });
-      const sx = M + 18, sy = (g.y0 + g.y1) / 2, side = el('text', { x: sx, y: sy, 'font-size': 26, direction: 'rtl', 'text-anchor': 'middle', fill: fg, 'font-family': 'Greta, GretaHL',
-        transform: `rotate(-90 ${sx} ${sy})`, style: "font-variation-settings:'wght' 60" }, U.outsideAxis);
-      S.g.append(side);
-      // the four quarters: rows = outside (sharp on top), columns = inside (soft on the right, as Hebrew reads)
-      const cells = { ss: [0, 1], sh: [1, 1], hs: [0, 0], hh: [1, 0] };
+      const nm = Sx(type.name, W - M, 0, 300, { fill: fg, i: 2 }), f = fit(nm, MEAS, 230); hang(nm, TOP + 96, f);
+      const nb = TOP + 96 + f * .74;
+      shrink(breathe(T(type.line, W - M, nb + 64, 40, { fill: fg, i: 3 }), 55), MEAS);
+      // module 2 · the pair: outside (right, read first) and inside, each morphing from soft to what it was
+      const r1 = nb + 112, r2 = r1 + 420, cxR = W - M - MEAS / 4, cxL = M + MEAS / 4, sy = r1 + 215;
+      rule(r1, fg, 4);
+      add(el('rect', { x: W / 2 - 1, y: r1 + 28, width: 2, height: r2 - r1 - 56, fill: fg }), 4);
+      [[U.outside, day.kOut, cxR, .6], [U.inside, day.kIn, cxL, .9]].forEach(([lab, kk, cx, at], j) => {
+        T(lab, cx, r1 + 56, 30, { fill: fg, w: 70, anchor: 'middle', i: 5 + j });
+        shape(n, u => sLerp(.34, kk, sFlow((u - at - .3) / 1.1)), 135, cx, sy, INK, { at, spin: .05, dir: j ? -1 : 1 });
+        const kw = Sx(kk >= .55 ? U.sharpShort : U.softShort, cx, r2 - 34, 64, { fill: fg, anchor: 'middle', i: 6 + j, seed: j });
+        live(u => kw.setAttribute('opacity', ease((u - at - 1.2) / .4)));
+      });
+      // the gap, knocked out of the divider
+      const gap = Math.round(Math.abs(day.kIn - day.kOut) * 100);
+      add(el('rect', { x: W / 2 - 92, y: sy - 74, width: 184, height: 128, fill: P.m }), 7);
+      T(U.gapShort, W / 2, sy - 34, 24, { fill: fg, w: 70, anchor: 'middle', i: 7 });
+      const gp = Sx('0%', W / 2, sy + 38, 72, { fill: fg, anchor: 'middle', i: 7, seed: 3 });
+      countUp(gp, gap, 1.6, 1.2, '%');
+      // module 3 · the four types: rows = outside (sharp on top), columns = inside (soft on the right, as Hebrew reads)
+      rule(r2, fg, 8);
+      const rowW = 150, g = { x0: M, x1: W - M - rowW, y0: r2 + 64, y1: BOT - 18 }, cw = (g.x1 - g.x0) / 2, ch = (g.y1 - g.y0) / 2;
+      T(U.softIn, g.x1 - cw / 2, r2 + 44, 24, { fill: fg, w: 70, anchor: 'middle', i: 8 });
+      T(U.sharpIn, g.x0 + cw / 2, r2 + 44, 24, { fill: fg, w: 70, anchor: 'middle', i: 8 });
+      T(U.sharpOut, W - M, g.y0 + ch / 2 + 9, 24, { fill: fg, w: 70, i: 8 });
+      T(U.softOut, W - M, g.y0 + ch * 1.5 + 9, 24, { fill: fg, w: 70, i: 8 });
+      const cells = { hs: [0, 0], hh: [1, 0], ss: [0, 1], sh: [1, 1] }, FILL = 3.1;
       Object.entries(cells).forEach(([k, [col, row]], j) => {
-        const x = g.x1 - (col + 1) * cw, y = g.y0 + row * chh, mine = k === key, at = .5 + j * .15;
-        const cell = add(el('rect', { x: x + 3, y: y + 3, width: cw - 6, height: chh - 6, fill: mixHex(P.m, INK, .1) }));
-        live(u => { cell.setAttribute('opacity', ease((u - at) / .4)); cell.setAttribute('fill', mine && u > LAND ? INK : mixHex(P.m, INK, .1)); });
-        const t = T(WHEEP_TYPES[k].name, x + cw - 22, y + 50, 34, { fill: fg, w: mine ? 95 : 45, i: 5 + j });
-        live(u => { t.setAttribute('fill', mine && u > LAND ? P.m : fg); t.setAttribute('opacity', !mine && u > LAND ? .45 : 1); });
-        // each quarter shows its pair: what showed and what was inside
-        const kOut = row === 0 ? .85 : .15, kIn = col === 0 ? .15 : .85;
-        [[kOut, x + cw * .66], [kIn, x + cw * .3]].forEach(([kk, px], q) => {
-          const sh = shape(n, () => kk, chh * .2, px, y + chh * .62, INK, { at: at + .2 + q * .1, spin: .05 });
-          live(u => { sh.setAttribute('fill', mine && u > LAND ? P.m : INK); sh.setAttribute('opacity', !mine && u > LAND ? .3 : 1); });
-        });
+        const x = g.x1 - (col + 1) * cw, y = g.y0 + row * ch, mine = k === key;
+        add(el('rect', { x: x + 1, y: y + 1, width: cw - 2, height: ch - 2, fill: 'none', stroke: fg, 'stroke-width': 2 }), 9 + j * .5);
+        if (mine) {   // yours fills from the reading side, the one filled thing on the poster
+          const wipe = add(el('rect', { x: x + cw, y, width: 0, height: ch, fill: INK }));
+          live(u => { const v = cw * sOut((u - FILL) / .6); wipe.setAttribute('x', x + cw - v); wipe.setAttribute('width', v); });
+          shape(n, () => day.kIn, ch * .26, x + ch * .42, y + ch / 2, P.m, { at: FILL + .4, spin: .05 });
+        }
+        const t = T(WHEEP_TYPES[k].name, x + cw - 24, y + ch / 2 + 12, 36, { fill: fg, w: mine ? 90 : 45, i: 9 + j * .5 });
+        if (mine) live(u => t.setAttribute('fill', u > FILL + .25 ? P.m : fg));
       });
-      // you: a shape that travels from the middle to your place, morphing on the way
-      const me = add(el('path', { fill: P.w }));
-      live(u => {
-        const p = sFlow((u - 1.4) / 1.8), x = g.x1 - sLerp(.5, ck(day.kIn), p) * (g.x1 - g.x0), y = g.y1 - sLerp(.5, ck(day.kOut), p) * (g.y1 - g.y0);
-        me.setAttribute('d', u < 1.2 ? '' : shapePath(n, sLerp(.34, day.kIn, p), 40 * sBack((u - 1.2) / .4), x, y, u * .6, 160));
-      });
-      breathe(T(copyFill(U.typePeers, { pct: typePct, type: type.name }), W - M, top + 4, 30, { fill: fg, i: 6 }), 60);
     },
     // 9 · how are your friends? Their day in one line each; the one with the widest gap gets a nudge.
     () => {
@@ -307,7 +315,7 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
       friends.forEach((fr, i) => {
         const E = EMO[fr.emo], y = y0 + i * rh, at = .4 + i * .2, gap = Math.round(Math.abs(fr.kIn - fr.kOut) * 100);
         rule(y, fg, 2 + i, M, W - M, 1);
-        shape(E.n, u => osc(u, fr.kOut, fr.kIn, 3.6, i), rh * .32, W - M - rh * .32, y + rh / 2, E.c, { at });
+        shape(E.n, () => fr.kIn, rh * .32, W - M - rh * .32, y + rh / 2, E.c, { at, spin: 0, still: true });   // their daily shape: it holds
         Sx(fr.name, W - M - rh * .78, y + rh * .5, rh * .4, { fill: fg, i: 3 + i, seed: i });
         breathe(T(copyFill(U.friendLine, { feel: feel(fr.emo), gap }), W - M - rh * .78, y + rh * .8, 28, { fill: fg, i: 3 + i }), 45, 12);
         // their gap: a bar that grows toward sharp
@@ -318,7 +326,7 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
       // the nudge
       const cy = BOT - callH, E = EMO[need.emo];
       add(el('rect', { x: M, y: cy, width: MEAS, height: callH - 20, fill: INK }), 9);
-      shape(E.n, (u, TT) => osc(TT, need.kOut, need.kIn, 3), 70, M + 110, cy + (callH - 20) / 2, E.c, { at: 2.6 });
+      shape(E.n, () => need.kIn, 70, M + 110, cy + (callH - 20) / 2, E.c, { at: 2.6, spin: 0, still: true });
       const t1 = Sx(copyFill(U.friendCall, { name: need.name }), W - M - 30, cy + 100, 80, { fill: P.w, i: 10, seed: 5 }); fit(t1, MEAS - 260, 90);
       shrink(breathe(T(copyFill(U.friendWhy, { feel: feel(need.emo) }), W - M - 30, cy + 160, 30, { fill: P.w, i: 11 }), 50), MEAS - 260);
     },
