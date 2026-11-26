@@ -20,11 +20,17 @@ function sScene(T, i) { return sEnv(T, SCENES[i], SCENES[i + 1]); }
 // build-up: element `d` (in pace-1 seconds) after its scene starts, gone with the scene
 function sBuild(T, i, d) { return sEnv(T, sAt(i, d || 0), SCENES[i + 1]); }
 
-// the shape's place in each scene [x, y, r]; it moves there and its quality follows the story
-// placed so the outer band (×1.32) never runs under the header, the scene titles or the column text
-var S_K = [[540, 620, 130], [540, 600, 240], [910, 590, 225], [1050, 660, 340], [960, 340, 100], [540, 500, 240], [540, 620, 130]];
+// the shape's place in each scene [x, y, r], one path per layout; it moves there and its quality follows the story
+// placed so the outer band (×1.32) never runs under the header, the scene titles or the text of that layout
+var S_KS = [
+  [[540, 620, 130], [540, 600, 240], [910, 590, 225], [1050, 660, 340], [960, 340, 100], [540, 500, 240], [540, 620, 130]],   // A · line
+  [[540, 520, 170], [150, 760, 300], [150, 260, 80], [130, 250, 70], [540, 250, 85], [540, 1180, 300], [540, 520, 170]],    // B · dial
+  [[540, 780, 160], [540, 930, 250], [220, 420, 130], [260, 700, 230], [800, 300, 110], [540, 380, 170], [540, 780, 160]]   // C · grid
+];
+var S_K = S_KS[0];
 var S_LEAD = .75 * S_PACE, S_TRAIL = [.15 * S_PACE, .3 * S_PACE];   // the shape leads each scene; the bands trail it
-function sHero(T, kOut, kIn) {
+function sHero(T, kOut, kIn, v) {
+  var S_K = S_KS[v || 0];
   T = sWrap(T);
   var i = 0; while (i < SCENES.length - 2 && T + S_LEAD >= SCENES[i + 1]) i++;
   var move = sFlow((T + S_LEAD - SCENES[i]) / (.75 * S_PACE)), x, y, r;
@@ -50,22 +56,20 @@ function sGretaAxes(T, base, amp, phase) {
   var t = 2 * Math.PI * sWrap(T); phase = phase || 0;
   return [sGreta(T, base, amp, phase), 82 + 18 * (.5 + .5 * Math.sin(t / 8 + phase * 1.3)), 50 + 50 * Math.sin(t / 4 + phase + Math.PI / 2)];
 }
-// Greta letter by letter, every letter on its own axes. Periods (s) all divide the 24 s loop, so it still closes.
-//   wght: a wave travelling along the line, plus a per-letter flicker at its own speed
-//   wdth: each letter breathes at its own speed (60–100, narrowing only)
-//   OPTI: snaps between thin and fat contrast on a per-letter rhythm
-//   now and then a letter jolts to black for a beat
-var S_PERIODS = [1.5, 2, 3, 4, 6];
+// Greta letter by letter, every letter on its own axes, slow enough to read. Periods (s) divide the 24 s loop, so it closes.
+//   wght: a slow wave travelling along the line, plus each letter's own drift
+//   wdth: each letter narrows and widens at its own pace (70–100)
+//   OPTI: a slow swell between thin and fat contrast
+// S_GRETA scales it: amp = how much it moves, spread = how differently the letters move (admin.html sets both)
+var S_GRETA = { amp: 1, spread: 1 };
 function sHash(a, b) { var x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); }
 function sLetter(T, i, base, amp, seed) {
-  var t = sWrap(T), tau = 2 * Math.PI;
-  var p1 = S_PERIODS[Math.floor(sHash(i, seed) * 5)], p2 = S_PERIODS[Math.floor(sHash(i + 7, seed) * 5)];
-  var w = base + amp * Math.sin(tau * t / 3 - i * .55 + seed) + amp * .5 * Math.sin(tau * t / p1 + i * 2.1);
-  var b = Math.floor(t / S_BEAT);
-  if (sHash(i * 13 + b, seed) < .06) w = 100;                                                   // the jolt
-  var wd = 60 + 40 * (.5 + .5 * Math.sin(tau * t / p2 + i * 1.7 + seed));
-  var op = 50 + 50 * Math.max(-1, Math.min(1, 3 * Math.sin(tau * t / 1.5 + i * 1.3 + seed)));   // squared-off sine: it snaps
+  var t = sWrap(T), tau = 2 * Math.PI, A = amp * S_GRETA.amp, sp = S_GRETA.spread;
+  var p1 = [6, 8, 12][Math.floor(sHash(i, seed) * 3)], p2 = [8, 12, 24][Math.floor(sHash(i + 7, seed) * 3)];
+  var w = base + A * .75 * Math.sin(tau * t / 6 - i * .3 * sp + seed) + A * .35 * sp * Math.sin(tau * t / p1 + i * 2.1);
+  var wd = 100 - Math.min(30, 30 * S_GRETA.amp * sp) * (.5 + .5 * Math.sin(tau * t / p2 + i * 1.7 * sp + seed));
+  var op = 50 + 50 * Math.min(1, S_GRETA.amp) * Math.sin(tau * t / 12 + i * .5 * sp + seed);
   return [Math.max(0, Math.min(100, w)), wd, op];
 }
 
-if (typeof module !== 'undefined') module.exports = { S_PACE: S_PACE, STORY_DUR: STORY_DUR, SCENES: SCENES, S_BEAT: S_BEAT, S_K: S_K, S_LEAD: S_LEAD, S_TRAIL: S_TRAIL, sAt: sAt, sOut: sOut, sIn: sIn, sFlow: sFlow, sBack: sBack, sEnv: sEnv, sScene: sScene, sBuild: sBuild, sHero: sHero, sOpen: sOpen, sSpin: sSpin, sBreath: sBreath, sGreta: sGreta, sGretaAxes: sGretaAxes, sLetter: sLetter, sHash: sHash, sWrap: sWrap, sClamp: sClamp, sLerp: sLerp };
+if (typeof module !== 'undefined') module.exports = { S_PACE: S_PACE, STORY_DUR: STORY_DUR, SCENES: SCENES, S_BEAT: S_BEAT, S_K: S_K, S_KS: S_KS, S_GRETA: S_GRETA, S_LEAD: S_LEAD, S_TRAIL: S_TRAIL, sAt: sAt, sOut: sOut, sIn: sIn, sFlow: sFlow, sBack: sBack, sEnv: sEnv, sScene: sScene, sBuild: sBuild, sHero: sHero, sOpen: sOpen, sSpin: sSpin, sBreath: sBreath, sGreta: sGreta, sGretaAxes: sGretaAxes, sLetter: sLetter, sHash: sHash, sWrap: sWrap, sClamp: sClamp, sLerp: sLerp };

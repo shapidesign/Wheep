@@ -1,6 +1,8 @@
 /* WHEEP · every word the wrapped says, in one place. Edit here or in admin.html (which can export this file).
    {pct}, {gap} and {name} are filled in by the story. Data (numbers, hours, shapes) lives in gen.js and days.js. */
 const COPY_DEFAULT = {
+  "feelings": { "anger": "כעס", "press": "הדחקה", "fear": "פחד", "cry": "בכי", "joy": "הנאה", "shame": "בושה", "release": "שחרור" },
+  "motion": { "amp": 1, "spread": 1 },
   "ui": {
     "intro": "זה היום שלך.",
     "led": "הרגש שהוביל את היום",
@@ -113,6 +115,8 @@ const COPY_KEY = 'wheep-copy';
 let COPY_SAVED = null;
 try { COPY_SAVED = JSON.parse(localStorage.getItem(COPY_KEY) || 'null'); } catch (e) { /* private mode, node: defaults only */ }
 const COPY = copyMerge(COPY_DEFAULT, COPY_SAVED);
+// the feelings' names are words too: they replace the ones in shape.js wherever the story, summary or app shows them
+if (typeof EMO !== 'undefined') for (const k in COPY.feelings) if (EMO[k]) EMO[k].he = COPY.feelings[k];
 const copyFill = (s, vals) => String(s).replace(/\{(\w+)\}/g, (m, k) => (k in vals ? vals[k] : m));
 
 if (typeof module !== 'undefined') module.exports = { COPY, COPY_DEFAULT, copyMerge, copyFill, COPY_KEY };

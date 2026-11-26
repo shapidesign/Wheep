@@ -29,7 +29,7 @@
 <main>
   <header>
     <h1>מה עבר עליך היום.</h1>
-    <p>שבוע של אדם אחד, שבעה סיכומים יומיים. כל אחד הוא סיפור קצר של 16 שניות: השם, הרגש שהוביל, מה נמדד ומתי, הפער בין בחוץ לבפנים, והיום כולו ברגשות. לחיצה פותחת סיפור לבד. <a href="live.html">לגרסה החיה</a>.</p>
+    <p>שבוע של אדם אחד, שבעה סיכומים יומיים. כל אחד הוא סיפור קצר של 24 שניות: השם, הרגש שהוביל, מה נמדד ומתי, הפער בין בחוץ לבפנים, והיום כולו ברגשות. לחיצה פותחת סיפור לבד. <a href="live.html">לגרסה החיה</a>.</p>
   </header>
   <div class="grid" id="grid"></div>
 </main>
@@ -55,13 +55,18 @@
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class', 'poster');
     a.append(svg); grid.append(a);
-    return createStory(svg, day);
+    const st = createStory(svg, day);
+    st.svg = svg; st.seen = false;
+    return st;
   }).filter(Boolean);
+  // only the stories on screen are drawn: seven at once is what made the page stutter
+  const io = new IntersectionObserver(es => es.forEach(e => { stories.find(s => s.svg === e.target).seen = e.isIntersecting; }));
+  stories.forEach(s => io.observe(s.svg));
   if (one !== null) document.body.classList.add('solo');
 
   // each story starts where it is when the page opens; reduced motion holds on the day in feelings
   const t0 = performance.now();
-  function frame(t) { stories.forEach(s => s.draw((t - t0) / 1000)); requestAnimationFrame(frame); }
+  function frame(t) { stories.forEach(s => { if (s.seen) s.draw((t - t0) / 1000); }); requestAnimationFrame(frame); }
   document.fonts.ready.then(() => fixedT !== null || reduce ? stories.forEach(s => s.draw(fixedT ?? sAt(4, 1.5))) : requestAnimationFrame(frame));
 </script>
 </body>

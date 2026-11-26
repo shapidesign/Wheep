@@ -26,6 +26,8 @@
   label { display: grid; gap: 6px; font-size: 14px; color: #B8B2A8; }
   input, textarea { font: inherit; font-size: 17px; color: #fff; background: #16130F; border: 1.5px solid rgba(255, 255, 255, .18); padding: 9px 11px; font-variation-settings: 'wght' 55; }
   textarea { resize: vertical; min-height: 44px; }
+  .group input[type=range] { padding: 0; border: 0; accent-color: #FFD23F; }
+  output { color: #fff; font-variant-numeric: tabular-nums; }
   .changed { border-color: #FFD23F; }
   .preview { position: sticky; top: 20px; align-self: start; display: grid; gap: 10px; }
   .preview svg { width: 100%; height: auto; display: block; }
@@ -111,6 +113,18 @@
   const section = (title, note) => { const s = document.createElement('section'); s.innerHTML = `<h2>${title}<small>${note}</small></h2>`; forms.append(s); return s; };
 
   group(section('כותרות הסיפור', 'משותף לכל הסיפורים'), 'כל הסצנות', null, UI_FIELDS, ['ui']);
+  // the feelings' names, and how the Greta text moves
+  const sf = section('הרגשות', 'השם של כל רגש, בכל מקום שהוא מופיע');
+  group(sf, 'שמות הרגשות', null, Object.keys(draft.feelings).map(k => [k, `${COPY_DEFAULT.feelings[k]} · ${EMO[k].en}`]), ['feelings']);
+  const sm = section('תנועת הטקסט', 'Greta Serif, אות אחרי אות');
+  const mg = document.createElement('div'); mg.className = 'group'; sm.append(mg);
+  [['amp', 'כמה הטקסט זז (0 = עומד, 1 = רגיל, 2 = הרבה)'], ['spread', 'כמה כל אות זזה אחרת מהשכנות שלה (0 = כולן יחד)']].forEach(([k, label]) => {
+    const wrap = document.createElement('label'), out = document.createElement('output'), inp = document.createElement('input');
+    Object.assign(inp, { type: 'range', min: 0, max: 2, step: .05, value: draft.motion[k] });
+    out.value = (+inp.value).toFixed(2);
+    inp.addEventListener('input', () => { draft.motion[k] = +inp.value; out.value = (+inp.value).toFixed(2); Object.assign(S_GRETA, draft.motion); dirty(); });
+    wrap.append(label, inp, out); mg.append(wrap);
+  });
   const sp = section('ששת הפרופילים', 'מה שמבקר מקבל אחרי שהוא כותב שם');
   Object.keys(draft.profiles).forEach(emo => group(sp, EMO[emo].he, emo, DAY_FIELDS, ['profiles', emo], 'p:' + emo));
   const sw = section('השבוע', 'הסיפורים בעמוד הסיכום השבועי');
@@ -123,7 +137,8 @@
   who.onchange = rebuild;
   let story = null;
   function rebuild() {
-    Object.assign(COPY.ui, draft.ui); Object.assign(COPY.profiles, draft.profiles); COPY.week = draft.week;
+    Object.assign(COPY.ui, draft.ui); Object.assign(COPY.feelings, draft.feelings); Object.assign(COPY.motion, draft.motion);
+    for (const k in draft.feelings) EMO[k].he = draft.feelings[k]; Object.assign(COPY.profiles, draft.profiles); COPY.week = draft.week;
     const [kind, key] = who.value.split(':');
     let day;
     if (kind === 'p') day = makeDay({ name: 'יהונתן', date: new Date(), top: key });

@@ -79,6 +79,10 @@ This is a wrapped for an app: it reveals the day step by step, so a person can t
 | 4 · the day in feelings | 15.9–20.4 | an ink band: the waking hours as coloured stretches (each feeling's colour and shape), opening left to right, then the top three feelings with their share |
 | 5 · the two lines | 20.4–24 | the fact, then what the data adds (they swap weight), signed with the name and date; the ground closes back to ink |
 
+- **Three layouts** so the stories don't all move alike (`story.js → LAYOUT`, by feeling; the week reads A B C A B C A). Same six scenes, different composition, shape path and infographics:
+  - **A · line:** the shape goes centre → right → bleeds off. A 24h line, a horizontal scale, a strip of the day and bars. Text rises in.
+  - **B · dial:** the shape swings big to the left, then waits small in the corner. A 24h clock with the figure inside, the outside and inside shapes side by side, a ring of the day. Text slides in from the right.
+  - **C · grid:** the shape sinks low, then climbs. A grid of 24 hours that fill as much as they held, a vertical scale, a waffle of 100 squares (one per percent). Text drops in.
 - **The feeling is written once:** the header of scene 1. No repeated depth word.
 - **Copy voice:** a tracker talking, dry and specific. State what was measured and when, add one fact the person didn't see. No melodrama, no lessons.
 - **Copy:** every word lives in `copy.js` (`COPY.ui` for the scene titles, `COPY.profiles` for the six visitor profiles, `COPY.week` for the demo week). `admin.html` edits it with a live preview, saves to this browser (localStorage, so the kiosk machine picks it up) and exports a new `copy.js` to commit.
@@ -91,7 +95,7 @@ This is a wrapped for an app: it reveals the day step by step, so a person can t
 ## 7. Motion: shapes flow, type snaps, Greta breathes, the story loops
 
 - **The shape leads, the text follows.** The shape has a place and size per scene (`story-core.js → S_K`) and starts moving 0.75 s *before* each scene (smootherstep), so the words arrive on a settled shape. Two bands trail it by 0.15 s and 0.3 s. Its quality follows the story: soft in the intro, the day's outside in scenes 1–2, easing inside in scene 3 (1.5 s), soft again at the end. It turns continuously (whole teeth per loop) and breathes ±2%.
-- **Greta, letter by letter:** every letter moves on all three axes on its own (`story-core.js → sLetter`): weight as a wave travelling along the line plus a per-letter flicker, width breathing 60–100 at each letter's own speed, optical size snapping thin/fat, and now and then one letter jolts to black for a beat. All periods divide 24 s. The intro name grows from hairline to bold first; the two closing lines swap weight once the second has written in.
+- **Greta, letter by letter:** every letter moves on all three axes on its own (`story-core.js → sLetter`), slowly enough to read: weight as a slow wave along the line plus each letter's own drift (6–12 s), width 70–100 at each letter's pace, optical size swelling over 12 s. All periods divide 24 s. `S_GRETA` (amount, and how differently the letters move) is set from the admin page. The intro name grows from hairline to bold first; the two closing lines swap weight once the second has written in.
 - **Secolo snaps:** it cuts between 19–22 every 0.4 s on the feeling word, the figure and the shares. The feeling word starts with wide letter spacing and pulls tight.
 - **Build-up:** inside each scene the elements arrive one after another (`sBuild(T, scene, delay)`: quartic ease-out, rising 28 px), and leave together with the scene (ease-in). The name and the two closing lines write themselves in letter by letter.
 - **Data reveals:** the figure counts up, the 24h axis draws, hours arrive, events pop onto it (with a small overshoot), durations wipe in; the scale draws and the gap fills; the ink band rises, the day in feelings opens left to right, and the top three arrive 0.25 s apart.
@@ -102,6 +106,8 @@ This is a wrapped for an app: it reveals the day step by step, so a person can t
 
 - **Every block on its own line.** Titles, figures and captions never share a baseline with something that can grow (the gap sits under its title, not beside it).
 - **Fit and wrap at the heaviest weight.** Greta breathes up to wght 100, so text is measured at 100. Names and units shrink to fit their width; sentences wrap to their column (web: measured tspans; AE: paragraph text boxes).
+- **No orphans:** wrapped lines are balanced (the narrowest width that keeps the same number of lines), and a last line of one word pulls one more down.
+- **Performance:** only scenes on screen are drawn, a letter is restyled only when its rounded axes change, and the week page draws only the stories in view.
 - **Contrast:** ink on the feeling, white on ink. Ink text never sits on the dark band: the shape's places are chosen so the outer band clears the header, the titles and the column while their scene is up (checked frame by frame). The "now" mark is ink, because white disappears on the light feelings.
 
 ## 8. Files
@@ -112,7 +118,8 @@ This is a wrapped for an app: it reveals the day step by step, so a person can t
 - **Live:**
   - `live.html` is the exhibition screen: a QR code pointing at the published `me.html`, a name field (a visitor types it at the kiosk and their story plays twice, then the rotation resumes), and generated visitors' stories playing next to it. The rotation's men (איתי, יובל, עידו, יהונתן, אבי, ליאור) each have their own profile (`gen.js → MOCK_NAMES`); `?names=a,b,c` overrides who appears. There's no server, so a name typed on a phone stays on that phone.
   - `me.html` is the visitor's phone. They type a name, the page "detects" a WHEEP sensor (a stable id per name), syncs, and plays their story. It needs no server, so it runs as-is on GitHub Pages, and `?name=` links straight to someone's story.
-- `copy.js` / `admin.html`: all the words, and the page to edit them.
+- `copy.js` / `admin.html`: all the words (scene titles, feeling names, profiles, the week) and how the text moves, and the page to edit them.
+- The After Effects build still uses layout A and the earlier letter motion; it is updated separately.
 - `story-core.js`: the story's timeline (pace, scene times, build-ups, the shape's places and states, per-letter Greta), in ES5, shared by the web and pasted into every After Effects expression.
 - **After Effects:** `ae/wheep-wrapped.aep`, one comp per story (`STORY NN · …`) plus `ALL · N stories`. Each story has a CONTROLS null (k out, k in, points, five colours), and every text layer is editable. Source Text expressions handle the Secolo cuts, per-letter Greta (`setFont(…, i, 1)` on registered wght/wdth/OPTI instances), the letter write-in (an opacity animator), the count-up and letter spacing (`setFont` / `setText` / `setTracking`).
   - Week: `node ae/make.js`. Any people: `node ae/make.js --names "נועה,אבי"` (generated like the live page). Then run `ae/build.jsx` in AE (File › Scripts › Run Script File).
