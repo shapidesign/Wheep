@@ -141,7 +141,7 @@
       if (clock >= STORY_DUR) go(d + 1);   // the day is over: on to the next one, like a story
       story.draw(clock);
       fillDays();
-      $('endshare').classList.toggle('on', clock >= SCENES[5]);   // the last poster: offer to share it
+      $('endshare').classList.toggle('on', clock >= SCENES[SCENES.length - 2]);   // the last poster: offer to share it
     }
     requestAnimationFrame(tick);
   }
@@ -195,10 +195,10 @@
   function fillDays() { const s = $('days').children[d]; if (s) s.firstChild.style.transform = `scaleX(${Math.min(1, clock / STORY_DUR)})`; }
   function scene(step) {
     let i = 0; while (i < SCENES.length - 2 && clock >= SCENES[i + 1]) i++;
-    if (step > 0) { if (i < 5) clock = sceneT(i + 1); else go(d + 1); }
+    if (step > 0) { if (i < SCENES.length - 2) clock = sceneT(i + 1); else go(d + 1); }
     else if (clock - SCENES[i] > 1.2) clock = sceneT(i);                 // back: first to the start of this scene
     else if (i > 0) clock = sceneT(i - 1);
-    else if (d > 0) go(d - 1, sceneT(5));
+    else if (d > 0) go(d - 1, sceneT(SCENES.length - 2));
     else clock = 0;
   }
   function playName(name) {

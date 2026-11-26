@@ -131,7 +131,7 @@
     const T = (t - start) / 1000;
     story.draw(T);
     // each person's last poster: the QR becomes theirs, so they can take the poster with them and share it
-    const end = T >= SCENES[5];
+    const end = T >= SCENES[SCENES.length - 2];
     setQR(end ? `${target}?name=${encodeURIComponent(story.day.name)}` : target);
     const line = end ? `${story.day.name}, סרוק כדי לקחת את הפוסטר ולשתף אותו.` : 'סרוק וכתוב את השם שלך. היום שלך יעלה על המסך.';
     if (callLine.textContent !== line) callLine.textContent = line;

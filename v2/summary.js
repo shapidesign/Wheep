@@ -1,5 +1,5 @@
 /* WHEEP · the final poster as a picture, for saving and sharing.
-   The story draws its last poster (the two lines) off screen, fully built; it is serialised with the fonts embedded
+   The story draws its last poster (the share card) off screen, fully built; it is serialised with the fonts embedded
    and drawn into a canvas, so the PNG is exactly the poster on screen.
    posterPNG(day) → PNG Blob (2×). savePoster(day) / sharePoster(day, url). Needs story.js and everything it needs. */
 
@@ -32,7 +32,7 @@ async function posterPNG(day, scale = 2) {
   box.append(svg); document.body.append(box);
   try {
     const st = createStory(svg, day);
-    st.draw(SCENES[6] - .05);
+    st.draw(SCENES[SCENES.length - 1] - .05);
     [...svg.children].forEach(g => { if (g.style.display === 'none') g.remove(); });   // only the final poster
     const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
     style.textContent = await posterFonts();

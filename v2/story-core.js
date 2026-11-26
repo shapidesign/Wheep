@@ -1,7 +1,10 @@
 /* WHEEP · the story's timeline, shared by story.js (web) and the After Effects build (pasted into expressions).
-   ES5 on purpose. One day, six scenes, then it loops. Change S_PACE to slow everything down or speed it up together. */
-var S_PACE = 2.8;                                                       // 1 = the original 16 s story; 2.8 holds each poster 6–9.5 s, time to read
-var SCENES = [0, 2.2, 5.0, 7.8, 10.6, 13.6, 17];                         // the closing lines get the longest scene
+   ES5 on purpose. One day, ten stories, then it loops. Change S_PACE to slow everything down or speed it up together. */
+var S_PACE = 2.8;                                                       // scales every story's hold together (S_HOLD is set at 2.8)
+// ten stories, each held this many seconds (at S_PACE 2.8): intro, words, guess, minutes, chapters, top 5, portrait, type, friends, share
+var S_HOLD = [6, 7, 8.5, 7, 7.5, 8, 8.5, 8.5, 8, 9.5];
+var SCENES = [0];
+for (var sh_ = 0; sh_ < S_HOLD.length; sh_++) SCENES.push(SCENES[sh_] + S_HOLD[sh_] / 2.8);
 var STORY_DUR = SCENES[SCENES.length - 1] * S_PACE, S_BEAT = .4 * S_PACE;
 for (var si_ = 0; si_ < SCENES.length; si_++) SCENES[si_] *= S_PACE;
 // a moment inside scene i, dt seconds (at pace 1) after it starts
@@ -69,7 +72,9 @@ function sLetter(T, i, base, amp, seed) {
   var w = base + A * .75 * Math.sin(tau * t / (D / 4) - i * .3 * sp + seed) + A * .35 * sp * Math.sin(tau * t / p1 + i * 2.1);
   var wd = 100 - Math.min(30, 30 * S_GRETA.amp * sp) * (.5 + .5 * Math.sin(tau * t / p2 + i * 1.7 * sp + seed));
   var op = 50 + 50 * Math.min(1, S_GRETA.amp) * Math.sin(tau * t / (D / 2) + i * .5 * sp + seed);
-  return [Math.max(0, Math.min(100, w)), wd, op];
+  return [sSoft(w), wd, op];
 }
+// a soft 0–100 limit: near the ends the value eases in instead of sitting flat (a hard clamp held, then jumped)
+function sSoft(w) { return w > 85 ? 85 + 15 * Math.tanh((w - 85) / 15) : (w < 15 ? 15 - 15 * Math.tanh((15 - w) / 15) : w); }
 
-if (typeof module !== 'undefined') module.exports = { S_PACE: S_PACE, STORY_DUR: STORY_DUR, SCENES: SCENES, S_BEAT: S_BEAT, S_K: S_K, S_KS: S_KS, S_GRETA: S_GRETA, S_LEAD: S_LEAD, S_TRAIL: S_TRAIL, sAt: sAt, sOut: sOut, sIn: sIn, sFlow: sFlow, sBack: sBack, sEnv: sEnv, sScene: sScene, sBuild: sBuild, sHero: sHero, sOpen: sOpen, sSpin: sSpin, sBreath: sBreath, sGreta: sGreta, sGretaAxes: sGretaAxes, sLetter: sLetter, sHash: sHash, sWrap: sWrap, sClamp: sClamp, sLerp: sLerp };
+if (typeof module !== 'undefined') module.exports = { S_PACE: S_PACE, STORY_DUR: STORY_DUR, SCENES: SCENES, S_BEAT: S_BEAT, S_K: S_K, S_KS: S_KS, S_GRETA: S_GRETA, S_LEAD: S_LEAD, S_TRAIL: S_TRAIL, sAt: sAt, sOut: sOut, sIn: sIn, sFlow: sFlow, sBack: sBack, sEnv: sEnv, sScene: sScene, sBuild: sBuild, sHero: sHero, sOpen: sOpen, sSpin: sSpin, sBreath: sBreath, sGreta: sGreta, sGretaAxes: sGretaAxes, sLetter: sLetter, sSoft: sSoft, sHash: sHash, sWrap: sWrap, sClamp: sClamp, sLerp: sLerp };

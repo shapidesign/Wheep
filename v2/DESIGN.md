@@ -52,7 +52,8 @@ One generator, `shape.js`: `shapePath(n, k, r, cx, cy, rot)`.
 
 - **Fill only, never a stroke.** A shape is a solid area of colour: no outline, no stroked version, at any size. (In Figma, new vectors get a default stroke: remove it.)
 - **k** moves through four drawn keyframes: clover (0), soft square (.34), rounded star (.67), needle star (1). Never draw a shape by hand. Pick n and k.
-- **One shape layer per poster: the hero or the background, never both.** Either the feeling's shape stands in front (in ink, with its two bands) and carries the day, or one or two background shapes carry it from behind. Scenes where the shape *is* the message (intro, the feeling, outside vs inside) use the hero; scenes led by type or data (what was measured, the day in feelings, the two lines) use the background. The hero is soft outside, its true quality inside. Small shapes appear only as data (one mark per event), never as a swarm.
+- **No bands.** A shape is only its own form: no trailing outlines or rings around it.
+- **One shape layer per poster: the hero or the background, never both.** Either the feeling's shape stands in front and carries the day, or one or two background shapes carry it from behind. Scenes where the shape *is* the message (intro, the feeling, outside vs inside) use the hero; scenes led by type or data (what was measured, the day in feelings, the two lines) use the background. The hero is soft outside, its true quality inside. Small shapes appear only as data (one mark per event), never as a swarm.
 - **Background shapes, when the poster has no hero.** One or two large shapes, tone on tone: the ground mixed 14% toward ink (on the ink ground, `#26221C`). They sit right above the ground, under the frame and the type, placed in the areas the layout leaves empty. They use the feeling's n and take over the hero's story (the main one follows the scene's k: out ↔ in, or back to soft at the end; a second one morphs slowly, 7–11 s), turn slowly and grow in with the scene. Never in a feeling colour, never small, never more than two. (`story.js → ghost()`)
 - n can go fractional for transitions only (the logo melting between feelings). Content always uses a whole n.
 
@@ -69,16 +70,20 @@ Each poster takes its feeling's colour and builds five tones from it (`days.js �
 
 ## 5. The wrapped: one day as a story
 
-This is a wrapped for an app: it reveals the day step by step, so a person can take it in. One 1080×1350 frame, six scenes on a 47.6 s loop (`S_PACE` 2.8 × the original 17 s; each poster holds 6–9.5 s, and the closing lines get the longest, so there is time to read), a progress bar on top like a story, and the person's name in the header (it's theirs).
+This is a wrapped for an app: it reveals the day step by step, so a person can take it in. One 1080×1350 frame, ten stories on a 78.5 s loop (each story's hold is set in `story-core.js → S_HOLD`, 6–9.5 s; the share card gets the longest), a progress bar on top like a story, and the person's name in the header (it's theirs).
 
-| Scene | Time | What it tells |
-|---|---|---|
-| 0 · intro | 0–6.2 s | ink ground. The name fills the measure and writes itself in from hairline, "ככה עבר עליך היום." under it. Hero: a white shape blooms off the bottom |
-| 1 · the feeling | 6.2–14 | "הרגש שהוביל את היום", then the feeling word in Secolo across the full measure, pulled tight from wide letter spacing; a rule; its share counting up. Hero: bleeds off the bottom right, turning into the day's outside |
-| 2 · what was measured | 14–21.8 | the figure across four columns (counts up), its unit, a full-width 24h line with ticks, durations and events, a plain caption. Background shapes |
-| 3 · outside vs inside (מוחצן או מופנם) | 21.8–29.7 | the gap counting up beside its title; the poster split in two halves, the outside shape holding, the inside one turning into what it was; a full-width soft → sharp scale where the gap fills behind a moving "now" shape; the meaning in the footer. Hero pair |
-| 4 · the day in feelings | 29.7–38.1 | ink ground. A tall full-width strip of the waking hours (each stretch carries its feeling's shape), then the top three as a ruled table: shape, word, share. Background shape |
-| 5 · the two lines | 38.1–47.6 | the fact, a rule, what the data adds; each line as big as the measure allows, writing in, then they swap weight. Signed in the footer. Background shapes, the big one closing back to soft |
+| # | Story | Seconds | What it tells |
+|---|---|---|---|
+| 1 | intro | 6 | ink. The name fills the measure and writes in from hairline, "ככה עבר עליך היום.", a white shape blooming off the bottom |
+| 2 | the words | 7 | "היום דיברת", the count across the measure (counts up), "מילים", then words per hour 07–23 as bars; the loudest hour in ink and named |
+| 3 | guess | 8.5 | ink. "איזה רגש הוביל את היום שלך?" Three shapes, no words, numbered. At 3.4 s the right one turns ink, the others fade, its colour floods the poster from the shape, and the feeling's name lands |
+| 4 | the minutes | 7 | "396" and "דקות של כעס"; one ink square per 10 minutes, filling with the count |
+| 5 | three chapters | 7.5 | morning, afternoon, evening as three bands in the feeling that held each one, its shape cropped by the band, the word in Secolo |
+| 6 | top five | 8 | ink. The five longest stretches, ranked 1–5: shape and word in the feeling's colour, the hours, a bar with the minutes |
+| 7 | the daily portrait | 8.5 | ink. Every stretch of the day becomes its feeling's shape, sized by how long it lasted, packed into one form (`mPack`, seeded: no two portraits alike), each morphing on its own; the top three below |
+| 8 | the type | 8.5 | the type's name and line (סיר לחץ, קיפוד, מים שקטים, סערה גלויה), then a 2×2 table: outside (rows) × inside (columns), each quarter with its pair of shapes. The person's shape travels to their quarter, which turns ink while the others step back |
+| 9 | the friends | 8 | "מה שלום החברים שלך?" Four friends, each with their shape, feeling and gap; the one with the widest gap gets a nudge in an ink box ("אולי תתקשר ל…?") |
+| 10 | the share card | 9.5 | "ככה עבר עליי היום", the name, the shape with the type and the leading feeling, three figures (words, minutes, the day's measure), and the day in feelings as one bar. The share button sends this poster |
 
 - **One tight grid.** Every poster is the same frame: 56 px margins, 6 columns with 16 px gutters, a progress bar, a top row (name · day and date · wheep) and a bottom row between two hairline rules. Inside it the type is sized to fill its measure (`fit()` measures Greta at wght 100 and Secolo at its widest cut), the data spans the full width, and rules split the poster into modules. No zone is left empty: what the type and data don't fill, the shape layer does. (This replaced the three layouts A · line, B · dial, C · grid.)
 - **The feeling is written once:** the header of scene 1. No repeated depth word.
@@ -92,7 +97,7 @@ This is a wrapped for an app: it reveals the day step by step, so a person can t
 
 ## 7. Motion: shapes flow, type snaps, Greta breathes, the story loops
 
-- **Shapes never hold still.** Each poster's shapes grow in (smootherstep), turn, breathe ±2.5% and keep morphing (k). The hero's two bands trail it by 0.15 s and 0.3 s. Their quality follows the story: clover ↔ soft square in the intro, soft → the day's outside in scene 1, out ↔ in in scene 2, the inside turning into what it was in scene 3 (1.6 s), back to soft at the end. Data marks pop in with a small overshoot and keep morphing too. The scenes cut (like a story); every element builds in again on the next poster.
+- **Shapes never hold still.** Each poster's shapes grow in (smootherstep), turn, breathe ±2.5% and keep morphing (k). Their quality follows the story: clover ↔ soft square in the intro, soft → the day's outside in scene 1, out ↔ in in scene 2, the inside turning into what it was in scene 3 (1.6 s), back to soft at the end. Data marks pop in with a small overshoot and keep morphing too. The scenes cut (like a story); every element builds in again on the next poster.
 - **Greta, letter by letter:** every letter moves on all three axes on its own (`story-core.js → sLetter`), slowly enough to read: weight as a slow wave along the line plus each letter's own drift (6–12 s), width 70–100 at each letter's pace, optical size swelling over 12 s. Every period is the loop divided by a whole number, so it closes at any pace. `S_GRETA` (amount, and how differently the letters move) is set from the admin page. The intro name grows from hairline to bold first; the two closing lines swap weight once the second has written in.
 - **Secolo snaps:** every letter cuts to another of 19–22 every 0.4 s (each on its own offset, so the word stays mixed) on the feeling word, the figures and the shares. The feeling word starts with wide letter spacing and pulls tight to −20.
 - **Build-up:** inside each scene the elements arrive one after another, 0.09 s apart (quartic ease-out over 0.7 s, rising 28 px). The name and the two closing lines write themselves in letter by letter.
