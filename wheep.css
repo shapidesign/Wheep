@@ -1670,3 +1670,10 @@ html.track .su-h { font-size: 46px; }
 html.track .rings-mid b { font-size: 56px; }
 html.track .ring-legend .dial-read b { font-size: 36px; }
 html.track .metric b { font-size: 54px; }
+
+/* the weekly graph: a shape per week, its sharpness is how much stayed in */
+html.track .mw-tile { position: relative; display: grid; place-items: center; height: 44px; background: var(--panel-2); border: 0; border-radius: 10px; }
+html.track .mw-tile .mw-shape { position: absolute; inset: 4px 4px 12px; width: auto; height: auto; margin: auto; }
+html.track .mw-tile b { position: absolute; inset-inline-start: 5px; bottom: 2px; font-size: 11px; line-height: 1; color: var(--ink); --gw: 72; }
+html.track .mw-key { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+html.track .mw-key .mk-shape { width: 18px; height: 18px; flex: none; margin-inline-start: 8px; }

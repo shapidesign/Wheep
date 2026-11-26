@@ -43,7 +43,9 @@
   /* v2: one shape language (shape.js). n = points, owned by each feeling; k = 0 bouba (let out) … 1 kiki (held in).
      The shape's sharpness is the message: what is held in reads sharp, what got out reads soft. */
   const FN = { fear: 3, joy: 4, talk: 4, cry: 5, sad: 5, release: 6, empathy: 6, shame: 7, anger: 8, press: 9, silence: 9 };
-  const FK = { fear: .7, joy: .05, talk: .15, cry: .25, sad: .4, release: 0, empathy: .05, shame: .6, anger: .85, press: .9, silence: .5 };
+  // sharper = more held in, for every feeling, joy included. These are the defaults for a logged event of each kind;
+  // wherever there is data (out %, progress, a tagged moment) the shape takes its sharpness from the data instead
+  const FK = { fear: .75, joy: .1, talk: .15, cry: .1, sad: .6, release: 0, empathy: .05, shame: .75, anger: .9, press: .95, silence: .6 };
   // success moves the shape: k is the target, SHAPE_K the drawn value; morph() eases one toward the other
   const SHAPE_K = new Map();
   const shapeEl = (id, n, k, r, cx, cy, fill, extra = '') => {
@@ -57,12 +59,13 @@
 
   // the morph: every visible shape eases toward its target sharpness and keeps a slow breath, so none ever freezes
   const morph = (t) => {
-    $$('.screen:not([hidden]) path[data-k], .setup:not([hidden]) path[data-k], .talk-sheet:not([hidden]) path[data-k]').forEach((p, i) => {
+    $$('.screen:not([hidden]) path[data-k], .setup:not([hidden]) path[data-k], .talk-sheet:not([hidden]) path[data-k]').forEach((p) => {
       const id = p.dataset.id, tgt = +p.dataset.k;
       let cur = SHAPE_K.get(id) ?? tgt;
       cur = reduced ? tgt : cur + (tgt - cur) * .045;
       SHAPE_K.set(id, cur);
-      const k = reduced ? cur : Math.min(1, Math.max(0, cur + .035 * Math.sin(t / 1100 + i * 1.3)));
+      const ph = [...id].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) % 997, 7) / 997 * 2 * Math.PI;
+      const k = reduced ? cur : Math.min(1, Math.max(0, cur + .035 * Math.sin(t / 1100 + ph)));
       p.setAttribute('d', shapePath(+p.dataset.n, k, +p.dataset.r, +p.dataset.cx, +p.dataset.cy, 0, 120));
     });
     requestAnimationFrame(morph);
@@ -75,7 +78,7 @@
   const logoState = (t) => {
     const pos = (t / 4200) % LOGO.length, i = Math.floor(pos), f = pos - i;
     const A = LOGO[i], B = LOGO[(i + 1) % LOGO.length], m = f < .55 ? 0 : (f - .55) / .45, e = m * m * m * (m * (6 * m - 15) + 10);   // smootherstep
-    return { nA: FN[A], nB: FN[B], e, k: .5 + .5 * Math.sin(t / 1700 + i), c: mixHex(PAL[A], PAL[B], e), t };
+    return { nA: FN[A], nB: FN[B], e, k: .5 + .5 * Math.sin(t / 2200), c: mixHex(PAL[A], PAL[B], e), t };
   };
   const mixHex = (x, y, e) => '#' + [1, 3, 5].map((j) => Math.round(parseInt(x.substr(j, 2), 16) * (1 - e) + parseInt(y.substr(j, 2), 16) * e).toString(16).padStart(2, '0')).join('');
   // adding (or losing) points: the old points sink into a soft round body, the new count rises out of it.
@@ -124,7 +127,7 @@
     sad:     { name: 'עצב',    color: PAL.sad },
   };
   const GFIG = { cry: 'cry', anger: 'anger', empathy: 'joy', press: 'press', silence: 'press', fear: 'fear', joy: 'joy', shame: 'shame', sad: 'sad' };
-  const glyph = (k, cls = 'glyph') => fig(GFIG[k], GLYPH[k].color, cls);
+  const glyph = (k, cls = 'glyph', held = FK[k]) => fig(GFIG[k], GLYPH[k].color, cls, undefined, undefined, 48, held);
 
   /* ── Bouba/Kiki: the one shape of WHEEP ──
      round 0 = kiki (sharp spikes: pressure), 1 = bouba (soft blob: release).
@@ -412,15 +415,15 @@
 
   /* ── the day's log: like "activity detected", each line arrives on its own ── */
   const LOG = [
-    ['08:40', 'fear', 'פחד', 'הודעה מהבנק', '6 דק׳'],
-    ['10:20', 'anger', 'כעס מופנם', 'ישיבת צוות', '14 דק׳'],
-    ['13:10', 'cry', 'דמעה?', '0.4 מ״ל · לא מאומת', null],
-    ['17:45', 'joy', 'הנאה', 'הבן צחק בטלפון', '2 דק׳'],
-    ['19:40', 'press', 'הדחקה', 'מיכל שאלה איך היה היום', '+1'],
+    ['08:40', 'fear', 'פחד', 'הודעה מהבנק', '6 דק׳', .8],          // [time, feeling, what, context, value, held in 0–1]
+    ['10:20', 'anger', 'כעס מופנם', 'ישיבת צוות', '14 דק׳', .92],
+    ['13:10', 'cry', 'דמעה?', '0.4 מ״ל · לא מאומת', null, .45],
+    ['17:45', 'joy', 'הנאה', 'הבן צחק בטלפון', '2 דק׳', .1],
+    ['19:40', 'press', 'הדחקה', 'מיכל שאלה איך היה היום', '+1', .95],
   ];
   const renderLog = () => {
-    $('#log').innerHTML = LOG.map(([time, g, what, ctx, v], i) => `
-      <li class="log-row">${glyph(g, 'glyph log-g')}
+    $('#log').innerHTML = LOG.map(([time, g, what, ctx, v, held], i) => `
+      <li class="log-row">${glyph(g, 'glyph log-g', held)}
         <span class="log-what"><b>${what}</b><small>${ctx}</small></span>
         <span class="log-time num">${time}</span>
         ${v ? `<span class="log-v num" dir="ltr">${v}</span>` : `<button type="button" class="log-tag" data-i="${i}">לתייג</button>`}</li>`).join('');
@@ -447,7 +450,7 @@
   $('#dnav-next').addEventListener('click', () => { stopPlay(); const d = Math.min(DAYS.length - 1, Math.round(shapeDay) + 1); dayInput.value = d; setDay(d); });
   $('#log').addEventListener('click', (e) => {
     const b = e.target.closest('.log-tag'); if (!b) return;
-    LOG[+b.dataset.i] = ['13:10', 'cry', 'בכי · תויג', '0.4 מ״ל · ממתין לאימות', 'ממתין'];
+    LOG[+b.dataset.i] = ['13:10', 'cry', 'בכי · תויג', '0.4 מ״ל · ממתין לאימות', 'ממתין', .15];   // tagged: it came out, the shape softens
     renderLog(); fx($('#log').children[+b.dataset.i], 'is-up');
   });
   /* ── shape tab: 16 days of one shape ── */
@@ -502,7 +505,7 @@
   setDay(TODAY);
 
   renderMetrics();
-  $('#ab-map').innerHTML = METRICS.map((m) => `<li>${mini(.25, 'mini ab-mini', false, '', m.fill, m.base, m.n, true)}<span>${m.name}</span></li>`).join('');
+  $('#ab-map').innerHTML = METRICS.map((m) => `<li>${mini(m.round(), 'mini ab-mini', false, '', m.fill, m.base, m.n, true)}<span>${m.name}</span></li>`).join('');
 
   /* ── talk now: the quick fix is a conversation (and WHEEP still counts it) ── */
   const PEOPLE = ([
@@ -916,8 +919,11 @@
   $('#measures-weeks').innerHTML = `<colgroup><col class="c-name"><col span="4"><col class="c-trend"></colgroup><thead><tr><th scope="col"><span class="sr">מדד</span></th>${WEEK_LABELS.map((w, i) => `<th scope="col" class="num">${i === WEEK_LABELS.length - 1 ? 'השבוע' : w}</th>`).join('')}<th scope="col"><span class="sr">מגמה</span></th></tr></thead><tbody>`
     + METRICS.map((m) => {
       const w = WEEKS[m.id], t = trendWord(w.r);
-      return `<tr><th scope="row">${mini(.5, 'mini mw-icon', false, '', m.fill, m.base, m.n)}<span>${m.name}</span></th>${w.v.map((v, i) => `<td><span class="mw-tile num" style="background:${kbColor(w.r[i])}">${v}</span></td>`).join('')}<td><span class="mw-trend is-${t === 'משתחרר' ? 'up' : t === 'נאגר' ? 'down' : 'flat'}">${t}</span></td></tr>`;
+      return `<tr><th scope="row">${mini(m.round(), 'mini mw-icon', false, '', m.fill, m.base, m.n)}<span>${m.name}</span></th>${w.v.map((v, i) => `<td><span class="mw-tile">${mini(w.r[i], 'mini mw-shape', false, '', m.fill)}<b class="num">${v}</b></span></td>`).join('')}<td><span class="mw-trend is-${t === 'משתחרר' ? 'up' : t === 'נאגר' ? 'down' : 'flat'}">${t}</span></td></tr>`;
     }).join('') + '</tbody>';
+
+  // the key reads the same rule: sharp = stayed in, soft = got out
+  $('#mw-key').innerHTML = `${mini(0, 'mini mk-shape')}נשאר בפנים${mini(.5, 'mini mk-shape')}באמצע${mini(1, 'mini mk-shape')}יצא`;
 
   // December 2026 calendar (1.12 is a Tuesday; columns run Sunday → Saturday, right to left).
   // Every marked day carries a hand glyph and one line of context; one day is left untagged.
@@ -962,7 +968,7 @@
     const log = DAYLOG[calSel];
     const date = `<span class="cd-date num">${calSel}.12</span>`;
     if (calSel === 9 && log) {
-      box.innerHTML = `<p class="cd-line">${date}${glyph('cry', 'glyph glyph-detail')}<span>${TEAR[tearState]}</span></p>`
+      box.innerHTML = `<p class="cd-line">${date}${glyph('cry', 'glyph glyph-detail', tearState === 'confirmed' ? .1 : .45)}<span>${TEAR[tearState]}</span></p>`
         + (tearState === 'pending' ? `<div class="cd-actions"><button type="button" data-tear="confirmed">אשר</button><button type="button" data-tear="rejected">דחה</button></div>` : '');
       return;
     }
