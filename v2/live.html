@@ -65,30 +65,44 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let idx = -1, story = null, start = 0, visitor = null;
   const stage = document.getElementById('stage'), now = document.getElementById('now');
+  // visitors queue up: each one's wrapped plays through once, then the next; with no one waiting, the six come back
+  const queue = [];
+  const esc = n => n.replace(/[<>&]/g, '');
+  const base = n => n.replace(/[ךםןףץ]/g, c => 'כמנפצ'['ךםןףץ'.indexOf(c)]);   // final letters change while typing: רון → רונן
+  const same = (a, b) => !!a && !!b && (base(a).startsWith(base(b)) || base(b).startsWith(base(a)));   // still typing, not a new person
+  function caption() {
+    now.innerHTML = `עכשיו על המסך: <b>${esc(story.day.name)}</b>` + (queue.length ? ` · הבא בתור: ${queue.map(esc).join(', ')}` : '');
+  }
   function show(name, top, t, isVisitor) {
     story = createStory(stage, makeDay({ name, date: new Date(), top }));
     start = t; visitor = isVisitor ? name : null;
-    now.innerHTML = `עכשיו על המסך: <b>${name.replace(/[<>&]/g, '')}</b>`;
+    caption();
     if (reduce) story.draw(sAt(4, 1.5));
   }
-  function next(t) { idx = (idx + 1) % people.length; show(people[idx][0], people[idx][1], t, false); }
+  function next(t) {
+    if (queue.length) return show(queue.shift(), null, t, true);
+    idx = (idx + 1) % people.length; show(people[idx][0], people[idx][1], t, false);
+  }
+  function arrive(name) {
+    const t = performance.now();
+    if (same(name, visitor)) show(name, null, t, true);                          // a correction of who's on screen: restart in it
+    else if (same(name, queue[queue.length - 1])) queue[queue.length - 1] = name;   // a correction of who's waiting
+    else if (!visitor) show(name, null, t, true);                                 // only the six were playing: start at once
+    else if (!queue.includes(name)) queue.push(name);
+    caption();
+  }
   function tick(t) {
-    // a visitor's story plays twice, then the screen goes back to the six
-    if (!story || t - start > STORY_DUR * 1000 * (visitor ? 2 : 1)) next(t);
+    if (!story || t - start > STORY_DUR * 1000) next(t);   // one whole wrapped, then the next person
     story.draw((t - start) / 1000);
     requestAnimationFrame(tick);
   }
-  // a name typed at the screen: the story restarts at once, in that name
+  // a name typed at the screen, or sent from a visitor's phone (through the relay in sync.js)
   let typing = null;
   document.getElementById('here').addEventListener('input', ev => {
     clearTimeout(typing);
-    typing = setTimeout(() => {
-      const name = ev.target.value.trim().replace(/\s+/g, ' ');
-      if (name && name !== visitor) show(name, null, performance.now(), true);
-    }, 450);
+    typing = setTimeout(() => { const name = ev.target.value.trim().replace(/\s+/g, ' '); if (name) arrive(name); }, 450);
   });
-  // a name from a visitor's phone (through the relay in sync.js): same as typing it here
-  syncListen(name => { document.getElementById('here').value = ''; show(name, null, performance.now(), true); });
+  syncListen(name => { document.getElementById('here').value = ''; arrive(name); });
   document.fonts.ready.then(() => reduce ? next(0) : requestAnimationFrame(tick));
 </script>
 </body>

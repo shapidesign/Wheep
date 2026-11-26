@@ -43,6 +43,16 @@
     padding: 10px 14px calc(12px + env(safe-area-inset-bottom)); background: rgba(22, 19, 15, .86); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
   .dock input { font-size: 18px; padding: 11px 12px; min-width: 0; }
   .dock button { font-size: 16px; padding: 12px 14px; white-space: nowrap; }
+  /* stories: a strip of days on top, tap zones over the frame (tap = scene, swipe = day, hold = pause) */
+  .days { position: absolute; inset: calc(10px + env(safe-area-inset-top)) 12px auto 12px; z-index: 2; display: flex; gap: 4px; direction: rtl; }
+  .days span { flex: 1; height: 3px; background: rgba(255, 255, 255, .3); position: relative; overflow: hidden; }
+  .days span i { position: absolute; inset: 0; background: #fff; transform-origin: right; transform: scaleX(0); }
+  .dayname { position: absolute; inset: calc(22px + env(safe-area-inset-top)) 14px auto auto; z-index: 2; font-size: 15px; font-variation-settings: 'wght' 80; color: #fff; mix-blend-mode: difference; }
+  .taps { position: absolute; inset: 0; z-index: 1; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: pointer; }
+  .hint { position: absolute; inset: auto 0 96px 0; z-index: 2; text-align: center; font-size: 16px; color: #fff; pointer-events: none;
+    transition: opacity .6s cubic-bezier(.16, 1, .3, 1); text-shadow: 0 1px 8px rgba(0, 0, 0, .5); }
+  .hint.off { opacity: 0; }
+  .dock { z-index: 3; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   @media (prefers-reduced-motion: reduce) { .status li { transition: none; } }
 </style>
@@ -70,8 +80,12 @@
   <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
 </section>
 
-<section class="screen" id="story">
+<section class="screen" id="story" aria-roledescription="סיפורים">
   <svg id="storySvg"></svg>
+  <div class="days" id="days" aria-hidden="true"></div>
+  <p class="dayname" id="dayname" aria-live="polite"></p>
+  <div class="taps" id="taps" role="button" tabindex="0" aria-label="הקש לסצנה הבאה, החזק כדי לעצור. חצים: שמאלה קדימה, ימינה אחורה"></div>
+  <p class="hint" id="hint">הקש כדי להתקדם · החזק כדי לעצור · החלק ליום אחר</p>
   <div class="dock">
     <label class="sr" for="liveName">השם שלך בסיכום</label>
     <input id="liveName" maxlength="20" autocomplete="given-name" enterkeyhint="done" aria-describedby="liveHint">
@@ -103,14 +117,20 @@
     const nn = b > a ? a + (b - a) * mSmooth(f) : (f < .5 ? a : b);
     return { n: nn, k: .5 + .5 * Math.sin(t / 1400) };
   }
-  let scanning = false, story = null, storyStart = 0;
+  let scanning = false, story = null, clock = 0, last = null, paused = false;
   function tick(t) {
     const m = markAt(t);
     const d = shapePath(m.n, m.k, 48, 0, 0, t / 6000);
     $('topMark').setAttribute('d', d); $('topMark2').setAttribute('d', d);
     $('bigMark').setAttribute('d', shapePath(m.n, m.k, 56, 0, 0, t / 6000));
     if (scanning) $('scanMark').setAttribute('d', shapePath(m.n, .5 + .5 * Math.sin(t / 260), 40 + 10 * Math.sin(t / 180), 0, 0, t / 900));
-    if (story) story.draw((t - storyStart) / 1000);
+    const dt = last === null ? 0 : (t - last) / 1000; last = t;
+    if (story) {
+      if (!paused) clock += dt;
+      if (clock >= STORY_DUR) go(d + 1);   // the day is over: on to the next one, like a story
+      story.draw(clock);
+      fillDays();
+    }
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -139,31 +159,77 @@
     const day = makeDay({ name, date: new Date() });
     line(`מוכן. הרגש שהוביל את היום שלך: <b>${EMO[day.emo].he}</b>`); await wait(1000);
     scanning = false;
-    play(day);
+    playName(name);
   }
 
-  // 3 · the story (full screen); the name stays editable: a new name restarts the story in that name
-  let current = null;
-  function play(day) {
-    show('story');
-    current = day;
-    story = createStory($('storySvg'), day, { bleed: true });
-    storyStart = performance.now();
-    if (document.activeElement !== $('liveName')) $('liveName').value = day.name;
-    if (reduce) { story.draw(sAt(4, 1.5)); story = null; }
-    history.replaceState(null, '', `?name=${encodeURIComponent(day.name)}`);
-    syncSend(day.name);   // the exhibition screen picks it up and plays this story too
+  // 3 · the stories (full screen): today first, then the five days before it, each led by a different feeling.
+  //     Tap the left side for the next scene, the right side for the one before (mirrored, for Hebrew);
+  //     swipe for another day; hold to pause. The name stays editable: a new name starts the stories again in it.
+  let week = [], d = 0, current = null;
+  function weekOf(name) {
+    const today = makeDay({ name, date: new Date() });   // the same day the exhibition screen shows for this name
+    const rest = PROFILES.map(p => p.emo).filter(e => e !== today.emo), from = Math.floor(mHash(nameSeed(name, 'week'), 2, 2) * rest.length);
+    return [today, ...rest.map((e, i) => makeDay({ name, date: new Date(Date.now() - (i + 1) * 864e5), top: rest[(from + i) % rest.length] }))];
   }
+  const sceneT = i => reduce ? sAt(i, 2) : SCENES[i];   // reduced motion holds each scene, fully built
+  function go(i, t = 0) {
+    d = (i + week.length) % week.length;
+    current = week[d];
+    story = createStory($('storySvg'), current, { bleed: true });
+    clock = reduce ? sceneT(4) : t; last = null;
+    $('dayname').textContent = d === 0 ? 'היום' : d === 1 ? 'אתמול' : `יום ${current.day}`;
+    [...$('days').children].forEach((s, j) => s.firstChild.style.transform = `scaleX(${j < d ? 1 : 0})`);
+  }
+  function fillDays() { const s = $('days').children[d]; if (s) s.firstChild.style.transform = `scaleX(${Math.min(1, clock / STORY_DUR)})`; }
+  function scene(step) {
+    let i = 0; while (i < SCENES.length - 2 && clock >= SCENES[i + 1]) i++;
+    if (step > 0) { if (i < 5) clock = sceneT(i + 1); else go(d + 1); }
+    else if (clock - SCENES[i] > 1.2) clock = sceneT(i);                 // back: first to the start of this scene
+    else if (i > 0) clock = sceneT(i - 1);
+    else if (d > 0) go(d - 1, sceneT(5));
+    else clock = 0;
+  }
+  function playName(name) {
+    show('story');
+    week = weekOf(name);
+    $('days').innerHTML = week.map(() => '<span><i></i></span>').join('');
+    go(0);
+    if (document.activeElement !== $('liveName')) $('liveName').value = name;
+    history.replaceState(null, '', `?name=${encodeURIComponent(name)}`);
+    syncSend(name);   // the exhibition screen picks it up and plays today's story too
+    setTimeout(() => $('hint').classList.add('off'), 3500);
+  }
+  if (reduce) paused = true;
+  let down = null, holding = false, holdT = null;
+  $('taps').addEventListener('pointerdown', ev => {
+    down = { x: ev.clientX, y: ev.clientY };
+    holdT = setTimeout(() => { holding = true; paused = true; }, 220);
+  });
+  const release = ev => {
+    if (!down) return;
+    clearTimeout(holdT);
+    const dx = ev.clientX - down.x, dy = ev.clientY - down.y; down = null;
+    if (holding) { holding = false; paused = reduce; return; }   // a hold only pauses
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) go(d + (dx > 0 ? 1 : -1));   // swipe right (RTL forward) = next day
+    else if (Math.abs(dx) < 12 && Math.abs(dy) < 12) scene(ev.clientX < innerWidth * .4 ? 1 : -1);
+  };
+  $('taps').addEventListener('pointerup', release);
+  $('taps').addEventListener('pointercancel', () => { clearTimeout(holdT); down = null; holding = false; paused = reduce; });
+  $('taps').addEventListener('contextmenu', ev => ev.preventDefault());
+  $('taps').addEventListener('keydown', ev => {
+    if (ev.key === 'ArrowLeft') scene(1); else if (ev.key === 'ArrowRight') scene(-1);
+    else if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); if (!reduce) paused = !paused; }
+  });
   let typing = null;
   $('liveName').addEventListener('input', () => {
     clearTimeout(typing);
     typing = setTimeout(() => {
       const name = $('liveName').value.trim().replace(/\s+/g, ' ');
-      if (name && (!current || name !== current.name)) play(makeDay({ name, date: new Date() }));
+      if (name && (!current || name !== current.name)) playName(name);
     }, 450);
   });
   $('liveName').addEventListener('keydown', ev => { if (ev.key === 'Enter') $('liveName').blur(); });
-  $('again').addEventListener('click', () => { storyStart = performance.now(); });
+  $('again').addEventListener('click', () => go(0));
   // 4 · the day as one still, saved as a PNG
   $('save').addEventListener('click', async () => {
     if (!current) return;
@@ -175,7 +241,7 @@
 
   // a shared link (?name=) goes straight to the story
   const pre = new URLSearchParams(location.search).get('name');
-  document.fonts.ready.then(() => { if (pre) play(makeDay({ name: pre.slice(0, 20), date: new Date() })); });
+  document.fonts.ready.then(() => { if (pre) playName(pre.trim().slice(0, 20)); });
 </script>
 </body>
 </html>
