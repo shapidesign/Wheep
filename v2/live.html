@@ -9,21 +9,23 @@
   /* the exhibition screen, made for a vertical display: the story fills it, one thin strip at the bottom.
      The QR is small (or gone, ?qr=0, when it is printed next to the screen). F or the corner button: story only, full screen. */
   html, body { height: 100%; }
+  /* one unit for the strip that holds on any shape of screen: vh on a wide one, tied to the width on a tall, narrow one */
+  :root { --u: min(1vh, 1.6vw); }
   body { background: #16130F; color: #fff; overflow: hidden; display: grid; grid-template-rows: minmax(0, 1fr) auto; font-variation-settings: 'wght' 40; }
   .stage { position: relative; display: grid; place-items: center; min-height: 0; }
   .stage svg { display: block; height: 100%; width: auto; max-width: 100%; overflow: visible; }
-  .strip { position: relative; z-index: 1; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2.2vh; align-items: center;
-    padding: 1.6vh 3vh calc(1.6vh + env(safe-area-inset-bottom)); background: #16130F; border-top: 1px solid rgba(255, 255, 255, .14); }
-  .qr { display: block; background: #fff; padding: .6vh; width: 9vh; aspect-ratio: 1; }
+  .strip { position: relative; z-index: 1; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: calc(2.2 * var(--u)); align-items: center;
+    padding: calc(1.6 * var(--u)) calc(3 * var(--u)) calc(1.6 * var(--u) + env(safe-area-inset-bottom)); background: #16130F; border-top: 1px solid rgba(255, 255, 255, .14); }
+  .qr { display: block; background: #fff; padding: calc(.6 * var(--u)); width: calc(9 * var(--u)); aspect-ratio: 1; }
   .qr svg { width: 100%; height: 100%; display: block; }
   .qr:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid #FFD23F; outline-offset: 3px; }
-  .call { display: grid; gap: .5vh; min-width: 0; }
-  .call b { font-size: 2.3vh; font-variation-settings: 'wght' 90; font-weight: inherit; }
-  .now { font-size: 1.6vh; color: rgba(255, 255, 255, .7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .call { display: grid; gap: calc(.5 * var(--u)); min-width: 0; }
+  .call b { font-size: calc(1.8 * var(--u)); line-height: 1.2; font-variation-settings: 'wght' 90; font-weight: inherit; text-wrap: balance; }
+  .now { font-size: calc(1.4 * var(--u)); color: rgba(255, 255, 255, .7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .now b { color: #fff; font-size: inherit; }
-  .tools { display: grid; gap: .8vh; justify-items: end; }
-  .tools input { font: inherit; font-size: 1.7vh; width: 22vh; color: #fff; background: #24211C; border: 1px solid rgba(255, 255, 255, .22); padding: .8vh 1vh; font-variation-settings: 'wght' 60; }
-  .tools button, .exit { font: inherit; font-size: 1.5vh; color: #fff; background: transparent; border: 1px solid rgba(255, 255, 255, .3); padding: .6vh 1.2vh; cursor: pointer; }
+  .tools { display: grid; gap: calc(.8 * var(--u)); justify-items: end; }
+  .tools input { font: inherit; font-size: calc(1.5 * var(--u)); width: calc(15 * var(--u)); color: #fff; background: #24211C; border: 1px solid rgba(255, 255, 255, .22); padding: calc(.8 * var(--u)) var(--u); font-variation-settings: 'wght' 60; }
+  .tools button, .exit { font: inherit; font-size: calc(1.3 * var(--u)); color: #fff; background: transparent; border: 1px solid rgba(255, 255, 255, .3); padding: calc(.6 * var(--u)) calc(1.2 * var(--u)); cursor: pointer; }
   body.noqr .qr { display: none; }
   body.noqr .strip { grid-template-columns: minmax(0, 1fr) auto; }
   /* story only: the strip goes, the poster's ground runs to the screen edges */
@@ -41,7 +43,7 @@
   <footer class="strip">
     <a class="qr" id="qr" aria-label="לעמוד האישי שלך: הקלד את השם שלך וסנכרן את החיישן"></a>
     <div class="call">
-      <b id="callLine">סרוק, כתוב את השם שלך, וזה יהיה היום שלך על המסך.</b>
+      <b id="callLine">סרוק וכתוב את השם שלך. היום שלך יעלה על המסך.</b>
       <div class="now" id="now" aria-live="polite"></div>
     </div>
     <div class="tools">
@@ -131,7 +133,7 @@
     // each person's last poster: the QR becomes theirs, so they can take the poster with them and share it
     const end = T >= SCENES[5];
     setQR(end ? `${target}?name=${encodeURIComponent(story.day.name)}` : target);
-    const line = end ? `${story.day.name}, סרוק כדי לקחת את הפוסטר ולשתף אותו.` : 'סרוק, כתוב את השם שלך, וזה יהיה היום שלך על המסך.';
+    const line = end ? `${story.day.name}, סרוק כדי לקחת את הפוסטר ולשתף אותו.` : 'סרוק וכתוב את השם שלך. היום שלך יעלה על המסך.';
     if (callLine.textContent !== line) callLine.textContent = line;
     requestAnimationFrame(tick);
   }
