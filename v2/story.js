@@ -372,7 +372,7 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
         shape(n, () => soft, rh * .22, W - M - rh * .22, y + rh / 2, INK, { at, spin: 0, still: true });
         shrink(breathe(T(txt, W - M - rh * .6, y + rh / 2 + 13, 36, { fill: fg, i: 9 + j }), 60), MEAS - rh * .6 - 220);
         const m = Sx('0', M, y + rh / 2 + 22, 64, { fill: fg, anchor: 'start', i: 9 + j, seed: j + 2 }); m.setAttribute('direction', 'ltr');   // '−25 MPL' reads left to right
-        live(u => setText(m, '−' + Math.round(d * sOut((u - at) / .6)) + ' MPL'));
+        live(u => setText(m, '+' + Math.round(d * sOut((u - at) / .6)) + ' MPL'));
       });
     },
     // 10 · the share card: everything on one poster, made to be sent (the share button sends this one)
