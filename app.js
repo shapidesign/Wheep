@@ -71,16 +71,30 @@
 
   /* ── the logo: lowercase wheep in Greta, plus the shape mark. It never holds one form. ── */
   const LOGO = ['fear', 'joy', 'cry', 'release', 'shame', 'anger', 'press'];
+  // hold a feeling for 55% of its beat, then change over the other 45%
   const logoState = (t) => {
     const pos = (t / 4200) % LOGO.length, i = Math.floor(pos), f = pos - i;
-    const A = LOGO[i], B = LOGO[(i + 1) % LOGO.length], m = f < .7 ? 0 : (f - .7) / .3, e = m * m * (3 - 2 * m);
-    const nA = FN[A], nB = FN[B], n = nB > nA ? nA + (nB - nA) * e : (e < .5 ? nA : nB);
-    const blob = nB < nA ? Math.sin(Math.PI * e) : 0, k = .5 + .5 * Math.sin(t / 1700 + i);
-    return { n, k: k * (1 - blob) + .34 * blob, c: PAL[e < .5 ? A : B], t };
+    const A = LOGO[i], B = LOGO[(i + 1) % LOGO.length], m = f < .55 ? 0 : (f - .55) / .45, e = m * m * m * (m * (6 * m - 15) + 10);   // smootherstep
+    return { nA: FN[A], nB: FN[B], e, k: .5 + .5 * Math.sin(t / 1700 + i), c: mixHex(PAL[A], PAL[B], e), t };
+  };
+  const mixHex = (x, y, e) => '#' + [1, 3, 5].map((j) => Math.round(parseInt(x.substr(j, 2), 16) * (1 - e) + parseInt(y.substr(j, 2), 16) * e).toString(16).padStart(2, '0')).join('');
+  // adding (or losing) points: the old points sink into a soft round body, the new count rises out of it.
+  // Never two sets of points at once, so 4 → 5 reads as one shape growing a point, not two shapes overlapping.
+  const logoPath = (s, R = 50, rot = 0, steps = 240) => {
+    const P = params(s.k), flat = Math.sin(Math.PI * s.e);              // 0 at rest, 1 mid-change
+    let d = '';
+    for (let j = 0; j < steps; j++) {
+      const ang = (j / steps) * 2 * Math.PI;
+      const rA = radius(ang, s.nA, P), rB = radius(ang, s.nB, P);
+      const r = rA + (rB - rA) * s.e, body = (P.ri + 1) / 2 + .08;   // the round body sits between the valleys and the tips
+      const rr = R * (body + (r - body) * (1 - .92 * flat));
+      d += `${j ? 'L' : 'M'}${(rr * Math.sin(ang + rot)).toFixed(2)} ${(-rr * Math.cos(ang + rot)).toFixed(2)}`;
+    }
+    return d + 'Z';
   };
   $$('[data-logo]').forEach((el) => { el.innerHTML = `<svg viewBox="-52 -52 104 104" aria-hidden="true"><path/></svg><span class="lk-word">${[...'wheep'].map((c) => `<span>${c}</span>`).join('')}</span>`; });
   const paintLogo = (t) => {
-    const s = logoState(t), d = shapePath(s.n, s.k, 50, 0, 0, t / 12000);
+    const s = logoState(t), d = logoPath(s, 50, t / 12000);
     $$('[data-logo] path, [data-mark] path').forEach((p) => { p.setAttribute('d', d); p.setAttribute('fill', s.c); });
     $$('[data-logo] .lk-word').forEach((w) => [...w.children].forEach((sp, j) => { sp.style.fontVariationSettings = `'wght' ${(100 * (.5 - .5 * Math.sin(t / 1700 - j * .55))).toFixed(1)}`; }));
     if (!reduced) requestAnimationFrame(paintLogo);
