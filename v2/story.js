@@ -48,8 +48,8 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
   const T = (txt, x, y, size, o = {}) => add(el('text', { x, y, 'font-size': size, direction: 'rtl', 'text-anchor': o.anchor || 'start',
     fill: o.fill, 'font-family': o.font || 'Greta, GretaHL', style: `font-variation-settings:'wght' ${o.w ?? 40}` }, txt), o.i ?? 0);
   // Secolo: every letter is its own tspan on its own cut (19–22), and each one jumps to another cut on the beat,
-  // so a word is always a mix of the four. Tracked -60 (−0.06em). setText() swaps the letters (count-ups).
-  const TRACK = -.06;
+  // so a word is always a mix of the four. Tracked -20 (−0.02em). setText() swaps the letters (count-ups).
+  const TRACK = -.02;
   const Sx = (txt, x, y, size, o = {}) => {
     const t = T('', x, y, size, { ...o, font: SECOLO[0] });
     t.style.letterSpacing = TRACK + 'em';
@@ -157,7 +157,7 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
       hero(u => u < 1.4 ? sLerp(.34, day.kOut, sFlow(u / 1.4)) : osc(u - 1.4, day.kOut, day.kOut + (day.kIn - day.kOut) * .35, 3), 500, W * .72, H + 60);
       title(fg, U.led);
       const fw = Sx(feel(day.emo), W - M, 0, 400, { fill: fg, i: 2 }), f = fit(fw, MEAS, 640); hang(fw, TOP + 96, f);
-      live(u => fw.style.letterSpacing = (TRACK + .3 * (1 - sOut(u / 1.6))).toFixed(3) + 'em');   // pulls tight to −60
+      live(u => fw.style.letterSpacing = (TRACK + .3 * (1 - sOut(u / 1.6))).toFixed(3) + 'em');   // pulls tight to −20
       const ry = TOP + 96 + f * .74 + 48;
       rule(ry, fg, 3);
       const pc = Sx('0%', M, ry + 230, 260, { fill: fg, anchor: 'end', i: 4, seed: 1 });
