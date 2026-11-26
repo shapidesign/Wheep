@@ -171,16 +171,21 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
     () => {
       const fg = frame(2, INK, U.guessNote), REVEAL = 3.4, cy = TOP + 560, cx = [W * .8, W * .5, W * .2];
       title(fg, U.guess);
+      // the frame and title start white on ink; once the colour has flooded in they turn ink
+      const chrome = [...S.g.querySelectorAll(`[fill="${P.w}"]`)];
+      live(u => { const c = u > REVEAL + 1 ? INK : P.w; chrome.forEach(x => x.setAttribute('fill', c)); });
       const pool = GUESS_KEYS.filter(x => x !== day.emo), a = pool[Math.floor(h(1) * pool.length)];
       let b = pool[Math.floor(h(2) * pool.length)]; if (b === a) b = pool[(pool.indexOf(a) + 1) % pool.length];
       const order = [a, day.emo, b], right = Math.floor(h(3) * 3); [order[1], order[right]] = [order[right], order[1]];
+      // the flood: the answer's shape, soft enough (k .34, deep valleys stay full) and big enough to cover every corner,
+      // so ink text never ends up on an ink gap between the points
       const flood = el('path', { fill: P.m }); S.g.insertBefore(flood, S.g.children[1]);
-      live(u => { const g = sFlow((u - REVEAL - .4) / 1.4); flood.setAttribute('d', g > 0 ? shapePath(n, day.kOut, 60 + g * 1600, cx[right], cy, u * .2) : ''); });
+      live(u => { const g = sFlow((u - REVEAL - .4) / 1.4); flood.setAttribute('d', g > 0 ? shapePath(n, .34, 60 + g * 2700, cx[right], cy, u * .2) : ''); });
       order.forEach((emo, i) => {
         const E = EMO[emo], ok = emo === day.emo;
         const sh = shape(E.n, u => osc(u, .1, .9, 3.4, i * 2), 150, cx[i], cy, E.c, { at: .4 + i * .18 });
         live(u => { sh.setAttribute('fill', ok && u > REVEAL ? INK : E.c); sh.setAttribute('opacity', !ok && u > REVEAL ? .2 : 1); });
-        const lab = Sx(String(i + 1), cx[i], cy + 260, 90, { fill: fg, anchor: 'middle', i: 3 + i, seed: i });
+        const lab = Sx(feel(emo), cx[i], cy + 250, 80, { fill: fg, anchor: 'middle', i: 3 + i, seed: i }); fit(lab, W * .28, 80);
         live(u => { lab.setAttribute('fill', u > REVEAL + 1 ? INK : fg); lab.setAttribute('opacity', u > REVEAL && !ok ? .2 : 1); });
       });
       const ans = Sx(feel(day.emo), W - M, BOT - 50, 260, { fill: INK, seed: 4 }); fit(ans, MEAS, 300);

@@ -138,7 +138,7 @@
     const dt = last === null ? 0 : (t - last) / 1000; last = t;
     if (story) {
       if (!paused) clock += dt;
-      if (clock >= STORY_DUR) go(d + 1);   // the day is over: on to the next one, like a story
+      if (clock >= STORY_DUR) clock = STORY_DUR - .001;   // the day is over: hold on the share card, to save or share it (tap or swipe for the next day)
       story.draw(clock);
       fillDays();
       $('endshare').classList.toggle('on', clock >= SCENES[SCENES.length - 2]);   // the last poster: offer to share it
