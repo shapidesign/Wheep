@@ -44,7 +44,7 @@ One generator, `shape.js`: `shapePath(n, k, r, cx, cy, rot)`.
 |---|---|---|
 | פחד fear | 3 | `#C8FF3D` |
 | הנאה joy | 4 | `#FFD23F` |
-| בכי tears | 5 | `#3FC8F5` |
+| עצב sadness (measured by crying) | 5 | `#3FC8F5` |
 | שחרור release | 6 | `#3DDC97` |
 | בושה shame | 7 | `#FF9F1C` |
 | כעס anger | 8 | `#FF5A36` |

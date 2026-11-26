@@ -17,7 +17,7 @@ const DAYS = [
   { day: 'שלישי', date: '24.11', emo: 'fear',    kOut: .34, kIn: .82, num: '790',  count: true,  unit: 'מדד הפחד שלך, בשיא',
     marks: [[19.67, 1]], spans: [], label: '19:40, שיחה נכנסת מאמא',
     b: 'הטלפון צלצל, לא ענית.',     s: 'הפחד ענה במקומך.' },
-  { day: 'רביעי', date: '25.11', emo: 'cry',     kOut: .62, kIn: .08, num: '2',    count: false, unit: 'דקות של בכי',
+  { day: 'רביעי', date: '25.11', emo: 'cry',     kOut: .62, kIn: .08, num: '2',    count: false, unit: 'דקות שבכית',
     marks: [[7.5, 0]], spans: [[7.5, 7.6]], label: '07:30, במקלחת',
     b: 'בכית לפני העבודה.',         s: 'אחר כך היית רגוע כל היום.' },
   { day: 'חמישי', date: '26.11', emo: 'joy',     kOut: .50, kIn: .04, num: '11',   count: true,  unit: 'צחוקים',

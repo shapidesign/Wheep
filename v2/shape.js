@@ -7,7 +7,7 @@
 const EMO = {
   fear:    { n: 3, he: 'פחד',   en: 'fear',    c: '#C8FF3D' },
   joy:     { n: 4, he: 'הנאה',  en: 'joy',     c: '#FFD23F' },
-  cry:     { n: 5, he: 'בכי',   en: 'tears',   c: '#3FC8F5' },
+  cry:     { n: 5, he: 'עצב',   en: 'sadness', c: '#3FC8F5' },   // key stays 'cry': sadness, measured by crying
   release: { n: 6, he: 'שחרור', en: 'release', c: '#3DDC97' },
   shame:   { n: 7, he: 'בושה',  en: 'shame',   c: '#FF9F1C' },
   anger:   { n: 8, he: 'כעס',   en: 'anger',   c: '#FF5A36' },

@@ -5,7 +5,7 @@ const COPY_DEFAULT = {
     "anger": "כעס",
     "press": "הדחקה",
     "fear": "פחד",
-    "cry": "בכי",
+    "cry": "עצב",
     "joy": "הנאה",
     "shame": "בושה",
     "release": "שחרור"
