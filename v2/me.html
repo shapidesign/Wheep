@@ -53,6 +53,13 @@
     transition: opacity .6s cubic-bezier(.16, 1, .3, 1); text-shadow: 0 1px 8px rgba(0, 0, 0, .5); }
   .hint.off { opacity: 0; }
   .dock { z-index: 3; }
+  /* the end of each day: share the final poster */
+  .endshare { position: absolute; inset: auto 16px calc(84px + env(safe-area-inset-bottom)) 16px; z-index: 3; display: grid; gap: 6px;
+    opacity: 0; transform: translateY(16px); pointer-events: none; transition: opacity .45s cubic-bezier(.16, 1, .3, 1), transform .45s cubic-bezier(.16, 1, .3, 1); }
+  .endshare.on { opacity: 1; transform: none; pointer-events: auto; }
+  .endshare button { font-size: 22px; padding: 18px; background: #fff; color: var(--ground); box-shadow: 0 8px 28px rgba(0, 0, 0, .35); }
+  .endshare p { font-size: 15px; text-align: center; color: #fff; text-shadow: 0 1px 8px rgba(0, 0, 0, .5); min-height: 1.3em; }
+  @media (prefers-reduced-motion: reduce) { .endshare { transition: none; } }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   @media (prefers-reduced-motion: reduce) { .status li { transition: none; } }
 </style>
@@ -93,6 +100,10 @@
     <button class="quiet" type="button" id="again">מההתחלה</button>
     <button class="primary" type="button" id="save">שמור תמונה</button>
   </div>
+  <div class="endshare" id="endshare">
+    <button type="button" id="share">שתף את הפוסטר שלך</button>
+    <p id="shareNote" aria-live="polite"></p>
+  </div>
 </section>
 
 <script src="shape.js"></script>
@@ -130,6 +141,7 @@
       if (clock >= STORY_DUR) go(d + 1);   // the day is over: on to the next one, like a story
       story.draw(clock);
       fillDays();
+      $('endshare').classList.toggle('on', clock >= SCENES[5]);   // the last poster: offer to share it
     }
     requestAnimationFrame(tick);
   }
@@ -230,13 +242,19 @@
   });
   $('liveName').addEventListener('keydown', ev => { if (ev.key === 'Enter') $('liveName').blur(); });
   $('again').addEventListener('click', () => go(0));
-  // 4 · the day as one still, saved as a PNG
-  $('save').addEventListener('click', async () => {
+  // 4 · the final poster as a PNG: save it, or share it with friends (the poster, a line, and a link to this story)
+  async function busy(b, doing, job) {
+    const label = b.textContent; b.disabled = true; b.textContent = doing;
+    try { return await job(); } catch (e) { b.textContent = 'לא הצליח, נסה שוב'; await wait(1600); } finally { b.disabled = false; b.textContent = label; }
+  }
+  $('save').addEventListener('click', () => current && busy($('save'), 'שומר…', () => savePoster(current)));
+  $('share').addEventListener('click', async () => {
     if (!current) return;
-    const b = $('save'), label = b.textContent;
-    b.disabled = true; b.textContent = 'שומר…';
-    try { await saveSummary(current); } catch (e) { b.textContent = 'לא נשמר, נסה שוב'; await wait(1600); }
-    b.disabled = false; b.textContent = label;
+    paused = true;   // hold the last poster while the share sheet is open
+    const link = new URL(`me.html?name=${encodeURIComponent(current.name)}`, location.href).href;
+    const r = await busy($('share'), 'מכין את הפוסטר…', () => sharePoster(current, link));
+    $('shareNote').textContent = r === 'copied' ? 'הפוסטר ירד, והקישור הועתק. אפשר להדביק אותו לחברים.' : r === 'shared' ? 'נשלח.' : '';
+    paused = reduce;
   });
 
   // a shared link (?name=) goes straight to the story

@@ -1,6 +1,6 @@
 /* WHEEP · the story's timeline, shared by story.js (web) and the After Effects build (pasted into expressions).
    ES5 on purpose. One day, six scenes, then it loops. Change S_PACE to slow everything down or speed it up together. */
-var S_PACE = 2;                                                         // 1 = the original 16 s story; 2 gives time to read
+var S_PACE = 2.8;                                                       // 1 = the original 16 s story; 2.8 holds each poster 6–9.5 s, time to read
 var SCENES = [0, 2.2, 5.0, 7.8, 10.6, 13.6, 17];                         // the closing lines get the longest scene
 var STORY_DUR = SCENES[SCENES.length - 1] * S_PACE, S_BEAT = .4 * S_PACE;
 for (var si_ = 0; si_ < SCENES.length; si_++) SCENES[si_] *= S_PACE;

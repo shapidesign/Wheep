@@ -6,36 +6,51 @@
 <title>WHEEP · חי</title>
 <link rel="stylesheet" href="v2.css">
 <style>
-  /* the exhibition screen: a QR on the right, a live story on the left */
-  body { background: #16130F; color: #fff; min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: 4vw; padding: 4vh 5vw; font-variation-settings: 'wght' 40; }
-  .call { display: grid; gap: 3vh; align-content: center; }
-  .call h1 { font-size: clamp(40px, 5.2vw, 96px); line-height: 1; font-variation-settings: 'wght' 95; }
-  .call p { font-size: clamp(18px, 1.6vw, 28px); line-height: 1.4; max-width: 30ch; color: rgba(255, 255, 255, .8); }
-  .qr { display: block; background: #fff; padding: 12px; width: clamp(140px, 12vw, 220px); aspect-ratio: 1; }
+  /* the exhibition screen, made for a vertical display: the story fills it, one thin strip at the bottom.
+     The QR is small (or gone, ?qr=0, when it is printed next to the screen). F or the corner button: story only, full screen. */
+  html, body { height: 100%; }
+  body { background: #16130F; color: #fff; overflow: hidden; display: grid; grid-template-rows: minmax(0, 1fr) auto; font-variation-settings: 'wght' 40; }
+  .stage { position: relative; display: grid; place-items: center; min-height: 0; }
+  .stage svg { display: block; height: 100%; width: auto; max-width: 100%; overflow: visible; }
+  .strip { position: relative; z-index: 1; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2.2vh; align-items: center;
+    padding: 1.6vh 3vh calc(1.6vh + env(safe-area-inset-bottom)); background: #16130F; border-top: 1px solid rgba(255, 255, 255, .14); }
+  .qr { display: block; background: #fff; padding: .6vh; width: 9vh; aspect-ratio: 1; }
   .qr svg { width: 100%; height: 100%; display: block; }
-  .qr:focus-visible { outline: 3px solid #FFD23F; outline-offset: 4px; }
-  .now { font-size: clamp(16px, 1.3vw, 22px); color: rgba(255, 255, 255, .7); }
-  .here { display: grid; gap: 8px; max-width: 360px; }
-  .here label { font-size: clamp(15px, 1.1vw, 19px); color: rgba(255, 255, 255, .8); }
-  .here input { font: inherit; font-size: 22px; color: #fff; background: #24211C; border: 1.5px solid rgba(255, 255, 255, .22); padding: 12px 14px; font-variation-settings: 'wght' 60; }
-  .here input:focus-visible { outline: 3px solid #FFD23F; outline-offset: 3px; }
-  .now b { color: #fff; font-variation-settings: 'wght' 90; font-weight: inherit; }
-  .stage svg { display: block; width: 100%; max-height: 92vh; }
-  @media (max-width: 800px) { body { grid-template-columns: 1fr; } }
+  .qr:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid #FFD23F; outline-offset: 3px; }
+  .call { display: grid; gap: .5vh; min-width: 0; }
+  .call b { font-size: 2.3vh; font-variation-settings: 'wght' 90; font-weight: inherit; }
+  .now { font-size: 1.6vh; color: rgba(255, 255, 255, .7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .now b { color: #fff; font-size: inherit; }
+  .tools { display: grid; gap: .8vh; justify-items: end; }
+  .tools input { font: inherit; font-size: 1.7vh; width: 22vh; color: #fff; background: #24211C; border: 1px solid rgba(255, 255, 255, .22); padding: .8vh 1vh; font-variation-settings: 'wght' 60; }
+  .tools button, .exit { font: inherit; font-size: 1.5vh; color: #fff; background: transparent; border: 1px solid rgba(255, 255, 255, .3); padding: .6vh 1.2vh; cursor: pointer; }
+  body.noqr .qr { display: none; }
+  body.noqr .strip { grid-template-columns: minmax(0, 1fr) auto; }
+  /* story only: the strip goes, the poster's ground runs to the screen edges */
+  body.only { grid-template-rows: minmax(0, 1fr); }
+  body.only .strip { display: none; }
+  .exit { position: fixed; inset: 1.5vh 1.5vh auto auto; z-index: 2; opacity: 0; transition: opacity .3s; }
+  body.only .exit { display: block; }
+  body:not(.only) .exit { display: none; }
+  body.only .exit:hover, body.only .exit:focus-visible { opacity: 1; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 </style>
 </head>
 <body>
-  <section class="call">
-    <h1>מה עבר עליך היום?</h1>
-    <p>סרוק, כתוב את השם שלך, והחיישן יספר לך על היום שלך: מה הרגשת, מתי, וכמה רחוק זה היה ממה שהראית.</p>
-    <a class="qr" id="qr" aria-label="לעמוד האישי שלך: הקלד את השם שלך וסנכרן את החיישן"></a>
-    <div class="here">
-      <label for="here">או כתוב את השם שלך כאן</label>
-      <input id="here" maxlength="20" autocomplete="off" enterkeyhint="done" placeholder="השם שלך">
-    </div>
-    <div class="now" id="now" aria-live="polite"></div>
-  </section>
   <section class="stage"><svg id="stage"></svg></section>
+  <footer class="strip">
+    <a class="qr" id="qr" aria-label="לעמוד האישי שלך: הקלד את השם שלך וסנכרן את החיישן"></a>
+    <div class="call">
+      <b id="callLine">סרוק, כתוב את השם שלך, וזה יהיה היום שלך על המסך.</b>
+      <div class="now" id="now" aria-live="polite"></div>
+    </div>
+    <div class="tools">
+      <label class="sr" for="here">או כתוב את השם שלך כאן</label>
+      <input id="here" maxlength="20" autocomplete="off" enterkeyhint="done" placeholder="או כתוב שם כאן">
+      <button type="button" id="full">מסך מלא · F</button>
+    </div>
+  </footer>
+  <button type="button" class="exit" id="exit">יציאה · F</button>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="shape.js"></script>
@@ -52,15 +67,33 @@
   const PUBLIC = 'https://shapidesign.github.io/Wheep/v2/me.html';
   const local = location.protocol === 'file:' || /^(localhost|127\.|\[::1\]|.*\.local$)/.test(location.hostname);
   const target = local ? PUBLIC : new URL('me.html', location.href).href;
-  document.getElementById('qr').href = target;
-  try {
-    const qr = qrcode(0, 'M'); qr.addData(target); qr.make();
-    document.getElementById('qr').innerHTML = qr.createSvgTag({ cellSize: 8, margin: 0, scalable: true });
-  } catch (e) { document.getElementById('qr').textContent = target; }
+  const qrEl = document.getElementById('qr'), callLine = document.getElementById('callLine');
+  let qrFor = null;
+  function setQR(url) {   // the general link, or (on a person's last poster) the link to their own story, to share
+    if (url === qrFor) return; qrFor = url; qrEl.href = url;
+    try { const qr = qrcode(0, 'M'); qr.addData(url); qr.make(); qrEl.innerHTML = qr.createSvgTag({ cellSize: 8, margin: 0, scalable: true }); }
+    catch (e) { qrEl.textContent = url; }
+  }
+  setQR(target);
+  const Q = new URLSearchParams(location.search);
+  if (Q.get('qr') === '0') document.body.classList.add('noqr');   // the QR is printed next to the screen
+
+  // story only, full screen: the button, F, or ?only=1 (story only without full screen; browsers need a click for that)
+  const only = on => { document.body.classList.toggle('only', on); };
+  async function toggleFull() {
+    const on = !document.body.classList.contains('only');
+    only(on);
+    try { if (on && !document.fullscreenElement) await document.documentElement.requestFullscreen(); else if (!on && document.fullscreenElement) await document.exitFullscreen(); } catch (e) { /* story only still works */ }
+  }
+  document.addEventListener('fullscreenchange', () => only(!!document.fullscreenElement));
+  document.getElementById('full').addEventListener('click', toggleFull);
+  document.getElementById('exit').addEventListener('click', toggleFull);
+  addEventListener('keydown', ev => { if ((ev.key === 'f' || ev.key === 'F' || ev.key === 'כ') && ev.target.tagName !== 'INPUT') toggleFull(); });
+  if (Q.get('only') === '1') only(true);
 
   // attract mode: six (made-up) men, one per profile; ?names=a,b,c swaps in other names (synced by name)
   const MOCK = Object.keys(MOCK_NAMES).map(n => [n]);   // gen.js fixes their profiles, so a phone gets the same story
-  const custom = new URLSearchParams(location.search).get('names');
+  const custom = Q.get('names');
   const people = custom ? custom.split(',').map(s => [s.trim()]).filter(p => p[0]) : MOCK;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let idx = -1, story = null, start = 0, visitor = null;
@@ -74,7 +107,7 @@
     now.innerHTML = `עכשיו על המסך: <b>${esc(story.day.name)}</b>` + (queue.length ? ` · הבא בתור: ${queue.map(esc).join(', ')}` : '');
   }
   function show(name, top, t, isVisitor) {
-    story = createStory(stage, makeDay({ name, date: new Date(), top }));
+    story = createStory(stage, makeDay({ name, date: new Date(), top }), { bleed: true });
     start = t; visitor = isVisitor ? name : null;
     caption();
     if (reduce) story.draw(sAt(4, 1.5));
@@ -93,7 +126,13 @@
   }
   function tick(t) {
     if (!story || t - start > STORY_DUR * 1000) next(t);   // one whole wrapped, then the next person
-    story.draw((t - start) / 1000);
+    const T = (t - start) / 1000;
+    story.draw(T);
+    // each person's last poster: the QR becomes theirs, so they can take the poster with them and share it
+    const end = T >= SCENES[5];
+    setQR(end ? `${target}?name=${encodeURIComponent(story.day.name)}` : target);
+    const line = end ? `${story.day.name}, סרוק כדי לקחת את הפוסטר ולשתף אותו.` : 'סרוק, כתוב את השם שלך, וזה יהיה היום שלך על המסך.';
+    if (callLine.textContent !== line) callLine.textContent = line;
     requestAnimationFrame(tick);
   }
   // a name typed at the screen, or sent from a visitor's phone (through the relay in sync.js)

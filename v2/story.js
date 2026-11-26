@@ -47,18 +47,34 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
   // text: right-aligned by default (RTL start); anchor 'end' = left-aligned
   const T = (txt, x, y, size, o = {}) => add(el('text', { x, y, 'font-size': size, direction: 'rtl', 'text-anchor': o.anchor || 'start',
     fill: o.fill, 'font-family': o.font || 'Greta, GretaHL', style: `font-variation-settings:'wght' ${o.w ?? 40}` }, txt), o.i ?? 0);
-  // Secolo: cuts on the beat; fit() measures every cut so the widest one decides the size
+  // Secolo: every letter is its own tspan on its own cut (19–22), and each one jumps to another cut on the beat,
+  // so a word is always a mix of the four. Tracked -60 (−0.06em). setText() swaps the letters (count-ups).
+  const TRACK = -.06;
   const Sx = (txt, x, y, size, o = {}) => {
-    const t = T(txt, x, y, size, { ...o, font: SECOLO[0] });
-    t._cut = o.seed ?? 0;
-    live((u, TT) => t.setAttribute('font-family', SECOLO[(Math.floor(TT / CUT) + t._cut) % 4]));
+    const t = T('', x, y, size, { ...o, font: SECOLO[0] });
+    t.style.letterSpacing = TRACK + 'em';
+    const seed = o.seed ?? 0;
+    t._cut = seed; t._L = [];
+    t._set = str => {
+      if (str === t._str) return; t._str = str;
+      const chars = [...String(str)];
+      while (t._L.length < chars.length) { const s = el('tspan'); t.append(s); t._L.push(s); }
+      while (t._L.length > chars.length) t._L.pop().remove();
+      chars.forEach((ch, i) => { t._L[i].textContent = ch; });
+    };
+    t._set(txt);
+    live((u, TT) => { const b = Math.floor(TT / CUT); t._L.forEach((s, i) => s.setAttribute('font-family', SECOLO[(b + Math.floor(sHash(i + seed * 7, 3.1) * 4) + i) % 4])); });
     return t;
   };
+  const setText = (t, str) => t._set ? t._set(str) : (t.textContent = str);
   const fit = (t, width, max = 1e4) => {
     const f0 = +t.getAttribute('font-size');
-    if (t._cut == null) t.style.fontVariationSettings = "'wght' 100";   // Greta: measured at its heaviest
     let l = 0;
-    (t._cut != null ? SECOLO : [null]).forEach(c => { if (c) t.setAttribute('font-family', c); l = Math.max(l, t.getComputedTextLength()); });
+    if (t._L) {   // Secolo: each letter at its widest cut, so no mix can overflow
+      const w = t._L.map(() => 0);
+      SECOLO.forEach(c => t._L.forEach((s, i) => { s.setAttribute('font-family', c); w[i] = Math.max(w[i], s.getComputedTextLength()); }));
+      l = w.reduce((a, b) => a + b, 0);
+    } else { t.style.fontVariationSettings = "'wght' 100"; l = t.getComputedTextLength(); }   // Greta: measured at its heaviest
     const f = Math.min(max, f0 * width / (l || 1)); t.setAttribute('font-size', f.toFixed(1)); return f;
   };
   const shrink = (t, width) => { if (t.getComputedTextLength() > width) fit(t, width); };
@@ -102,7 +118,7 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
     const q = add(el('path', { fill }));
     live(u => { const s = u < at ? 0 : sBack((u - at) / .45); q.setAttribute('d', s > .01 ? shapePath(nn, clampK(kf(u)), r * s, cx, cy, u * .3, 120) : ''); });
   };
-  const countUp = (t, to, at, dur, suffix = '') => live(u => t.textContent = Math.round(to * sOut((u - at) / dur)) + suffix);
+  const countUp = (t, to, at, dur, suffix = '') => live(u => setText(t, Math.round(to * sOut((u - at) / dur)) + suffix));
 
   // the frame: a data sheet. Same edges on every poster, so the middle can be loud.
   const frame = (s, ground) => {
@@ -141,7 +157,7 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
       hero(u => u < 1.4 ? sLerp(.34, day.kOut, sFlow(u / 1.4)) : osc(u - 1.4, day.kOut, day.kOut + (day.kIn - day.kOut) * .35, 3), 500, W * .72, H + 60);
       title(fg, U.led);
       const fw = Sx(feel(day.emo), W - M, 0, 400, { fill: fg, i: 2 }), f = fit(fw, MEAS, 640); hang(fw, TOP + 96, f);
-      live(u => fw.setAttribute('letter-spacing', ((1 - sOut(u / 1.6)) * 60).toFixed(1)));
+      live(u => fw.style.letterSpacing = (TRACK + .3 * (1 - sOut(u / 1.6))).toFixed(3) + 'em');   // pulls tight to −60
       const ry = TOP + 96 + f * .74 + 48;
       rule(ry, fg, 3);
       const pc = Sx('0%', M, ry + 230, 260, { fill: fg, anchor: 'end', i: 4, seed: 1 });
@@ -178,7 +194,7 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
       const kNow = u => sLerp(day.kOut, day.kIn, turn(u));
       title(fg, U.outIn);
       const gp = Sx('0%', M, TOP + 330, 300, { fill: fg, anchor: 'end', i: 2 });
-      live(u => gp.textContent = Math.round(gap * turn(u)) + '%');
+      live(u => setText(gp, Math.round(gap * turn(u)) + '%'));
       shrink(breathe(T(U.gap.replace(/:?\s*\{gap\}%/, ''), W - M, TOP + 330, 72, { fill: fg, i: 2 }), 85, 14), MEAS / 2);
       rule(TOP + 380, fg, 3);
       const cy = TOP + 640, r = 230;
@@ -260,7 +276,7 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
     TT = sWrap(TT);
     let i = 0; while (i < 5 && TT >= SCENES[i + 1]) i++;
     if (i !== shown) { if (shown >= 0) scenes[shown].g.style.display = 'none'; scenes[i].g.style.display = ''; shown = i; }
-    const sc = scenes[i], u = Math.max(0, (TT - SCENES[i]) * 2 / S_PACE);   // u: seconds into the scene, at pace 2
+    const sc = scenes[i], u = Math.max(0, TT - SCENES[i]);   // u: seconds into the scene; a slower S_PACE only holds each poster longer
     sc.ins.forEach(x => {
       const v = ease((u - +x.dataset.i * STAG) / IN);
       x.setAttribute('opacity', v.toFixed(3));

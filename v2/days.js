@@ -2,7 +2,7 @@
    Shared by wrapped.html and the After Effects builder (ae/make.js → ae/build.jsx). */
 
 /* Each day is one infographic: what the tracker measured, when, and how far the inside was from the outside.
-   num/unit: the headline figure. count: the number counts up with the marks.
+   num/unit: the headline figure, always the feeling's own measure (never pulse): a count, a duration, the fear index (0–1000) or the MPL (masculinity pressure level, 0–1000) for holding in. count: the number counts up with the marks.
    marks: events on the 24h line [hour, k] (k: 0 = round, 1 = spiky; null = the day's k).
    spans: durations on the 24h line [from, to] in hours. label: what the line shows, in words.
    kOut/kIn: the big shape outside (what he showed) and inside (what was there); the gap is |kIn − kOut|.
@@ -11,15 +11,15 @@ const DAYS = [
   { day: 'ראשון', date: '22.11', emo: 'anger',   kOut: .30, kIn: .96, num: '3',    count: true,  unit: 'פעמים הרמת את הקול',
     marks: [[8.2, null], [8.7, null], [18.3, 1]], spans: [], label: 'שתיים בפקק, אחת בבית',
     b: 'בפקק זה היה על הנהגים.',   s: 'בבית זה היה על מי שהיה שם.' },
-  { day: 'שני',   date: '23.11', emo: 'press',   kOut: .20, kIn: .88, num: '4:12', count: false, unit: 'שעות של דופק גבוה במנוחה',
+  { day: 'שני',   date: '23.11', emo: 'press',   kOut: .20, kIn: .88, num: '640',  count: true,  unit: 'מדד לחץ הגבריות שלך (MPL)',
     marks: [], spans: [[9, 11.2], [14, 16]], label: 'בבוקר בישיבה, אחר הצהריים מול המחשב',
     b: 'כשאלו אמרת שהכל טוב.',      s: 'הגוף לא הסכים.' },
-  { day: 'שלישי', date: '24.11', emo: 'fear',    kOut: .34, kIn: .82, num: '128',  count: false, unit: 'דופק שיא',
+  { day: 'שלישי', date: '24.11', emo: 'fear',    kOut: .34, kIn: .82, num: '790',  count: true,  unit: 'מדד הפחד שלך, בשיא',
     marks: [[19.67, 1]], spans: [], label: '19:40, שיחה נכנסת מאמא',
-    b: 'הטלפון צלצל, לא ענית.',     s: 'הדופק ענה במקומך.' },
+    b: 'הטלפון צלצל, לא ענית.',     s: 'הפחד ענה במקומך.' },
   { day: 'רביעי', date: '25.11', emo: 'cry',     kOut: .62, kIn: .08, num: '2',    count: false, unit: 'דקות של בכי',
     marks: [[7.5, 0]], spans: [[7.5, 7.6]], label: '07:30, במקלחת',
-    b: 'בכית לפני העבודה.',         s: 'אחר כך הדופק נרגע לכל היום.' },
+    b: 'בכית לפני העבודה.',         s: 'אחר כך היית רגוע כל היום.' },
   { day: 'חמישי', date: '26.11', emo: 'joy',     kOut: .50, kIn: .04, num: '11',   count: true,  unit: 'צחוקים',
     marks: [[8.5, 0], [10, 1], [11.5, 0], [13, 0], [13.4, 0], [15, 1], [17.5, 0], [19, 0], [20.2, 0], [21, 0], [22.5, 0]], spans: [],
     label: '9 אמיתיים, 2 מנומסים',

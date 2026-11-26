@@ -34,9 +34,9 @@ function genMix(seed, top) {
 const PROFILES = [
   { emo: 'anger', kOut: .28, kIn: .94, num: '4', count: true,
     marks: [[7.9, null], [8.3, null], [13.1, null], [19.6, 1]], spans: [] },
-  { emo: 'press', kOut: .18, kIn: .9, num: '5:40', count: false,
+  { emo: 'press', kOut: .18, kIn: .9, num: '775', count: true,
     marks: [], spans: [[8.5, 11.5], [15, 17.7]] },
-  { emo: 'fear', kOut: .3, kIn: .85, num: '131', count: false,
+  { emo: 'fear', kOut: .3, kIn: .85, num: '820', count: true,
     marks: [[22.4, 1]], spans: [] },
   { emo: 'cry', kOut: .6, kIn: .06, num: '3', count: false,
     marks: [[21.2, 0]], spans: [[21.2, 21.25]] },
