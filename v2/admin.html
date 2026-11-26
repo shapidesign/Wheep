@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>WHEEP · עריכת טקסטים</title>
+<link rel="stylesheet" href="v2.css">
+<style>
+  body { background: #16130F; color: #fff; font-variation-settings: 'wght' 40; }
+  .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 460px); gap: 40px; max-width: 1400px; margin: 0 auto; padding: 32px 24px 120px; }
+  h1 { font-size: clamp(32px, 4vw, 52px); font-variation-settings: 'wght' 90; line-height: 1; }
+  .lede { margin-top: 10px; max-width: 60ch; color: #B8B2A8; font-size: 17px; line-height: 1.5; }
+  .bar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 0; background: #16130F; border-bottom: 1px solid rgba(255, 255, 255, .14); margin-top: 20px; }
+  button, .file { font: inherit; font-size: 16px; padding: 10px 16px; cursor: pointer; border: 1.5px solid rgba(255, 255, 255, .24); background: transparent; color: #fff; font-variation-settings: 'wght' 70; }
+  button.primary { background: #fff; color: #16130F; border-color: #fff; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, .file:focus-within { outline: 3px solid #FFD23F; outline-offset: 2px; }
+  .status { align-self: center; color: #B8B2A8; font-size: 15px; margin-inline-start: auto; }
+  section { margin-top: 36px; }
+  h2 { font-size: 26px; font-variation-settings: 'wght' 85; }
+  h2 small { font-size: 15px; color: #B8B2A8; font-variation-settings: 'wght' 40; margin-inline-start: 8px; }
+  .group { margin-top: 18px; padding: 16px; background: #24211C; display: grid; gap: 14px; }
+  .group h3 { font-size: 19px; font-variation-settings: 'wght' 85; display: flex; align-items: center; gap: 10px; }
+  .group h3 svg { width: 22px; height: 22px; }
+  .group h3 button { margin-inline-start: auto; font-size: 14px; padding: 6px 10px; }
+  label { display: grid; gap: 6px; font-size: 14px; color: #B8B2A8; }
+  input, textarea { font: inherit; font-size: 17px; color: #fff; background: #16130F; border: 1.5px solid rgba(255, 255, 255, .18); padding: 9px 11px; font-variation-settings: 'wght' 55; }
+  textarea { resize: vertical; min-height: 44px; }
+  .changed { border-color: #FFD23F; }
+  .preview { position: sticky; top: 20px; align-self: start; display: grid; gap: 10px; }
+  .preview svg { width: 100%; height: auto; display: block; }
+  .preview select, .preview input[type=range] { width: 100%; }
+  .preview select { font: inherit; font-size: 16px; padding: 8px; background: #24211C; color: #fff; border: 1.5px solid rgba(255, 255, 255, .24); }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .hint { color: #9C958B; font-size: 14px; line-height: 1.45; }
+  .file input { display: none; }
+  @media (max-width: 900px) { .wrap { grid-template-columns: 1fr; } .preview { position: static; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main>
+    <h1>עריכת הטקסטים של ה־wrapped</h1>
+    <p class="lede">כל מילה שהסיפור אומר. השינויים נראים מיד בתצוגה המקדימה. "שמור" שומר בדפדפן הזה, כך שאם עורכים במחשב של מסך התערוכה, המסך מתעדכן. כדי שהטלפונים של המבקרים יקבלו את הטקסטים, מורידים את copy.js ומחליפים אותו במאגר.</p>
+    <div class="bar">
+      <button class="primary" type="button" id="save">שמור בדפדפן הזה</button>
+      <button type="button" id="export">הורד copy.js</button>
+      <button type="button" id="exportJson">הורד גיבוי JSON</button>
+      <label class="file" tabindex="0">טען גיבוי JSON<input type="file" id="importJson" accept="application/json"></label>
+      <button type="button" id="reset">חזור לברירת המחדל</button>
+      <span class="status" id="status" role="status"></span>
+    </div>
+    <div id="forms"></div>
+  </main>
+  <aside class="preview" aria-label="תצוגה מקדימה">
+    <select id="who" aria-label="מה להציג בתצוגה המקדימה"></select>
+    <svg id="previewSvg"></svg>
+    <div class="row"><button type="button" id="play">עצור</button><input type="range" id="scrub" min="0" max="24" step=".05" value="0" aria-label="זמן בסיפור"></div>
+    <p class="hint">{pct}, {gap} ו־{name} מתמלאים לבד: האחוז, הפער והשם.</p>
+  </aside>
+</div>
+
+<script src="shape.js"></script>
+<script src="motion.js"></script>
+<script src="copy.js"></script>
+<script src="days.js"></script>
+<script src="gen.js"></script>
+<script src="story-core.js"></script>
+<script src="story.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const UI_FIELDS = [
+    ['intro', 'פתיחה · השורה מתחת לשם'], ['led', 'סצנה 1 · הכותרת מעל הרגש'], ['share', 'סצנה 1 · השורה מתחת לרגש ({pct})'],
+    ['measured', 'סצנה 2 · הכותרת'], ['when', 'סצנה 2 · הכותרת של ציר היום'],
+    ['outIn', 'סצנה 3 · הכותרת'], ['gap', 'סצנה 3 · הפער ({gap})'], ['soft', 'סצנה 3 · קצה רך'], ['sharp', 'סצנה 3 · קצה חד'],
+    ['outside', 'סצנה 3 · סימון בחוץ'], ['inside', 'סצנה 3 · סימון בפנים'],
+    ['meaningUp', 'סצנה 3 · המשפט כשבפנים היה חד יותר'], ['meaningDown', 'סצנה 3 · המשפט כשבפנים היה רך יותר'],
+    ['feelings', 'סצנה 4 · הכותרת'], ['summaryTitle', 'תמונת הסיכום · הכותרת ({name})'],
+  ];
+  const DAY_FIELDS = [['unit', 'מה נמדד · יחידה (סצנה 2)'], ['label', 'מתי · הכיתוב של ציר היום'], ['b', 'סצנה 5 · השורה הראשונה (העובדה)'], ['s', 'סצנה 5 · השורה השנייה (מה שהנתונים מוסיפים)']];
+
+  // edit a deep copy; COPY (what the story reads) follows every keystroke
+  const draft = JSON.parse(JSON.stringify(COPY));
+  const forms = $('forms');
+  const field = (label, path, multi) => {
+    const wrap = document.createElement('label');
+    wrap.textContent = label;
+    const inp = document.createElement(multi ? 'textarea' : 'input');
+    inp.rows = 1;
+    const get = () => path.reduce((o, k) => o[k], draft), def = path.reduce((o, k) => o[k], COPY_DEFAULT);
+    inp.value = get();
+    inp.classList.toggle('changed', inp.value !== def);
+    inp.addEventListener('input', () => {
+      path.slice(0, -1).reduce((o, k) => o[k], draft)[path[path.length - 1]] = inp.value;
+      inp.classList.toggle('changed', inp.value !== def);
+      dirty(); rebuild();
+    });
+    wrap.append(inp);
+    return wrap;
+  };
+  const group = (parent, title, emo, fields, base, previewKey) => {
+    const g = document.createElement('div'); g.className = 'group';
+    const h = document.createElement('h3');
+    if (emo) h.innerHTML = `<svg viewBox="-30 -30 60 60" aria-hidden="true"><path fill="${EMO[emo].c}" d="${shapePath(EMO[emo].n, .5, 26, 0, 0, 0)}"/></svg>`;
+    h.append(title);
+    if (previewKey) { const b = document.createElement('button'); b.type = 'button'; b.textContent = 'הצג'; b.onclick = () => { $('who').value = previewKey; rebuild(); }; h.append(b); }
+    g.append(h);
+    fields.forEach(([k, label]) => g.append(field(label, [...base, k], k === 'b' || k === 's' || k.startsWith('meaning'))));
+    parent.append(g);
+  };
+  const section = (title, note) => { const s = document.createElement('section'); s.innerHTML = `<h2>${title}<small>${note}</small></h2>`; forms.append(s); return s; };
+
+  group(section('כותרות הסיפור', 'משותף לכל הסיפורים'), 'כל הסצנות', null, UI_FIELDS, ['ui']);
+  const sp = section('ששת הפרופילים', 'מה שמבקר מקבל אחרי שהוא כותב שם');
+  Object.keys(draft.profiles).forEach(emo => group(sp, EMO[emo].he, emo, DAY_FIELDS, ['profiles', emo], 'p:' + emo));
+  const sw = section('השבוע', 'הסיפורים בעמוד הסיכום השבועי');
+  DAYS.forEach((d, i) => group(sw, `${d.day} · ${EMO[d.emo].he}`, d.emo, DAY_FIELDS, ['week', i], 'w:' + i));
+
+  // the preview: any profile or week day, live
+  const who = $('who');
+  Object.keys(draft.profiles).forEach(emo => who.add(new Option(`פרופיל · ${EMO[emo].he}`, 'p:' + emo)));
+  DAYS.forEach((d, i) => who.add(new Option(`השבוע · ${d.day}`, 'w:' + i)));
+  who.onchange = rebuild;
+  let story = null;
+  function rebuild() {
+    Object.assign(COPY.ui, draft.ui); Object.assign(COPY.profiles, draft.profiles); COPY.week = draft.week;
+    const [kind, key] = who.value.split(':');
+    let day;
+    if (kind === 'p') day = makeDay({ name: 'יהונתן', date: new Date(), top: key });
+    else { const d = DAYS[+key], seed = nameSeed(DEMO_NAME, d.date); day = { ...d, ...draft.week[+key], name: DEMO_NAME, seed, ...genMix(seed, d.emo) }; }
+    story = createStory($('previewSvg'), day);
+  }
+  let playing = true, t0 = performance.now(), held = 0;
+  $('play').onclick = () => { playing = !playing; $('play').textContent = playing ? 'עצור' : 'נגן'; if (playing) t0 = performance.now() - held * 1000; };
+  $('scrub').max = STORY_DUR;
+  $('scrub').oninput = e => { held = +e.target.value; t0 = performance.now() - held * 1000; };
+  function tick(t) {
+    if (playing) held = ((t - t0) / 1000) % STORY_DUR;
+    $('scrub').value = held;
+    if (story) story.draw(held);
+    requestAnimationFrame(tick);
+  }
+
+  // save / export / import / reset
+  let changed = false;
+  const dirty = () => { changed = true; $('status').textContent = 'יש שינויים שלא נשמרו'; };
+  const saveFile = (name, text, type) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name;
+    document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  $('save').onclick = () => {
+    try { localStorage.setItem(COPY_KEY, JSON.stringify(draft)); changed = false; $('status').textContent = 'נשמר בדפדפן הזה'; }
+    catch (e) { $('status').textContent = 'הדפדפן לא מאפשר לשמור כאן. הורידו את copy.js במקום.'; }
+  };
+  $('export').onclick = async () => {
+    const src = await (await fetch('copy.js', { cache: 'no-store' })).text();
+    saveFile('copy.js', src.replace(/const COPY_DEFAULT = [\s\S]*?\n};\n/, `const COPY_DEFAULT = ${JSON.stringify(draft, null, 2)};\n`), 'text/javascript');
+    $('status').textContent = 'copy.js ירד. החליפו אותו ב־v2/copy.js במאגר.';
+  };
+  $('exportJson').onclick = () => saveFile('wheep-copy.json', JSON.stringify(draft, null, 2), 'application/json');
+  $('importJson').onchange = async e => {
+    try {
+      const data = JSON.parse(await e.target.files[0].text());
+      localStorage.setItem(COPY_KEY, JSON.stringify(copyMerge(COPY_DEFAULT, data)));
+      location.reload();
+    } catch (err) { $('status').textContent = 'הקובץ לא נקרא. צריך קובץ JSON שירד מכאן.'; }
+  };
+  $('reset').onclick = () => {
+    if (!confirm('למחוק את כל השינויים בדפדפן הזה ולחזור לטקסטים שבקובץ?')) return;
+    try { localStorage.removeItem(COPY_KEY); } catch (e) {}
+    location.reload();
+  };
+  addEventListener('beforeunload', e => { if (changed) e.preventDefault(); });
+
+  document.fonts.ready.then(() => { rebuild(); requestAnimationFrame(tick); });
+</script>
+</body>
+</html>

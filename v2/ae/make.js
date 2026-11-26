@@ -7,7 +7,10 @@ const fs = require('fs'), path = require('path');
 const { mHash } = require('../motion.js');
 const { EMO } = require('../shape.js');
 global.mHash = mHash; global.EMO = EMO;   // gen.js runs in the browser with these as globals
+const { COPY } = require('../copy.js');
+global.COPY = COPY;                     // days.js / gen.js take their words from copy.js
 const { DAYS, palette, DEMO_NAME } = require('../days.js');
+const { STORY_DUR } = require('../story-core.js');
 const { makeDay, genMix, nameSeed } = require('../gen.js');
 
 const arg = k => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
@@ -28,6 +31,8 @@ const CORE = fs.readFileSync(path.join(__dirname, '../story-core.js'), 'utf8') +
 const tpl = fs.readFileSync(path.join(__dirname, 'build.template.jsx'), 'utf8');
 const out = tpl.replace('/*DATA*/', JSON.stringify(data))
   .replace('/*EMOS*/', JSON.stringify(emos))
+  .replace('/*UI*/', JSON.stringify(COPY.ui))
+  .replace('/*DUR*/', String(STORY_DUR))
   .replaceAll('/*OUT*/', JSON.stringify(path.join(__dirname, 'wheep-wrapped.aep')))
   .replace('/*CORE*/', JSON.stringify(CORE))
   .replace('/*FRAMES*/', JSON.stringify(arg('--frames') || ''));

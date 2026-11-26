@@ -41,10 +41,10 @@ function summarySVG(day, fontCSS = '') {
   T(`${day.day} · ${day.date}`, 560, 84, 30, { w: 55 });
 
   // the column: whose day, the feeling that led it, the figure
-  T(`הסיכום של ${day.name}`, 560, 200, 46, { w: 95 });
-  T('הרגש שהוביל את היום', 560, 262, 30, { w: 60 });
+  T(copyFill(COPY.ui.summaryTitle, { name: day.name }), 560, 200, 46, { w: 95 });
+  T(COPY.ui.led, 560, 262, 30, { w: 60 });
   T(e.he, 560, 430, 190, { face: 'Secolo21' });
-  T(`${day.shares[0].pct}% מהשעות שבהן היית ער`, 560, 482, 30, { w: 50 });
+  T(copyFill(COPY.ui.share, { pct: day.shares[0].pct }), 560, 482, 30, { w: 50 });
   T(day.num, 60, 668, 190, { ltr: true, face: 'Secolo21' });
   T(day.unit, 560, 722, 34, { w: 60 });
   T(day.label, 560, 766, 28, { w: 45 });
@@ -52,23 +52,23 @@ function summarySVG(day, fontCSS = '') {
   // outside vs inside, on the four drawings
   const k2x = k => 60 + k * 960;
   R(0, 800, 1080, 2, pal.k);
-  T('בחוץ מול בפנים', 1020, 850, 32, { w: 90 });
-  T(`פער של ${Math.round(Math.abs(day.kIn - day.kOut) * 100)}%`, 60, 850, 32, { anchor: 'end', w: 90 });
+  T(COPY.ui.outIn, 1020, 850, 32, { w: 90 });
+  T(copyFill(COPY.ui.gap, { gap: Math.round(Math.abs(day.kIn - day.kOut) * 100) }), 60, 850, 32, { anchor: 'end', w: 90 });
   M_KEYS.forEach(k => P(shapePath(n, k, 15, k2x(k), 896, 0), pal.b));
-  T('רך', k2x(0) + 30, 902, 24, { anchor: 'end', w: 50 });
-  T('חד', k2x(1) - 30, 902, 24, { w: 50 });
+  T(COPY.ui.soft, k2x(0) + 30, 902, 24, { anchor: 'end', w: 50 });
+  T(COPY.ui.sharp, k2x(1) - 30, 902, 24, { w: 50 });
   R(60, 934, 960, 2, pal.k);
   const ka = Math.min(day.kOut, day.kIn), kb = Math.max(day.kOut, day.kIn);
   R(k2x(ka), 929, Math.max(4, k2x(kb) - k2x(ka)), 12, pal.k);
   const close = Math.abs(k2x(day.kIn) - k2x(day.kOut)) < 120;
-  [[day.kOut, 'בחוץ', 0], [day.kIn, 'בפנים', close ? 1 : 0]].forEach(([k, l, row]) => {
+  [[day.kOut, COPY.ui.outside, 0], [day.kIn, COPY.ui.inside, close ? 1 : 0]].forEach(([k, l, row]) => {
     R(k2x(k) - 1, 935, 2, 22 + row * 30, pal.k);
     T(l, k2x(k), 980 + row * 30, 26, { anchor: 'middle', w: 80 });
   });
 
   // the day in feelings, on ink: the strip, the top three, the two lines
   R(0, 1030, 1080, 320, pal.k);
-  T('היום שלך ברגשות', 1020, 1080, 30, { fill: pal.w, w: 85 });
+  T(COPY.ui.feelings, 1020, 1080, 30, { fill: pal.w, w: 85 });
   const sx = h => 60 + (h - 7) / 16.5 * 960;
   day.segs.forEach(s => R(sx(s.from), 1100, Math.max(1, sx(s.to) - sx(s.from) - 3), 40, EMO[s.emo].c));
   T('07:00', 60, 1170, 22, { ltr: true, fill: pal.w, w: 40 });

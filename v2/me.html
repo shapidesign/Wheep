@@ -83,6 +83,7 @@
 
 <script src="shape.js"></script>
 <script src="motion.js"></script>
+<script src="copy.js"></script>
 <script src="days.js"></script>
 <script src="gen.js"></script>
 <script src="story-core.js"></script>
@@ -148,7 +149,7 @@
     story = createStory($('storySvg'), day, { bleed: true });
     storyStart = performance.now();
     if (document.activeElement !== $('liveName')) $('liveName').value = day.name;
-    if (reduce) { story.draw(12.6); story = null; }
+    if (reduce) { story.draw(sAt(4, 1.5)); story = null; }
     history.replaceState(null, '', `?name=${encodeURIComponent(day.name)}`);
   }
   let typing = null;

@@ -32,6 +32,9 @@ const DAYS = [
     b: 'יום שקט.',                   s: 'בחוץ ובפנים, אותה צורה.' },
 ];
 
+// the week's words can be edited in copy.js / admin.html (COPY.week[i] overrides unit, label, b, s)
+if (typeof COPY !== 'undefined') DAYS.forEach((d, i) => Object.assign(d, COPY.week[i] || {}));
+
 // the weekly demo belongs to one (made-up) person; the live page uses the visitor's own name
 const DEMO_NAME = 'אורי';
 

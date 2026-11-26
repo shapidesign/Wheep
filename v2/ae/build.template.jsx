@@ -12,9 +12,10 @@
 function main() {
   var STORIES = /*DATA*/;
   var EMOS = /*EMOS*/;
+  var U = /*UI*/;   // copy.js → COPY.ui
   var OUT = /*OUT*/;
   var CORE = /*CORE*/;
-  var DUR = 16, W = 1080, H = 1350, FPS = 30;
+  var DUR = /*DUR*/, W = 1080, H = 1350, FPS = 30;
   var GRETA = "GretaSerif-Light";
   var SECOLO = "[\"Secolo-19\",\"Secolo-20\",\"Secolo-21\",\"Secolo-22\"]";
   var M_KEYS = [0, .34, .67, 1];
@@ -25,7 +26,8 @@ function main() {
 
   // Greta Serif VF instances: registering them once makes setFont() in expressions find them (weight step 5)
   // all three axes: wght (step 5) × wdth (82 / 91 / 100) × OPTI (step 25); AE omits an axis at its default (100) from the name
-  var FONT_FN = "function F(w,wd,op){w=Math.round(Math.max(0,Math.min(100,w))/5)*5;wd=wd==null?100:(wd>95.5?100:(wd>86.5?91:82));" +
+  // all three axes: wght (step 5) × wdth (60–100, step 10) × OPTI (step 25); AE omits an axis at its default (100) from the name
+  var FONT_FN = "function F(w,wd,op){w=Math.round(Math.max(0,Math.min(100,w))/5)*5;wd=wd==null?100:Math.round(Math.max(60,Math.min(100,wd))/10)*10;" +
     "op=op==null?100:Math.round(Math.max(0,Math.min(100,op))/25)*25;" +
     "return \"GretaSerif_\"+w.toFixed(3)+\"wght_\"+(wd==100?\"\":wd.toFixed(3)+\"wdth_\")+(op==100?\"\":op.toFixed(3)+\"OPTI_\")+\"0ital\";}";
   (function registerInstances() {
@@ -33,8 +35,7 @@ function main() {
     var st = tc.layers.addText("a").property("ADBE Text Properties").property("ADBE Text Document");
     var td = st.value; td.font = GRETA; st.setValue(td);
     var fo = st.value.fontObject;   // never read fo.designVector: it crashes AE 27
-    var WD = [82, 91, 100];
-    for (var w = 0; w <= 100; w += 5) for (var a = 0; a < 3; a++) for (var op = 0; op <= 100; op += 25) fo.postScriptNameForDesignVector([w, WD[a], op]);
+    for (var w = 0; w <= 100; w += 5) for (var wd = 60; wd <= 100; wd += 10) for (var op = 0; op <= 100; op += 25) fo.postScriptNameForDesignVector([w, wd, op]);
     tc.remove();
   })();
 
@@ -69,14 +70,16 @@ function main() {
     slider(ctl, "k out", d.kOut); slider(ctl, "k in", d.kIn); slider(ctl, "points", n);
     for (var key in CTRL) colour(ctl, CTRL[key], d.pal[key]);
 
-    // scene presence on any layer: opacity in/out, a 28 px rise; extra multiplies opacity
-    function inScene(L, sc, extra) {
-      var tr = L.property("ADBE Transform Group");
-      tr.property("ADBE Opacity").expression = H0 + "sScene(T," + sc + ")*100" + (extra ? "*(" + extra + ")" : "") + ";";
-      tr.property("ADBE Position").expression = H0 + "[value[0],value[1]+(1-sScene(T," + sc + "))*28];";
+    // build-up: a layer enters `d` (pace-1 s) after its scene starts, rising `rise` px; it leaves with the scene
+    function inScene(L, sc, extra, d, rise) {
+      var tr = L.property("ADBE Transform Group"), v = "sBuild(T," + sc + "," + (d || 0) + ")";
+      tr.property("ADBE Opacity").expression = H0 + v + "*100" + (extra ? "*(" + extra + ")" : "") + ";";
+      tr.property("ADBE Position").expression = H0 + "[value[0],value[1]+(1-" + v + ")*" + (rise == null ? 28 : rise) + "];";
     }
-    // text: o = { rtl, align ("right"|"left"|"center"), face ("secolo"), w, amp, phase, beat (secolo offset), text (expr), track (expr),
-    //             wExpr (overrides breathing), box ([w, h]: wrapping paragraph text, top-left at x,y), fit (max width), colour, scene, extra }
+    // text: o = { rtl, align ("right"|"left"|"center"), face ("secolo"), w, amp, beat (secolo offset), text (expr), track (expr),
+    //             wExpr (the base weight, as an expression), box ([w, h]: wrapping paragraph text, top-left at x,y), fit (max width),
+    //             colour, scene, d (build delay), rise, extra, reveal (start time expr: letters write themselves in) }
+    var seedN = 0;
     function txt(str, x, y, size, o) {
       var L = o.box ? comp.layers.addBoxText(o.box, str) : comp.layers.addText(str);
       var st = L.property("ADBE Text Properties").property("ADBE Text Document");
@@ -93,22 +96,34 @@ function main() {
       var pos = [x, y];
       if (o.box) { var bp = st.value.boxTextPos; pos = [x - bp[0], y - bp[1]]; }
       L.property("ADBE Transform Group").property("ADBE Position").setValue(pos);
-      var font = o.face === "secolo" ? "setFont(" + SECOLO + "[(((b+" + (o.beat || 0) + ")%4)+4)%4])"
-        : (o.wExpr ? "setFont(F(" + o.wExpr + ",GA[1],GA[2]))" : "setFont(F(GA[0],GA[1],GA[2]))");
-      var axes = "var GA=sGretaAxes(T," + (o.w == null ? 50 : o.w) + "," + (o.amp == null ? 22 : o.amp) + "," + (o.phase || 0) + ");";
-      st.expression = H0 + FONT_FN + axes + "var s=text.sourceText.style." + font + ";" +
-        (o.text ? "s=s.setText(" + o.text + ");" : "") + (o.track ? "s=s.setTracking(" + o.track + ");" : "") + "s;";
+      if (o.face === "secolo") {
+        st.expression = H0 + "var s=text.sourceText.style.setFont(" + SECOLO + "[(((b+" + (o.beat || 0) + ")%4)+4)%4]);" +
+          (o.text ? "s=s.setText(" + o.text + ");" : "") + (o.track ? "s=s.setTracking(" + o.track + ");" : "") + "s;";
+      } else {
+        // Greta, letter by letter: every character gets its own wght / wdth / OPTI instance
+        var seed = (seedN++ * 1.37).toFixed(2);
+        st.expression = H0 + FONT_FN + "var BASE=" + (o.wExpr || (o.w == null ? 50 : o.w)) + ",s=text.sourceText.style,n=text.sourceText.toString().length;" +
+          "for(var i=0;i<n;i++){var A=sLetter(T,i,BASE," + (o.amp == null ? 22 : o.amp) + "," + seed + ");s=s.setFont(F(A[0],A[1],A[2]),i,1);}s;";
+      }
+      if (o.reveal) {   // a typewriter: an opacity animator whose range starts at the last letter written so far
+        var an = L.property("ADBE Text Properties").property("ADBE Text Animators").addProperty("ADBE Text Animator");
+        an.name = "write in";
+        an.property("ADBE Text Animator Properties").addProperty("ADBE Text Opacity").setValue(0);
+        var sel = an.property("ADBE Text Selectors").addProperty("ADBE Text Selector");
+        sel.property("ADBE Text Percent Start").expression = H0 + "var n=Math.max(1,text.sourceText.toString().length);" +
+          "Math.min(100,Math.max(0,(T-(" + o.reveal + "))/(.05*S_PACE))/n*100);";
+      }
       // centred on its own measured box: AE's centre justification drifts for some RTL/number runs
       if (o.align === "center" && !o.box) L.property("ADBE Transform Group").property("ADBE Anchor Point").expression =
         "var r=sourceRectAtTime(time,false);[r.left+r.width/2,value[1]];";
       if (o.fit) L.property("ADBE Transform Group").property("ADBE Scale").expression =
         "var r=sourceRectAtTime(time,false),s=Math.min(1," + o.fit + "/Math.max(1,r.width))*100;[s,s];";
       fill(L, o.colour || "fg");
-      if (o.scene != null) inScene(L, o.scene, o.extra);
+      if (o.scene != null) inScene(L, o.scene, o.extra, o.d, o.rise);
       return L;
     }
     // shape layer: groups [{path | rect (expr → [x, y, w, h]), colour | hex}]
-    function shapes(name, groups, scene, extra) {
+    function shapes(name, groups, scene, extra, d, rise) {
       var L = comp.layers.addShape(); L.name = name;
       L.property("ADBE Transform Group").property("ADBE Anchor Point").setValue([0, 0]);
       L.property("ADBE Transform Group").property("ADBE Position").setValue([0, 0]);
@@ -124,10 +139,11 @@ function main() {
         if (groups[i].hex) f.property("ADBE Vector Fill Color").setValue(hex(groups[i].hex)); else f.property("ADBE Vector Fill Color").expression = colExpr(groups[i].colour || "fg");
         if (groups[i].opacity != null) f.property("ADBE Vector Fill Opacity").setValue(groups[i].opacity);
       }
-      if (scene != null) inScene(L, scene, extra);
+      if (scene != null) inScene(L, scene, extra, d, rise);
       return L;
     }
     function R(x, y, w, h) { return "[" + x + "," + y + "," + w + "," + h + "]"; }
+    function fillIn(str, vals) { for (var k in vals) str = str.split("{" + k + "}").join(vals[k]); return str; }
 
     // ground: ink, then the feeling opens from the shape and closes at the end
     var g = comp.layers.addSolid([0, 0, 0], "ground", W, H, 1, DUR); fill(g, "ink");
@@ -145,103 +161,104 @@ function main() {
     shapes("band · inner", [{ colour: "light", path: "var h=sHero(T-S_TRAIL[0],KO,KI);shp(N,h[3],h[2]*1.16*sBreath(T),h[0],h[1],-sSpin(T-S_TRAIL[0],N));" }]);
     shapes("shape", [{ colour: "fg", path: "shp(N,HERO[3],HERO[2]*sBreath(T),HERO[0],HERO[1],sSpin(T,N));" }]);
 
-    // 0 · intro
-    txt(d.name, 540, 930, 140, { rtl: true, align: "center", wExpr: "sGreta(T,10+80*sOut((T-.2)/1.2),10,0)", fit: 900, scene: 0 }).name = "0 · name";
-    txt("זה היום שלך.", 540, 1010, 54, { rtl: true, align: "center", w: 40, scene: 0 }).name = "0 · this is your day";
-    txt(d.day + " · " + d.date, 540, 1072, 34, { rtl: true, align: "center", w: 60, amp: 15, scene: 0 }).name = "0 · date";
+    // 0 · intro: the name writes itself in, then the line, then the date
+    var nm0 = txt(d.name, 540, 930, 140, { rtl: true, align: "center", w: 90, amp: 14, wExpr: "10+80*sOut((T-sAt(0,.2))/(1.2*S_PACE))", fit: 900, scene: 0, reveal: "sAt(0,.25)" });
+    nm0.name = "0 · name";
+    txt(U.intro, 540, 1010, 54, { rtl: true, align: "center", w: 40, scene: 0, d: 1.0 }).name = "0 · this is your day";
+    txt(d.day + " · " + d.date, 540, 1072, 34, { rtl: true, align: "center", w: 60, amp: 15, scene: 0, d: 1.3 }).name = "0 · date";
 
     // 1 · the feeling (once); letter spacing pulls it together (tracking is in 1/1000 em)
-    txt("הרגש שהוביל את היום", 540, 220, 38, { rtl: true, align: "center", w: 80, amp: 18, scene: 1 }).name = "1 · label";
-    txt(d.he, 540, 1090, 230, { rtl: true, align: "center", face: "secolo", track: "(4+70*(1-sOut((T-2.3)/1.1)))/230*1000", scene: 1 }).name = "1 · feeling";
-    txt(d.shares[0].pct + "% מהשעות שבהן היית ער", 540, 1176, 40, { rtl: true, align: "center", scene: 1 }).name = "1 · share";
+    txt(U.led, 540, 220, 38, { rtl: true, align: "center", w: 80, amp: 26, scene: 1, d: .1 }).name = "1 · label";
+    txt(d.he, 540, 1090, 230, { rtl: true, align: "center", face: "secolo", track: "(4+90*(1-sOut((T-sAt(1,.35))/(1.4*S_PACE))))/230*1000", scene: 1, d: .35, rise: 60 }).name = "1 · feeling";
+    txt(fillIn(U.share, { pct: d.shares[0].pct }), 540, 1176, 40, { rtl: true, align: "center", scene: 1, d: 1.2 }).name = "1 · share";
 
-    // 2 · the figure and when it happened
-    txt("מה נמדד", 1020, 240, 38, { rtl: true, align: "right", w: 85, amp: 12, scene: 2 }).name = "2 · label";
+    // 2 · the figure counts up, then when it happened: the axis draws, hours arrive, bars wipe in, marks pop
+    txt(U.measured, 1020, 240, 38, { rtl: true, align: "right", w: 85, amp: 26, scene: 2 }).name = "2 · label";
     var isInt = /^\d+$/.test(d.num);
-    txt(d.num, 60, 690, 320, { align: "left", face: "secolo", beat: 1, text: isInt ? "String(Math.round(" + d.num + "*sOut((T-5.2)/1.6)))" : null, scene: 2 }).name = "2 · figure";
-    txt(d.unit, 60, 766, 48, { rtl: true, align: "left", w: 60, fit: 520, scene: 2 }).name = "2 · unit";
+    txt(d.num, 60, 690, 320, { align: "left", face: "secolo", beat: 1, text: isInt ? "String(Math.round(" + d.num + "*sOut((T-sAt(2,.3))/(1.8*S_PACE))))" : null, scene: 2, d: .2, rise: 50 }).name = "2 · figure";
+    txt(d.unit, 60, 766, 48, { rtl: true, align: "left", w: 60, fit: 520, scene: 2, d: .7 }).name = "2 · unit";
     var TL = { x0: 60, x1: 1020, y: 1068 }, hx = function (h) { return TL.x0 + h / 24 * (TL.x1 - TL.x0); };
-    txt("מתי", 1020, 940, 34, { rtl: true, align: "right", w: 85, amp: 12, scene: 2 }).name = "2 · when";
-    txt(d.label, 60, 940, 34, { rtl: true, align: "left", fit: 660, scene: 2 }).name = "2 · caption";
-    var tl = [{ rect: R(TL.x0, TL.y - 1.5, TL.x1 - TL.x0, 3) }], hrs = [0, 6, 12, 18, 24];
+    txt(U.when, 1020, 940, 34, { rtl: true, align: "right", w: 85, amp: 26, scene: 2, d: 1.0 }).name = "2 · when";
+    txt(d.label, 60, 940, 34, { rtl: true, align: "left", fit: 660, scene: 2, d: 1.15 }).name = "2 · caption";
+    var tl = [{ rect: "[" + TL.x0 + "," + (TL.y - 1.5) + "," + (TL.x1 - TL.x0) + "*sOut((T-sAt(2,1.25))/(.8*S_PACE)),3]" }], hrs = [0, 6, 12, 18, 24];
     for (var h = 0; h < hrs.length; h++) {
-      tl.push({ rect: R(hx(hrs[h]) - 1, TL.y, 2, 14) });
-      txt((hrs[h] < 10 ? "0" : "") + hrs[h] + ":00", hx(hrs[h]) + (h === 0 ? 36 : (h === 4 ? -36 : 0))   /* ExtendScript groups unparenthesised nested ternaries wrongly */, TL.y + 46, 26, { rtl: true, align: "center", w: 40, amp: 10, scene: 2 }).name = "2 · " + hrs[h];
+      shapes("2 · tick " + hrs[h], [{ rect: R(hx(hrs[h]) - 1, TL.y, 2, 14) }], 2, null, 1.4 + h * .08, 10);
+      txt((hrs[h] < 10 ? "0" : "") + hrs[h] + ":00", hx(hrs[h]) + (h === 0 ? 36 : (h === 4 ? -36 : 0))   /* ExtendScript groups unparenthesised nested ternaries wrongly */,
+        TL.y + 46, 26, { rtl: true, align: "center", w: 40, amp: 18, scene: 2, d: 1.4 + h * .08, rise: 10 }).name = "2 · " + hrs[h];
     }
     for (var s = 0; s < d.spans.length; s++) {
       var a = hx(d.spans[s][0]), w = hx(d.spans[s][1]) - a;
-      tl.push({ rect: "(function(){var f=sOut((T-5.8)/.8);return [" + a + "," + (TL.y - 13) + ",f>0?Math.max(6," + w + "*f):0,24];})()" });
+      tl.push({ rect: "(function(){var f=sOut((T-sAt(2,1.7))/(.8*S_PACE));return [" + a + "," + (TL.y - 13) + ",f>0?Math.max(6," + w + "*f):0,24];})()" });
     }
     var nm = d.marks.length;
     for (var m = 0; m < nm; m++) {
       var mk = d.marks[m][1] === null ? "KO" : d.marks[m][1];
-      tl.push({ path: "var pop=sOut((T-(5.6+" + m + "*Math.min(.3,1.4/" + nm + ")))/.3);shp(N," + mk + ",Math.max(.01,26*pop)," + hx(d.marks[m][0]).toFixed(1) + "," + (TL.y - 40) + ",0);" });
+      tl.push({ path: "var pop=sBack((T-sAt(2," + (1.7 + m * Math.min(.25, 1.2 / nm)).toFixed(3) + "))/(.35*S_PACE));shp(N," + mk + ",Math.max(.01,26*pop)," + hx(d.marks[m][0]).toFixed(1) + "," + (TL.y - 40) + ",0);" });
     }
-    shapes("2 · 24h line", tl, 2);
+    shapes("2 · 24h line", tl, 2, null, 0, 0);
 
-    // 3 · outside vs inside
+    // 3 · outside vs inside: the legend pops in, the scale draws, the gap fills, the markers arrive, one sentence
     var c0 = 60, c1 = 450, k2x = function (k) { return c0 + k * (c1 - c0); };
-    txt("בחוץ מול בפנים", c1, 560, 44, { rtl: true, align: "right", w: 85, amp: 12, scene: 3 }).name = "3 · title";
-    txt("פער של " + Math.round(Math.abs(d.kIn - d.kOut) * 100) + "%", c1, 618, 36, { rtl: true, align: "right", w: 55, scene: 3 }).name = "3 · gap";
+    txt(U.outIn, c1, 560, 44, { rtl: true, align: "right", w: 85, amp: 26, scene: 3 }).name = "3 · title";
+    txt(fillIn(U.gap, { gap: Math.round(Math.abs(d.kIn - d.kOut) * 100) }), c1, 618, 36, { rtl: true, align: "right", w: 55, scene: 3, d: .3 }).name = "3 · gap";
     var lg = [];
-    for (var q = 0; q < 4; q++) lg.push({ colour: "dark", path: "shp(N," + M_KEYS[q] + ",18," + k2x(M_KEYS[q]) + ",730,0);" });
+    for (var q = 0; q < 4; q++) lg.push({ colour: "dark", path: "var pop=sBack((T-sAt(3," + (.5 + q * .12) + "))/(.35*S_PACE));shp(N," + M_KEYS[q] + ",Math.max(.01,18*pop)," + k2x(M_KEYS[q]) + ",730,0);" });
     var ka = Math.min(d.kOut, d.kIn), kb = Math.max(d.kOut, d.kIn), close = Math.abs(k2x(d.kIn) - k2x(d.kOut)) < 120;
-    lg.push({ rect: R(c0, 779, c1 - c0, 2) });
-    lg.push({ rect: "[" + k2x(ka) + ",774,Math.max(4," + (k2x(kb) - k2x(ka)) + "*sOut((T-8.1)/.8)),12]" });
-    lg.push({ rect: R(k2x(d.kOut) - 1, 780, 2, 50) });
-    lg.push({ rect: R(k2x(d.kIn) - 1, 780, 2, 50 + (close ? 40 : 0)) });
+    lg.push({ rect: "[" + c0 + ",779," + (c1 - c0) + "*sOut((T-sAt(3,.9))/(.6*S_PACE)),2]" });
+    lg.push({ rect: "[" + k2x(ka) + ",774,Math.max(4," + (k2x(kb) - k2x(ka)) + "*sOut((T-sAt(3,1.1))/(.8*S_PACE))),12]" });
     lg.push({ path: "shp(N,HERO[3],17," + c0 + "+sClamp(HERO[3])*" + (c1 - c0) + ",780,sSpin(T,N));" });   // "now": ink, not white (white vanished on light feelings)
-    shapes("3 · scale", lg, 3);
-    txt("רך", k2x(0), 692, 28, { rtl: true, align: "center", w: 50, amp: 12, scene: 3 }).name = "3 · soft";
-    txt("חד", k2x(1), 692, 28, { rtl: true, align: "center", w: 50, amp: 12, scene: 3 }).name = "3 · sharp";
-    txt("בחוץ", k2x(d.kOut), 862, 32, { rtl: true, align: "center", w: 80, amp: 14, scene: 3 }).name = "3 · outside";
-    txt("בפנים", k2x(d.kIn), 862 + (close ? 40 : 0), 32, { rtl: true, align: "center", w: 80, amp: 14, scene: 3 }).name = "3 · inside";
-    var meaning = d.kIn > d.kOut ? "בחוץ נראית רגוע יותר ממה שהיה בפנים."
-      : "בפנים היה רך יותר ממה שהראית בחוץ.";
-    txt(meaning, c0, 960, 40, { rtl: true, align: "right", box: [c1 - c0, 200], scene: 3 }).name = "3 · meaning";
+    shapes("3 · scale", lg, 3, null, 0, 0);
+    shapes("3 · outside mark", [{ rect: R(k2x(d.kOut) - 1, 780, 2, 50) }], 3, null, 1.3, 16);
+    shapes("3 · inside mark", [{ rect: R(k2x(d.kIn) - 1, 780, 2, 50 + (close ? 40 : 0)) }], 3, null, 1.5, 16);
+    txt(U.soft, k2x(0), 692, 28, { rtl: true, align: "center", w: 50, amp: 20, scene: 3, d: .5 }).name = "3 · soft";
+    txt(U.sharp, k2x(1), 692, 28, { rtl: true, align: "center", w: 50, amp: 20, scene: 3, d: .85 }).name = "3 · sharp";
+    txt(U.outside, k2x(d.kOut), 862, 32, { rtl: true, align: "center", w: 80, amp: 24, scene: 3, d: 1.3, rise: 16 }).name = "3 · outside";
+    txt(U.inside, k2x(d.kIn), 862 + (close ? 40 : 0), 32, { rtl: true, align: "center", w: 80, amp: 24, scene: 3, d: 1.5, rise: 16 }).name = "3 · inside";
+    txt(d.kIn > d.kOut ? U.meaningUp : U.meaningDown, c0, 960, 40, { rtl: true, align: "right", box: [c1 - c0, 200], scene: 3, d: 1.8 }).name = "3 · meaning";
 
-    // 4 · the day in feelings: an ink band, the waking hours as coloured stretches opening left to right, the top three
-    var sx = function (h) { return 60 + (h - 7) / 16.5 * 960; }, band = [{ colour: "ink", rect: R(0, 520, W, 700) }];
+    // 4 · the day in feelings: the ink band rises, the waking hours open left to right, the top three arrive
+    var sx = function (h) { return 60 + (h - 7) / 16.5 * 960; }, band = [{ colour: "ink", rect: R(0, 520, W, 760) }];
     for (var s = 0; s < d.segs.length; s++) {
       var g0 = sx(d.segs[s].from), gw = Math.max(1, sx(d.segs[s].to) - g0 - 3), E = EMOS[d.segs[s].emo];
-      band.push({ hex: E.c, rect: "(function(){var x=60+960*sOut((T-10.9)/1.3);return [" + g0 + ",650,Math.min(" + gw + ",x-" + g0 + "),90];})()" });
-      if (gw > 44) band.push({ colour: "ink", path: "var x=60+960*sOut((T-10.9)/1.3);shp(" + E.n + ",.5,x>" + (g0 + gw / 2) + "?18:.01," + (g0 + gw / 2) + ",695,0);" });
+      band.push({ hex: E.c, rect: "(function(){var x=60+960*sOut((T-sAt(4,.45))/(1.4*S_PACE));return [" + g0 + ",650,Math.min(" + gw + ",x-" + g0 + "),90];})()" });
+      if (gw > 44) band.push({ colour: "ink", path: "var x=60+960*sOut((T-sAt(4,.45))/(1.4*S_PACE));shp(" + E.n + ",.5,x>" + (g0 + gw / 2) + "?18:.01," + (g0 + gw / 2) + ",695,0);" });
     }
-    shapes("4 · the day in feelings", band, 4);
-    txt("היום שלך ברגשות", 1020, 610, 44, { rtl: true, align: "right", w: 85, amp: 12, colour: "white", scene: 4 }).name = "4 · title";
+    shapes("4 · the day in feelings", band, 4, null, 0, 160);
+    txt(U.feelings, 1020, 610, 44, { rtl: true, align: "right", w: 85, amp: 26, colour: "white", scene: 4, d: .25 }).name = "4 · title";
     var hh = [[7, "07:00"], [12, "12:00"], [18, "18:00"], [23.5, "23:30"]];
-    for (var q = 0; q < hh.length; q++) txt(hh[q][1], sx(hh[q][0]) + (q === 0 ? 36 : (q === 3 ? -36 : 0)), 790, 26, { rtl: true, align: "center", w: 40, amp: 10, colour: "white", scene: 4 }).name = "4 · " + hh[q][1];
+    for (var q = 0; q < hh.length; q++) txt(hh[q][1], sx(hh[q][0]) + (q === 0 ? 36 : (q === 3 ? -36 : 0)), 790, 26, { rtl: true, align: "center", w: 40, amp: 18, colour: "white", scene: 4, d: 1.1 + q * .1 }).name = "4 · " + hh[q][1];
     for (var j = 0; j < Math.min(3, d.shares.length); j++) {
-      var sh = d.shares[j], E2 = EMOS[sh.emo], y = 900 + j * 100, v = "sOut((T-" + (11.6 + j * .25) + ")/.5)";
+      var sh = d.shares[j], E2 = EMOS[sh.emo], y = 900 + j * 100, rd = 1.3 + j * .3;
       shapes("4 · row " + (j + 1), [{ hex: E2.c, path: "shp(" + E2.n + ",.5,26,990," + (y - 14) + ",0);" },
-        { hex: E2.c, rect: "[230," + (y - 26) + "," + (sh.pct / 100 * 500) + "*" + v + ",22]" }], 4, v);
-      txt(E2.he, 950, y, 44, { rtl: true, align: "right", w: j ? 45 : 90, colour: "white", scene: 4, extra: v }).name = "4 · row " + (j + 1) + " name";
-      txt(sh.pct + "%", 60, y, 54, { align: "left", face: "secolo", beat: 2, colour: "white", scene: 4, extra: v }).name = "4 · row " + (j + 1) + " share";
+        { hex: E2.c, rect: "[230," + (y - 26) + "," + (sh.pct / 100 * 500) + "*sOut((T-sAt(4," + (rd + .15) + "))/(.6*S_PACE)),22]" }], 4, null, rd, 24);
+      txt(E2.he, 950, y, 44, { rtl: true, align: "right", w: j ? 45 : 90, amp: 24, colour: "white", scene: 4, d: rd, rise: 24 }).name = "4 · row " + (j + 1) + " name";
+      txt(sh.pct + "%", 60, y, 54, { align: "left", face: "secolo", beat: 2, colour: "white", scene: 4, d: rd, rise: 24 }).name = "4 · row " + (j + 1) + " share";
     }
 
-    // 5 · the two lines (they swap weight at 14.4 s), signed; each block stacks under the one above
-    var l1 = txt(d.b, 60, 892, 64, { rtl: true, align: "right", box: [960, 240], wExpr: "sGreta(T,100-65*sOut((T-14.4)/.4),8,0)", scene: 5 });
+    // 5 · the two lines write themselves in (the shown one thins as the hidden one lands), signed
+    var turn = "sOut((T-sAt(5,1.6))/(.4*S_PACE))";
+    var l1 = txt(d.b, 60, 892, 64, { rtl: true, align: "right", box: [960, 240], amp: 12, wExpr: "95-65*" + turn, scene: 5, reveal: "sAt(5,.15)" });
     l1.name = "5 · line 1";
-    var l2 = txt(d.s, 60, 980, 64, { rtl: true, align: "right", box: [960, 240], wExpr: "sGreta(T,30+65*sOut((T-14.4)/.4),8,1.5)", scene: 5 });
+    var l2 = txt(d.s, 60, 980, 64, { rtl: true, align: "right", box: [960, 240], amp: 12, wExpr: "30+65*" + turn, scene: 5, reveal: "sAt(5,1.0)" });
     l2.name = "5 · line 2";
     l2.property("ADBE Transform Group").property("ADBE Position").expression = H0 +
       "var a=thisComp.layer(\"5 · line 1\"),ra=a.sourceRectAtTime(time,false);[value[0],a.transform.position[1]+ra.top+ra.height+18-sourceRectAtTime(time,false).top];";
-    var sg = txt(d.name + " · " + d.day + " " + d.date, 1020, 1180, 34, { rtl: true, align: "right", w: 60, amp: 15, scene: 5 });
+    var sg = txt(d.name + " · " + d.day + " " + d.date, 1020, 1180, 34, { rtl: true, align: "right", w: 60, amp: 15, scene: 5, d: 1.9 });
     sg.name = "5 · signature";
     sg.property("ADBE Transform Group").property("ADBE Position").expression = H0 +
-      "var a=thisComp.layer(\"5 · line 2\"),ra=a.sourceRectAtTime(time,false);[value[0],a.transform.position[1]+ra.top+ra.height+64];";
+      "var a=thisComp.layer(\"5 · line 2\"),ra=a.sourceRectAtTime(time,false);[value[0],a.transform.position[1]+ra.top+ra.height+64-(1-sBuild(T,5,1.9))*28];";
 
     // header: progress like a story, the mark, the wordmark, the name
-    var pr = [], SC = [0, 2.2, 5.0, 7.8, 10.6, 13.6, 16];
+    var pr = [];
     for (var p = 0; p < 6; p++) {
       var px = 60 + p * (970 / 6), pw = 970 / 6 - 10;
       pr.push({ rect: R(px, 34, pw, 5), opacity: 25 });
-      pr.push({ rect: "[" + px + ",34," + pw + "*sClamp((T-" + SC[p] + ")/" + (SC[p + 1] - SC[p]) + "),5]" });
+      pr.push({ rect: "[" + px + ",34," + pw + "*sClamp((T-SCENES[" + p + "])/(SCENES[" + (p + 1) + "]-SCENES[" + p + "])),5]" });
     }
     shapes("header · progress", pr);
     shapes("header · mark", [{ path: "shp(N,HERO[3],20,72,92,sSpin(T,N));" }]);
-    txt("wheep", 104, 104, 38, { align: "left", wExpr: "100*(1-HERO[3])" }).name = "header · wheep";
-    txt(d.name, 1020, 104, 36, { rtl: true, align: "right", w: 70, amp: 15, fit: 520 }).name = "header · name";
+    txt("wheep", 104, 104, 38, { align: "left", wExpr: "100*(1-HERO[3])", amp: 0 }).name = "header · wheep";
+    txt(d.name, 1020, 104, 36, { rtl: true, align: "right", w: 70, amp: 18, fit: 520 }).name = "header · name";
 
     ctl.moveToBeginning();
     comps.push(comp);
@@ -257,5 +274,5 @@ function main() {
   proj.save(new File(OUT));
 
   var FR = /*FRAMES*/;
-  if (FR) for (var q = 0; q < comps.length; q++) for (var t = 0; t < 6; t++) comps[q].saveFrameToPng([1.5, 4.0, 6.8, 9.9, 12.8, 15.0][t], new File(FR + "/s" + (q + 1) + "_" + t + ".png"));
+  if (FR) for (var q = 0; q < comps.length; q++) for (var t = 0; t < 6; t++) comps[q].saveFrameToPng([2.2, 6.0, 10.2, 14.8, 19.2, 22.5][t], new File(FR + "/s" + (q + 1) + "_" + t + ".png"));
 }

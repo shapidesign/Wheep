@@ -35,6 +35,7 @@
 </main>
 <script src="shape.js"></script>
 <script src="motion.js"></script>
+<script src="copy.js"></script>
 <script src="days.js"></script>
 <script src="gen.js"></script>
 <script src="story-core.js"></script>
@@ -61,7 +62,7 @@
   // each story starts where it is when the page opens; reduced motion holds on the day in feelings
   const t0 = performance.now();
   function frame(t) { stories.forEach(s => s.draw((t - t0) / 1000)); requestAnimationFrame(frame); }
-  document.fonts.ready.then(() => fixedT !== null || reduce ? stories.forEach(s => s.draw(fixedT ?? 12.6)) : requestAnimationFrame(frame));
+  document.fonts.ready.then(() => fixedT !== null || reduce ? stories.forEach(s => s.draw(fixedT ?? sAt(4, 1.5))) : requestAnimationFrame(frame));
 </script>
 </body>
 </html>

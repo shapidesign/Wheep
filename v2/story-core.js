@@ -1,48 +1,71 @@
 /* WHEEP · the story's timeline, shared by story.js (web) and the After Effects build (pasted into expressions).
-   ES5 on purpose. One day, six scenes, 16 s, then it loops. */
-var STORY_DUR = 16, S_BEAT = .4;
+   ES5 on purpose. One day, six scenes, then it loops. Change S_PACE to slow everything down or speed it up together. */
+var S_PACE = 1.5;                                                       // 1 = the original 16 s story
+var STORY_DUR = 16 * S_PACE, S_BEAT = .4 * S_PACE;
 var SCENES = [0, 2.2, 5.0, 7.8, 10.6, 13.6, 16];
+for (var si_ = 0; si_ < SCENES.length; si_++) SCENES[si_] *= S_PACE;
+// a moment inside scene i, dt seconds (at pace 1) after it starts
+function sAt(i, dt) { return SCENES[i] + dt * S_PACE; }
 
 function sClamp(x) { return Math.max(0, Math.min(1, x)); }
 function sOut(u) { return 1 - Math.pow(1 - sClamp(u), 4); }                              // arrivals
 function sIn(u) { u = sClamp(u); return u * u; }                                         // exits (faster)
 function sFlow(u) { u = sClamp(u); return u * u * u * (u * (u * 6 - 15) + 10); }        // shapes
+function sBack(u) { u = sClamp(u); var c = 1.6; return 1 + (c + 1) * Math.pow(u - 1, 3) + c * Math.pow(u - 1, 2); }   // a small overshoot for pops
 function sLerp(a, b, t) { return a + (b - a) * t; }
 function sWrap(T) { return ((T % STORY_DUR) + STORY_DUR) % STORY_DUR; }
-// a scene element's presence: in over inD from a, out over outD before b
-function sEnv(T, a, b, inD, outD) { inD = inD || .45; outD = outD || .25; return Math.min(sOut((T - a) / inD), 1 - sIn((T - (b - outD)) / outD)); }
+// an element's presence: in over inD from a, out over outD before b (pace-scaled)
+function sEnv(T, a, b, inD, outD) { inD = (inD || .45) * S_PACE; outD = (outD || .25) * S_PACE; return Math.min(sOut((T - a) / inD), 1 - sIn((T - (b - outD)) / outD)); }
 function sScene(T, i) { return sEnv(T, SCENES[i], SCENES[i + 1]); }
+// build-up: element `d` (in pace-1 seconds) after its scene starts, gone with the scene
+function sBuild(T, i, d) { return sEnv(T, sAt(i, d || 0), SCENES[i + 1]); }
 
-// the shape's place in each scene [x, y, r]; it moves there over 0.9 s and its quality follows the story
-var S_LEAD = .75, S_TRAIL = [.15, .3];   // the bands trail the shape by these (s)
+// the shape's place in each scene [x, y, r]; it moves there and its quality follows the story
 // placed so the outer band (×1.32) never runs under the header, the scene titles or the column text
 var S_K = [[540, 620, 130], [540, 600, 240], [910, 590, 225], [1050, 660, 340], [960, 340, 100], [540, 500, 240], [540, 620, 130]];
+var S_LEAD = .75 * S_PACE, S_TRAIL = [.15 * S_PACE, .3 * S_PACE];   // the shape leads each scene; the bands trail it
 function sHero(T, kOut, kIn) {
   T = sWrap(T);
-  // the shape leads: it starts moving 0.6 s before each scene, so the text arrives on a settled shape
   var i = 0; while (i < SCENES.length - 2 && T + S_LEAD >= SCENES[i + 1]) i++;
-  var move = sFlow((T + S_LEAD - SCENES[i]) / .75), x, y, r;
+  var move = sFlow((T + S_LEAD - SCENES[i]) / (.75 * S_PACE)), x, y, r;
   if (i === 0) { x = S_K[0][0]; y = S_K[0][1]; r = S_K[0][2]; }
   else { x = sLerp(S_K[i - 1][0], S_K[i][0], move); y = sLerp(S_K[i - 1][1], S_K[i][1], move); r = sLerp(S_K[i - 1][2], S_K[i][2], move); }
-  if (i === 5) { var back = sFlow((T - 15.1) / .9); x = sLerp(x, S_K[6][0], back); y = sLerp(y, S_K[6][1], back); r = sLerp(r, S_K[6][2], back); }
+  var back = sFlow((T - sAt(6, -.9)) / (.9 * S_PACE));
+  if (i === 5) { x = sLerp(x, S_K[6][0], back); y = sLerp(y, S_K[6][1], back); r = sLerp(r, S_K[6][2], back); }
   var k = .34;
-  if (T >= 2.2) k = sLerp(.34, kOut, sFlow((T - 2.2) / .9));
-  if (T >= 8.3) k = sLerp(kOut, kIn, sFlow((T - 8.3) / 1.5));      // scene 3: what was inside
-  if (T >= 15.1) k = sLerp(kIn, .34, sFlow((T - 15.1) / .9));
+  if (T >= sAt(1, 0)) k = sLerp(.34, kOut, sFlow((T - sAt(1, 0)) / (.9 * S_PACE)));
+  if (T >= sAt(3, .5)) k = sLerp(kOut, kIn, sFlow((T - sAt(3, .5)) / (1.5 * S_PACE)));   // scene 3: what was inside
+  if (T >= sAt(6, -.9)) k = sLerp(kIn, .34, back);
   return [x, y, r, k];
 }
 // the ground opens into the feeling's colour on scene 1 and closes at the end
-function sOpen(T) { T = sWrap(T); return sFlow((T - 2.0) / .6) * (1 - sFlow((T - 15.3) / .7)); }
+function sOpen(T) { T = sWrap(T); return sFlow((T - sAt(1, -.2)) / (.6 * S_PACE)) * (1 - sFlow((T - sAt(6, -.7)) / (.7 * S_PACE))); }
 // continuous turn: two whole teeth per loop, so it closes
 function sSpin(T, n) { return (2 * Math.PI / n) * 2 * sWrap(T) / STORY_DUR; }
 function sBreath(T) { return 1 + .02 * Math.sin(4 * Math.PI * sWrap(T) / STORY_DUR); }
-// Greta breathing: a weight that oscillates around base; period 4 s (4 per loop), so it closes too
+// Greta breathing for a whole line (period 4 s; 4 divides the loop)
 function sGreta(T, base, amp, phase) { return Math.max(0, Math.min(100, base + amp * Math.sin(2 * Math.PI * sWrap(T) / 4 + (phase || 0)))); }
-
-// Greta on all three axes: weight breathes (4 s), width narrows and returns (8 s), optical size swings (4 s, a quarter out of step).
-// wdth only goes down from its default (100), so text measured at full width never overflows. Returns [wght, wdth, OPTI].
+// Greta on all three axes for a whole line: [wght, wdth, OPTI]; wdth only narrows from 100
 function sGretaAxes(T, base, amp, phase) {
   var t = 2 * Math.PI * sWrap(T); phase = phase || 0;
   return [sGreta(T, base, amp, phase), 82 + 18 * (.5 + .5 * Math.sin(t / 8 + phase * 1.3)), 50 + 50 * Math.sin(t / 4 + phase + Math.PI / 2)];
 }
-if (typeof module !== 'undefined') module.exports = { STORY_DUR: STORY_DUR, SCENES: SCENES, S_BEAT: S_BEAT, S_K: S_K, S_LEAD: S_LEAD, S_TRAIL: S_TRAIL, sOut: sOut, sIn: sIn, sFlow: sFlow, sEnv: sEnv, sScene: sScene, sHero: sHero, sOpen: sOpen, sSpin: sSpin, sBreath: sBreath, sGreta: sGreta, sGretaAxes: sGretaAxes, sWrap: sWrap, sClamp: sClamp, sLerp: sLerp };
+// Greta letter by letter, every letter on its own axes. Periods (s) all divide the 24 s loop, so it still closes.
+//   wght: a wave travelling along the line, plus a per-letter flicker at its own speed
+//   wdth: each letter breathes at its own speed (60–100, narrowing only)
+//   OPTI: snaps between thin and fat contrast on a per-letter rhythm
+//   now and then a letter jolts to black for a beat
+var S_PERIODS = [1.5, 2, 3, 4, 6];
+function sHash(a, b) { var x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); }
+function sLetter(T, i, base, amp, seed) {
+  var t = sWrap(T), tau = 2 * Math.PI;
+  var p1 = S_PERIODS[Math.floor(sHash(i, seed) * 5)], p2 = S_PERIODS[Math.floor(sHash(i + 7, seed) * 5)];
+  var w = base + amp * Math.sin(tau * t / 3 - i * .55 + seed) + amp * .5 * Math.sin(tau * t / p1 + i * 2.1);
+  var b = Math.floor(t / S_BEAT);
+  if (sHash(i * 13 + b, seed) < .06) w = 100;                                                   // the jolt
+  var wd = 60 + 40 * (.5 + .5 * Math.sin(tau * t / p2 + i * 1.7 + seed));
+  var op = 50 + 50 * Math.max(-1, Math.min(1, 3 * Math.sin(tau * t / 1.5 + i * 1.3 + seed)));   // squared-off sine: it snaps
+  return [Math.max(0, Math.min(100, w)), wd, op];
+}
+
+if (typeof module !== 'undefined') module.exports = { S_PACE: S_PACE, STORY_DUR: STORY_DUR, SCENES: SCENES, S_BEAT: S_BEAT, S_K: S_K, S_LEAD: S_LEAD, S_TRAIL: S_TRAIL, sAt: sAt, sOut: sOut, sIn: sIn, sFlow: sFlow, sBack: sBack, sEnv: sEnv, sScene: sScene, sBuild: sBuild, sHero: sHero, sOpen: sOpen, sSpin: sSpin, sBreath: sBreath, sGreta: sGreta, sGretaAxes: sGretaAxes, sLetter: sLetter, sHash: sHash, sWrap: sWrap, sClamp: sClamp, sLerp: sLerp };

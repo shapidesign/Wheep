@@ -12,9 +12,10 @@
 function main() {
   var STORIES = [{"day":"\u05e8\u05d0\u05e9\u05d5\u05df","date":"22.11","emo":"anger","kOut":0.3,"kIn":0.96,"num":"3","count":true,"unit":"\u05e4\u05e2\u05de\u05d9\u05dd \u05d4\u05e8\u05de\u05ea \u05d0\u05ea \u05d4\u05e7\u05d5\u05dc","marks":[[8.2,null],[8.7,null],[18.3,1]],"spans":[],"label":"\u05e9\u05ea\u05d9\u05d9\u05dd \u05d1\u05e4\u05e7\u05e7, \u05d0\u05d7\u05ea \u05d1\u05d1\u05d9\u05ea","b":"\u05d1\u05e4\u05e7\u05e7 \u05d6\u05d4 \u05d4\u05d9\u05d4 \u05e2\u05dc \u05d4\u05e0\u05d4\u05d2\u05d9\u05dd.","s":"\u05d1\u05d1\u05d9\u05ea \u05d6\u05d4 \u05d4\u05d9\u05d4 \u05e2\u05dc \u05de\u05d9 \u05e9\u05d4\u05d9\u05d4 \u05e9\u05dd.","name":"\u05d0\u05d5\u05e8\u05d9","seed":70.09929789368104,"segs":[{"from":7,"to":8.948919231786192,"emo":"cry"},{"from":8.948919231786192,"to":11.265290677760925,"emo":"cry"},{"from":11.265290677760925,"to":13.680588866434341,"emo":"anger"},{"from":13.680588866434341,"to":14.857326776675857,"emo":"joy"},{"from":14.857326776675857,"to":16.155665331142497,"emo":"press"},{"from":16.155665331142497,"to":17.50144625288083,"emo":"anger"},{"from":17.50144625288083,"to":18.5624605256187,"emo":"anger"},{"from":18.5624605256187,"to":19.770174304088552,"emo":"press"},{"from":19.770174304088552,"to":21.69224346770858,"emo":"cry"},{"from":21.69224346770858,"to":23.5,"emo":"anger"}],"shares":[{"emo":"anger","pct":40},{"emo":"cry","pct":37},{"emo":"press","pct":15},{"emo":"joy","pct":7}],"comp":"STORY 01 \u00b7 \u05e8\u05d0\u05e9\u05d5\u05df","n":8,"he":"\u05db\u05e2\u05e1","pal":{"m":"#FF5A36","a":"#ffb5a5","b":"#8b3723","k":"#16130F","w":"#FFFFFF"}},{"day":"\u05e9\u05e0\u05d9","date":"23.11","emo":"press","kOut":0.2,"kIn":0.88,"num":"4:12","count":false,"unit":"\u05e9\u05e2\u05d5\u05ea \u05e9\u05dc \u05d3\u05d5\u05e4\u05e7 \u05d2\u05d1\u05d5\u05d4 \u05d1\u05de\u05e0\u05d5\u05d7\u05d4","marks":[],"spans":[[9,11.2],[14,16]],"label":"\u05d1\u05d1\u05d5\u05e7\u05e8 \u05d1\u05d9\u05e9\u05d9\u05d1\u05d4, \u05d0\u05d7\u05e8 \u05d4\u05e6\u05d4\u05e8\u05d9\u05d9\u05dd \u05de\u05d5\u05dc \u05d4\u05de\u05d7\u05e9\u05d1","b":"\u05db\u05e9\u05d0\u05dc\u05d5 \u05d0\u05de\u05e8\u05ea \u05e9\u05d4\u05db\u05dc \u05d8\u05d5\u05d1.","s":"\u05d4\u05d2\u05d5\u05e3 \u05dc\u05d0 \u05d4\u05e1\u05db\u05d9\u05dd.","name":"\u05d0\u05d5\u05e8\u05d9","seed":99.97993981945838,"segs":[{"from":7,"to":7.869224590289687,"emo":"shame"},{"from":7.869224590289687,"to":10.045799265991022,"emo":"press"},{"from":10.045799265991022,"to":12.934274452575465,"emo":"joy"},{"from":12.934274452575465,"to":14.079144944651095,"emo":"shame"},{"from":14.079144944651095,"to":15.781041452329776,"emo":"shame"},{"from":15.781041452329776,"to":18.400435950409893,"emo":"press"},{"from":18.400435950409893,"to":20.564137839302482,"emo":"press"},{"from":20.564137839302482,"to":22.40892418201372,"emo":"press"},{"from":22.40892418201372,"to":23.5,"emo":"press"}],"shares":[{"emo":"press","pct":60},{"emo":"shame","pct":23},{"emo":"joy","pct":18}],"comp":"STORY 02 \u00b7 \u05e9\u05e0\u05d9","n":9,"he":"\u05d4\u05d3\u05d7\u05e7\u05d4","pal":{"m":"#9B6BFF","a":"#d2bcff","b":"#593f87","k":"#16130F","w":"#FFFFFF"}},{"day":"\u05e9\u05dc\u05d9\u05e9\u05d9","date":"24.11","emo":"fear","kOut":0.34,"kIn":0.82,"num":"128","count":false,"unit":"\u05d3\u05d5\u05e4\u05e7 \u05e9\u05d9\u05d0","marks":[[19.67,1]],"spans":[],"label":"19:40, \u05e9\u05d9\u05d7\u05d4 \u05e0\u05db\u05e0\u05e1\u05ea \u05de\u05d0\u05de\u05d0","b":"\u05d4\u05d8\u05dc\u05e4\u05d5\u05df \u05e6\u05dc\u05e6\u05dc, \u05dc\u05d0 \u05e2\u05e0\u05d9\u05ea.","s":"\u05d4\u05d3\u05d5\u05e4\u05e7 \u05e2\u05e0\u05d4 \u05d1\u05de\u05e7\u05d5\u05de\u05da.","name":"\u05d0\u05d5\u05e8\u05d9","seed":29.55667001003009,"segs":[{"from":7,"to":8.045328187403578,"emo":"shame"},{"from":8.045328187403578,"to":10.225906782879521,"emo":"joy"},{"from":10.225906782879521,"to":13.326429284308432,"emo":"anger"},{"from":13.326429284308432,"to":14.853978142825527,"emo":"cry"},{"from":14.853978142825527,"to":16.191892194610315,"emo":"shame"},{"from":16.191892194610315,"to":20.031604762108742,"emo":"fear"},{"from":20.031604762108742,"to":23.500000000000004,"emo":"release"}],"shares":[{"emo":"fear","pct":23},{"emo":"release","pct":21},{"emo":"anger","pct":19},{"emo":"shame","pct":14},{"emo":"joy","pct":13},{"emo":"cry","pct":9}],"comp":"STORY 03 \u00b7 \u05e9\u05dc\u05d9\u05e9\u05d9","n":3,"he":"\u05e4\u05d7\u05d3","pal":{"m":"#C8FF3D","a":"#e6ffa8","b":"#6f8926","k":"#16130F","w":"#FFFFFF"}},{"day":"\u05e8\u05d1\u05d9\u05e2\u05d9","date":"25.11","emo":"cry","kOut":0.62,"kIn":0.08,"num":"2","count":false,"unit":"\u05d3\u05e7\u05d5\u05ea \u05e9\u05dc \u05d1\u05db\u05d9","marks":[[7.5,0]],"spans":[[7.5,7.6]],"label":"07:30, \u05d1\u05de\u05e7\u05dc\u05d7\u05ea","b":"\u05d1\u05db\u05d9\u05ea \u05dc\u05e4\u05e0\u05d9 \u05d4\u05e2\u05d1\u05d5\u05d3\u05d4.","s":"\u05d0\u05d7\u05e8 \u05db\u05da \u05d4\u05d3\u05d5\u05e4\u05e7 \u05e0\u05e8\u05d2\u05e2 \u05dc\u05db\u05dc \u05d4\u05d9\u05d5\u05dd.","name":"\u05d0\u05d5\u05e8\u05d9","seed":59.43731193580742,"segs":[{"from":7,"to":8.432332998653122,"emo":"fear"},{"from":8.432332998653122,"to":11.307872431378097,"emo":"shame"},{"from":11.307872431378097,"to":13.394753277026503,"emo":"shame"},{"from":13.394753277026503,"to":15.71483050253379,"emo":"cry"},{"from":15.71483050253379,"to":17.51373256570571,"emo":"cry"},{"from":17.51373256570571,"to":19.05234293945605,"emo":"cry"},{"from":19.05234293945605,"to":21.68596823481043,"emo":"joy"},{"from":21.68596823481043,"to":23.499999999999996,"emo":"press"}],"shares":[{"emo":"cry","pct":34},{"emo":"shame","pct":30},{"emo":"joy","pct":16},{"emo":"press","pct":11},{"emo":"fear","pct":9}],"comp":"STORY 04 \u00b7 \u05e8\u05d1\u05d9\u05e2\u05d9","n":5,"he":"\u05d1\u05db\u05d9","pal":{"m":"#3FC8F5","a":"#a9e6fb","b":"#2b6e82","k":"#16130F","w":"#FFFFFF"}},{"day":"\u05d7\u05de\u05d9\u05e9\u05d9","date":"26.11","emo":"joy","kOut":0.5,"kIn":0.04,"num":"11","count":true,"unit":"\u05e6\u05d7\u05d5\u05e7\u05d9\u05dd","marks":[[8.5,0],[10,1],[11.5,0],[13,0],[13.4,0],[15,1],[17.5,0],[19,0],[20.2,0],[21,0],[22.5,0]],"spans":[],"label":"9 \u05d0\u05de\u05d9\u05ea\u05d9\u05d9\u05dd, 2 \u05de\u05e0\u05d5\u05de\u05e1\u05d9\u05dd","b":"\u05e8\u05d5\u05d1 \u05d4\u05e6\u05d7\u05d5\u05e7\u05d9\u05dd \u05d4\u05d9\u05d5 \u05d0\u05de\u05d9\u05ea\u05d9\u05d9\u05dd.","s":"\u05d4\u05e9\u05e0\u05d9\u05d9\u05dd \u05d1\u05e2\u05d1\u05d5\u05d3\u05d4 \u05d4\u05d9\u05d5 \u05de\u05e0\u05d5\u05de\u05e1\u05d9\u05dd.","name":"\u05d0\u05d5\u05e8\u05d9","seed":89.31795386158475,"segs":[{"from":7,"to":10.462123038765586,"emo":"joy"},{"from":10.462123038765586,"to":13.449433634694154,"emo":"fear"},{"from":13.449433634694154,"to":16.097303660123533,"emo":"joy"},{"from":16.097303660123533,"to":17.439204516271477,"emo":"fear"},{"from":17.439204516271477,"to":20.27774138072399,"emo":"release"},{"from":20.27774138072399,"to":21.249144427975168,"emo":"joy"},{"from":21.249144427975168,"to":22.538911814517334,"emo":"release"},{"from":22.538911814517334,"to":23.500000000000004,"emo":"fear"}],"shares":[{"emo":"joy","pct":43},{"emo":"fear","pct":32},{"emo":"release","pct":25}],"comp":"STORY 05 \u00b7 \u05d7\u05de\u05d9\u05e9\u05d9","n":4,"he":"\u05d4\u05e0\u05d0\u05d4","pal":{"m":"#FFD23F","a":"#ffeba9","b":"#8b7327","k":"#16130F","w":"#FFFFFF"}},{"day":"\u05e9\u05d9\u05e9\u05d9","date":"27.11","emo":"shame","kOut":0.36,"kIn":0.74,"num":"0","count":false,"unit":"\u05de\u05d9\u05dc\u05d9\u05dd \u05d1\u05d0\u05e8\u05d5\u05d7\u05ea \u05e9\u05d9\u05e9\u05d9","marks":[],"spans":[[20,21.5]],"label":"20:00 \u05e2\u05d3 21:30, \u05dc\u05d9\u05d3 \u05d4\u05e9\u05d5\u05dc\u05d7\u05df","b":"\u05d9\u05e9\u05d1\u05ea \u05e9\u05e2\u05d4 \u05d5\u05d7\u05e6\u05d9 \u05dc\u05d9\u05d3 \u05d4\u05e9\u05d5\u05dc\u05d7\u05df.","s":"\u05d5\u05dc\u05d0 \u05d0\u05de\u05e8\u05ea \u05db\u05dc\u05d5\u05dd.","name":"\u05d0\u05d5\u05e8\u05d9","seed":18.89468405215647,"segs":[{"from":7,"to":9.827178101690912,"emo":"press"},{"from":9.827178101690912,"to":10.724670605385404,"emo":"press"},{"from":10.724670605385404,"to":12.88769294257167,"emo":"press"},{"from":12.88769294257167,"to":13.967916533139169,"emo":"shame"},{"from":13.967916533139169,"to":16.047324307633215,"emo":"release"},{"from":16.047324307633215,"to":19.159343079091595,"emo":"shame"},{"from":19.159343079091595,"to":21.56814336291966,"emo":"shame"},{"from":21.56814336291966,"to":23.5,"emo":"shame"}],"shares":[{"emo":"shame","pct":52},{"emo":"press","pct":36},{"emo":"release","pct":13}],"comp":"STORY 06 \u00b7 \u05e9\u05d9\u05e9\u05d9","n":7,"he":"\u05d1\u05d5\u05e9\u05d4","pal":{"m":"#FF9F1C","a":"#ffd499","b":"#8b5916","k":"#16130F","w":"#FFFFFF"}},{"day":"\u05e9\u05d1\u05ea","date":"28.11","emo":"release","kOut":0.1,"kIn":0,"num":"24","count":false,"unit":"\u05e9\u05e2\u05d5\u05ea \u05e8\u05d2\u05d5\u05e2\u05d5\u05ea","marks":[],"spans":[[0,24]],"label":"\u05db\u05dc \u05d4\u05d9\u05d5\u05dd, \u05d1\u05dc\u05d9 \u05e7\u05e4\u05d9\u05e6\u05d5\u05ea","b":"\u05d9\u05d5\u05dd \u05e9\u05e7\u05d8.","s":"\u05d1\u05d7\u05d5\u05e5 \u05d5\u05d1\u05e4\u05e0\u05d9\u05dd, \u05d0\u05d5\u05ea\u05d4 \u05e6\u05d5\u05e8\u05d4.","name":"\u05d0\u05d5\u05e8\u05d9","seed":48.775325977933804,"segs":[{"from":7,"to":8.78945419512323,"emo":"joy"},{"from":8.78945419512323,"to":10.86140993774982,"emo":"release"},{"from":10.86140993774982,"to":12.790621941936514,"emo":"cry"},{"from":12.790621941936514,"to":14.220792777734088,"emo":"release"},{"from":14.220792777734088,"to":16.32786442938598,"emo":"release"},{"from":16.32786442938598,"to":17.206205823481525,"emo":"release"},{"from":17.206205823481525,"to":19.417240225615927,"emo":"shame"},{"from":19.417240225615927,"to":20.983273216841148,"emo":"release"},{"from":20.983273216841148,"to":23.500000000000004,"emo":"anger"}],"shares":[{"emo":"release","pct":49},{"emo":"anger","pct":15},{"emo":"shame","pct":13},{"emo":"cry","pct":12},{"emo":"joy","pct":11}],"comp":"STORY 07 \u00b7 \u05e9\u05d1\u05ea","n":6,"he":"\u05e9\u05d7\u05e8\u05d5\u05e8","pal":{"m":"#3DDC97","a":"#a8efd0","b":"#2a7853","k":"#16130F","w":"#FFFFFF"}}];
   var EMOS = {"fear":{"n":3,"he":"\u05e4\u05d7\u05d3","c":"#C8FF3D"},"joy":{"n":4,"he":"\u05d4\u05e0\u05d0\u05d4","c":"#FFD23F"},"cry":{"n":5,"he":"\u05d1\u05db\u05d9","c":"#3FC8F5"},"release":{"n":6,"he":"\u05e9\u05d7\u05e8\u05d5\u05e8","c":"#3DDC97"},"shame":{"n":7,"he":"\u05d1\u05d5\u05e9\u05d4","c":"#FF9F1C"},"anger":{"n":8,"he":"\u05db\u05e2\u05e1","c":"#FF5A36"},"press":{"n":9,"he":"\u05d4\u05d3\u05d7\u05e7\u05d4","c":"#9B6BFF"}};
+  var U = {"intro":"\u05d6\u05d4 \u05d4\u05d9\u05d5\u05dd \u05e9\u05dc\u05da.","led":"\u05d4\u05e8\u05d2\u05e9 \u05e9\u05d4\u05d5\u05d1\u05d9\u05dc \u05d0\u05ea \u05d4\u05d9\u05d5\u05dd","share":"{pct}% \u05de\u05d4\u05e9\u05e2\u05d5\u05ea \u05e9\u05d1\u05d4\u05df \u05d4\u05d9\u05d9\u05ea \u05e2\u05e8","measured":"\u05de\u05d4 \u05e0\u05de\u05d3\u05d3","when":"\u05de\u05ea\u05d9","outIn":"\u05d1\u05d7\u05d5\u05e5 \u05de\u05d5\u05dc \u05d1\u05e4\u05e0\u05d9\u05dd","gap":"\u05e4\u05e2\u05e8 \u05e9\u05dc {gap}%","soft":"\u05e8\u05da","sharp":"\u05d7\u05d3","outside":"\u05d1\u05d7\u05d5\u05e5","inside":"\u05d1\u05e4\u05e0\u05d9\u05dd","meaningUp":"\u05d1\u05d7\u05d5\u05e5 \u05e0\u05e8\u05d0\u05d9\u05ea \u05e8\u05d2\u05d5\u05e2 \u05d9\u05d5\u05ea\u05e8 \u05de\u05de\u05d4 \u05e9\u05d4\u05d9\u05d4 \u05d1\u05e4\u05e0\u05d9\u05dd.","meaningDown":"\u05d1\u05e4\u05e0\u05d9\u05dd \u05d4\u05d9\u05d4 \u05e8\u05da \u05d9\u05d5\u05ea\u05e8 \u05de\u05de\u05d4 \u05e9\u05d4\u05e8\u05d0\u05d9\u05ea \u05d1\u05d7\u05d5\u05e5.","feelings":"\u05d4\u05d9\u05d5\u05dd \u05e9\u05dc\u05da \u05d1\u05e8\u05d2\u05e9\u05d5\u05ea","summaryTitle":"\u05d4\u05e1\u05d9\u05db\u05d5\u05dd \u05e9\u05dc {name}"};   // copy.js \u2192 COPY.ui
   var OUT = "/Users/YehonatanShapira/Documents/HIT University/Y2/S1/\u05ea\u05e7\u05e9\u05d5\u05e8\u05ea \u05d7\u05d6\u05d5\u05ea\u05d9\u05ea - \u05d0\u05d1\u05d9\u05d7\u05d9 \u05d5\u05e0\u05d8\u05e2/\u05ea\u05e8\u05d2\u05d9\u05dc 2/\u05d2\u05d1\u05e8\u05d9\u05d5\u05ea/wheep/v2/ae/wheep-wrapped.aep";
-  var CORE = "/* WHEEP \u00b7 the story's timeline, shared by story.js (web) and the After Effects build (pasted into expressions).\n   ES5 on purpose. One day, six scenes, 16 s, then it loops. */\nvar STORY_DUR = 16, S_BEAT = .4;\nvar SCENES = [0, 2.2, 5.0, 7.8, 10.6, 13.6, 16];\n\nfunction sClamp(x) { return Math.max(0, Math.min(1, x)); }\nfunction sOut(u) { return 1 - Math.pow(1 - sClamp(u), 4); }                              // arrivals\nfunction sIn(u) { u = sClamp(u); return u * u; }                                         // exits (faster)\nfunction sFlow(u) { u = sClamp(u); return u * u * u * (u * (u * 6 - 15) + 10); }        // shapes\nfunction sLerp(a, b, t) { return a + (b - a) * t; }\nfunction sWrap(T) { return ((T % STORY_DUR) + STORY_DUR) % STORY_DUR; }\n// a scene element's presence: in over inD from a, out over outD before b\nfunction sEnv(T, a, b, inD, outD) { inD = inD || .45; outD = outD || .25; return Math.min(sOut((T - a) / inD), 1 - sIn((T - (b - outD)) / outD)); }\nfunction sScene(T, i) { return sEnv(T, SCENES[i], SCENES[i + 1]); }\n\n// the shape's place in each scene [x, y, r]; it moves there over 0.9 s and its quality follows the story\nvar S_LEAD = .75, S_TRAIL = [.15, .3];   // the bands trail the shape by these (s)\n// placed so the outer band (\u00d71.32) never runs under the header, the scene titles or the column text\nvar S_K = [[540, 620, 130], [540, 600, 240], [910, 590, 225], [1050, 660, 340], [960, 340, 100], [540, 500, 240], [540, 620, 130]];\nfunction sHero(T, kOut, kIn) {\n  T = sWrap(T);\n  // the shape leads: it starts moving 0.6 s before each scene, so the text arrives on a settled shape\n  var i = 0; while (i < SCENES.length - 2 && T + S_LEAD >= SCENES[i + 1]) i++;\n  var move = sFlow((T + S_LEAD - SCENES[i]) / .75), x, y, r;\n  if (i === 0) { x = S_K[0][0]; y = S_K[0][1]; r = S_K[0][2]; }\n  else { x = sLerp(S_K[i - 1][0], S_K[i][0], move); y = sLerp(S_K[i - 1][1], S_K[i][1], move); r = sLerp(S_K[i - 1][2], S_K[i][2], move); }\n  if (i === 5) { var back = sFlow((T - 15.1) / .9); x = sLerp(x, S_K[6][0], back); y = sLerp(y, S_K[6][1], back); r = sLerp(r, S_K[6][2], back); }\n  var k = .34;\n  if (T >= 2.2) k = sLerp(.34, kOut, sFlow((T - 2.2) / .9));\n  if (T >= 8.3) k = sLerp(kOut, kIn, sFlow((T - 8.3) / 1.5));      // scene 3: what was inside\n  if (T >= 15.1) k = sLerp(kIn, .34, sFlow((T - 15.1) / .9));\n  return [x, y, r, k];\n}\n// the ground opens into the feeling's colour on scene 1 and closes at the end\nfunction sOpen(T) { T = sWrap(T); return sFlow((T - 2.0) / .6) * (1 - sFlow((T - 15.3) / .7)); }\n// continuous turn: two whole teeth per loop, so it closes\nfunction sSpin(T, n) { return (2 * Math.PI / n) * 2 * sWrap(T) / STORY_DUR; }\nfunction sBreath(T) { return 1 + .02 * Math.sin(4 * Math.PI * sWrap(T) / STORY_DUR); }\n// Greta breathing: a weight that oscillates around base; period 4 s (4 per loop), so it closes too\nfunction sGreta(T, base, amp, phase) { return Math.max(0, Math.min(100, base + amp * Math.sin(2 * Math.PI * sWrap(T) / 4 + (phase || 0)))); }\n\n// Greta on all three axes: weight breathes (4 s), width narrows and returns (8 s), optical size swings (4 s, a quarter out of step).\n// wdth only goes down from its default (100), so text measured at full width never overflows. Returns [wght, wdth, OPTI].\nfunction sGretaAxes(T, base, amp, phase) {\n  var t = 2 * Math.PI * sWrap(T); phase = phase || 0;\n  return [sGreta(T, base, amp, phase), 82 + 18 * (.5 + .5 * Math.sin(t / 8 + phase * 1.3)), 50 + 50 * Math.sin(t / 4 + phase + Math.PI / 2)];\n}\nif (typeof module !== 'undefined') module.exports = { STORY_DUR: STORY_DUR, SCENES: SCENES, S_BEAT: S_BEAT, S_K: S_K, S_LEAD: S_LEAD, S_TRAIL: S_TRAIL, sOut: sOut, sIn: sIn, sFlow: sFlow, sEnv: sEnv, sScene: sScene, sHero: sHero, sOpen: sOpen, sSpin: sSpin, sBreath: sBreath, sGreta: sGreta, sGretaAxes: sGretaAxes, sWrap: sWrap, sClamp: sClamp, sLerp: sLerp };\n\n";
-  var DUR = 16, W = 1080, H = 1350, FPS = 30;
+  var CORE = "/* WHEEP \u00b7 the story's timeline, shared by story.js (web) and the After Effects build (pasted into expressions).\n   ES5 on purpose. One day, six scenes, then it loops. Change S_PACE to slow everything down or speed it up together. */\nvar S_PACE = 1.5;                                                       // 1 = the original 16 s story\nvar STORY_DUR = 16 * S_PACE, S_BEAT = .4 * S_PACE;\nvar SCENES = [0, 2.2, 5.0, 7.8, 10.6, 13.6, 16];\nfor (var si_ = 0; si_ < SCENES.length; si_++) SCENES[si_] *= S_PACE;\n// a moment inside scene i, dt seconds (at pace 1) after it starts\nfunction sAt(i, dt) { return SCENES[i] + dt * S_PACE; }\n\nfunction sClamp(x) { return Math.max(0, Math.min(1, x)); }\nfunction sOut(u) { return 1 - Math.pow(1 - sClamp(u), 4); }                              // arrivals\nfunction sIn(u) { u = sClamp(u); return u * u; }                                         // exits (faster)\nfunction sFlow(u) { u = sClamp(u); return u * u * u * (u * (u * 6 - 15) + 10); }        // shapes\nfunction sBack(u) { u = sClamp(u); var c = 1.6; return 1 + (c + 1) * Math.pow(u - 1, 3) + c * Math.pow(u - 1, 2); }   // a small overshoot for pops\nfunction sLerp(a, b, t) { return a + (b - a) * t; }\nfunction sWrap(T) { return ((T % STORY_DUR) + STORY_DUR) % STORY_DUR; }\n// an element's presence: in over inD from a, out over outD before b (pace-scaled)\nfunction sEnv(T, a, b, inD, outD) { inD = (inD || .45) * S_PACE; outD = (outD || .25) * S_PACE; return Math.min(sOut((T - a) / inD), 1 - sIn((T - (b - outD)) / outD)); }\nfunction sScene(T, i) { return sEnv(T, SCENES[i], SCENES[i + 1]); }\n// build-up: element `d` (in pace-1 seconds) after its scene starts, gone with the scene\nfunction sBuild(T, i, d) { return sEnv(T, sAt(i, d || 0), SCENES[i + 1]); }\n\n// the shape's place in each scene [x, y, r]; it moves there and its quality follows the story\n// placed so the outer band (\u00d71.32) never runs under the header, the scene titles or the column text\nvar S_K = [[540, 620, 130], [540, 600, 240], [910, 590, 225], [1050, 660, 340], [960, 340, 100], [540, 500, 240], [540, 620, 130]];\nvar S_LEAD = .75 * S_PACE, S_TRAIL = [.15 * S_PACE, .3 * S_PACE];   // the shape leads each scene; the bands trail it\nfunction sHero(T, kOut, kIn) {\n  T = sWrap(T);\n  var i = 0; while (i < SCENES.length - 2 && T + S_LEAD >= SCENES[i + 1]) i++;\n  var move = sFlow((T + S_LEAD - SCENES[i]) / (.75 * S_PACE)), x, y, r;\n  if (i === 0) { x = S_K[0][0]; y = S_K[0][1]; r = S_K[0][2]; }\n  else { x = sLerp(S_K[i - 1][0], S_K[i][0], move); y = sLerp(S_K[i - 1][1], S_K[i][1], move); r = sLerp(S_K[i - 1][2], S_K[i][2], move); }\n  var back = sFlow((T - sAt(6, -.9)) / (.9 * S_PACE));\n  if (i === 5) { x = sLerp(x, S_K[6][0], back); y = sLerp(y, S_K[6][1], back); r = sLerp(r, S_K[6][2], back); }\n  var k = .34;\n  if (T >= sAt(1, 0)) k = sLerp(.34, kOut, sFlow((T - sAt(1, 0)) / (.9 * S_PACE)));\n  if (T >= sAt(3, .5)) k = sLerp(kOut, kIn, sFlow((T - sAt(3, .5)) / (1.5 * S_PACE)));   // scene 3: what was inside\n  if (T >= sAt(6, -.9)) k = sLerp(kIn, .34, back);\n  return [x, y, r, k];\n}\n// the ground opens into the feeling's colour on scene 1 and closes at the end\nfunction sOpen(T) { T = sWrap(T); return sFlow((T - sAt(1, -.2)) / (.6 * S_PACE)) * (1 - sFlow((T - sAt(6, -.7)) / (.7 * S_PACE))); }\n// continuous turn: two whole teeth per loop, so it closes\nfunction sSpin(T, n) { return (2 * Math.PI / n) * 2 * sWrap(T) / STORY_DUR; }\nfunction sBreath(T) { return 1 + .02 * Math.sin(4 * Math.PI * sWrap(T) / STORY_DUR); }\n// Greta breathing for a whole line (period 4 s; 4 divides the loop)\nfunction sGreta(T, base, amp, phase) { return Math.max(0, Math.min(100, base + amp * Math.sin(2 * Math.PI * sWrap(T) / 4 + (phase || 0)))); }\n// Greta on all three axes for a whole line: [wght, wdth, OPTI]; wdth only narrows from 100\nfunction sGretaAxes(T, base, amp, phase) {\n  var t = 2 * Math.PI * sWrap(T); phase = phase || 0;\n  return [sGreta(T, base, amp, phase), 82 + 18 * (.5 + .5 * Math.sin(t / 8 + phase * 1.3)), 50 + 50 * Math.sin(t / 4 + phase + Math.PI / 2)];\n}\n// Greta letter by letter, every letter on its own axes. Periods (s) all divide the 24 s loop, so it still closes.\n//   wght: a wave travelling along the line, plus a per-letter flicker at its own speed\n//   wdth: each letter breathes at its own speed (60\u2013100, narrowing only)\n//   OPTI: snaps between thin and fat contrast on a per-letter rhythm\n//   now and then a letter jolts to black for a beat\nvar S_PERIODS = [1.5, 2, 3, 4, 6];\nfunction sHash(a, b) { var x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); }\nfunction sLetter(T, i, base, amp, seed) {\n  var t = sWrap(T), tau = 2 * Math.PI;\n  var p1 = S_PERIODS[Math.floor(sHash(i, seed) * 5)], p2 = S_PERIODS[Math.floor(sHash(i + 7, seed) * 5)];\n  var w = base + amp * Math.sin(tau * t / 3 - i * .55 + seed) + amp * .5 * Math.sin(tau * t / p1 + i * 2.1);\n  var b = Math.floor(t / S_BEAT);\n  if (sHash(i * 13 + b, seed) < .06) w = 100;                                                   // the jolt\n  var wd = 60 + 40 * (.5 + .5 * Math.sin(tau * t / p2 + i * 1.7 + seed));\n  var op = 50 + 50 * Math.max(-1, Math.min(1, 3 * Math.sin(tau * t / 1.5 + i * 1.3 + seed)));   // squared-off sine: it snaps\n  return [Math.max(0, Math.min(100, w)), wd, op];\n}\n\nif (typeof module !== 'undefined') module.exports = { S_PACE: S_PACE, STORY_DUR: STORY_DUR, SCENES: SCENES, S_BEAT: S_BEAT, S_K: S_K, S_LEAD: S_LEAD, S_TRAIL: S_TRAIL, sAt: sAt, sOut: sOut, sIn: sIn, sFlow: sFlow, sBack: sBack, sEnv: sEnv, sScene: sScene, sBuild: sBuild, sHero: sHero, sOpen: sOpen, sSpin: sSpin, sBreath: sBreath, sGreta: sGreta, sGretaAxes: sGretaAxes, sLetter: sLetter, sHash: sHash, sWrap: sWrap, sClamp: sClamp, sLerp: sLerp };\n\n";
+  var DUR = 24, W = 1080, H = 1350, FPS = 30;
   var GRETA = "GretaSerif-Light";
   var SECOLO = "[\"Secolo-19\",\"Secolo-20\",\"Secolo-21\",\"Secolo-22\"]";
   var M_KEYS = [0, .34, .67, 1];
@@ -25,7 +26,8 @@ function main() {
 
   // Greta Serif VF instances: registering them once makes setFont() in expressions find them (weight step 5)
   // all three axes: wght (step 5) \u00d7 wdth (82 / 91 / 100) \u00d7 OPTI (step 25); AE omits an axis at its default (100) from the name
-  var FONT_FN = "function F(w,wd,op){w=Math.round(Math.max(0,Math.min(100,w))/5)*5;wd=wd==null?100:(wd>95.5?100:(wd>86.5?91:82));" +
+  // all three axes: wght (step 5) \u00d7 wdth (60\u2013100, step 10) \u00d7 OPTI (step 25); AE omits an axis at its default (100) from the name
+  var FONT_FN = "function F(w,wd,op){w=Math.round(Math.max(0,Math.min(100,w))/5)*5;wd=wd==null?100:Math.round(Math.max(60,Math.min(100,wd))/10)*10;" +
     "op=op==null?100:Math.round(Math.max(0,Math.min(100,op))/25)*25;" +
     "return \"GretaSerif_\"+w.toFixed(3)+\"wght_\"+(wd==100?\"\":wd.toFixed(3)+\"wdth_\")+(op==100?\"\":op.toFixed(3)+\"OPTI_\")+\"0ital\";}";
   (function registerInstances() {
@@ -33,8 +35,7 @@ function main() {
     var st = tc.layers.addText("a").property("ADBE Text Properties").property("ADBE Text Document");
     var td = st.value; td.font = GRETA; st.setValue(td);
     var fo = st.value.fontObject;   // never read fo.designVector: it crashes AE 27
-    var WD = [82, 91, 100];
-    for (var w = 0; w <= 100; w += 5) for (var a = 0; a < 3; a++) for (var op = 0; op <= 100; op += 25) fo.postScriptNameForDesignVector([w, WD[a], op]);
+    for (var w = 0; w <= 100; w += 5) for (var wd = 60; wd <= 100; wd += 10) for (var op = 0; op <= 100; op += 25) fo.postScriptNameForDesignVector([w, wd, op]);
     tc.remove();
   })();
 
@@ -69,14 +70,16 @@ function main() {
     slider(ctl, "k out", d.kOut); slider(ctl, "k in", d.kIn); slider(ctl, "points", n);
     for (var key in CTRL) colour(ctl, CTRL[key], d.pal[key]);
 
-    // scene presence on any layer: opacity in/out, a 28 px rise; extra multiplies opacity
-    function inScene(L, sc, extra) {
-      var tr = L.property("ADBE Transform Group");
-      tr.property("ADBE Opacity").expression = H0 + "sScene(T," + sc + ")*100" + (extra ? "*(" + extra + ")" : "") + ";";
-      tr.property("ADBE Position").expression = H0 + "[value[0],value[1]+(1-sScene(T," + sc + "))*28];";
+    // build-up: a layer enters `d` (pace-1 s) after its scene starts, rising `rise` px; it leaves with the scene
+    function inScene(L, sc, extra, d, rise) {
+      var tr = L.property("ADBE Transform Group"), v = "sBuild(T," + sc + "," + (d || 0) + ")";
+      tr.property("ADBE Opacity").expression = H0 + v + "*100" + (extra ? "*(" + extra + ")" : "") + ";";
+      tr.property("ADBE Position").expression = H0 + "[value[0],value[1]+(1-" + v + ")*" + (rise == null ? 28 : rise) + "];";
     }
-    // text: o = { rtl, align ("right"|"left"|"center"), face ("secolo"), w, amp, phase, beat (secolo offset), text (expr), track (expr),
-    //             wExpr (overrides breathing), box ([w, h]: wrapping paragraph text, top-left at x,y), fit (max width), colour, scene, extra }
+    // text: o = { rtl, align ("right"|"left"|"center"), face ("secolo"), w, amp, beat (secolo offset), text (expr), track (expr),
+    //             wExpr (the base weight, as an expression), box ([w, h]: wrapping paragraph text, top-left at x,y), fit (max width),
+    //             colour, scene, d (build delay), rise, extra, reveal (start time expr: letters write themselves in) }
+    var seedN = 0;
     function txt(str, x, y, size, o) {
       var L = o.box ? comp.layers.addBoxText(o.box, str) : comp.layers.addText(str);
       var st = L.property("ADBE Text Properties").property("ADBE Text Document");
@@ -93,22 +96,34 @@ function main() {
       var pos = [x, y];
       if (o.box) { var bp = st.value.boxTextPos; pos = [x - bp[0], y - bp[1]]; }
       L.property("ADBE Transform Group").property("ADBE Position").setValue(pos);
-      var font = o.face === "secolo" ? "setFont(" + SECOLO + "[(((b+" + (o.beat || 0) + ")%4)+4)%4])"
-        : (o.wExpr ? "setFont(F(" + o.wExpr + ",GA[1],GA[2]))" : "setFont(F(GA[0],GA[1],GA[2]))");
-      var axes = "var GA=sGretaAxes(T," + (o.w == null ? 50 : o.w) + "," + (o.amp == null ? 22 : o.amp) + "," + (o.phase || 0) + ");";
-      st.expression = H0 + FONT_FN + axes + "var s=text.sourceText.style." + font + ";" +
-        (o.text ? "s=s.setText(" + o.text + ");" : "") + (o.track ? "s=s.setTracking(" + o.track + ");" : "") + "s;";
+      if (o.face === "secolo") {
+        st.expression = H0 + "var s=text.sourceText.style.setFont(" + SECOLO + "[(((b+" + (o.beat || 0) + ")%4)+4)%4]);" +
+          (o.text ? "s=s.setText(" + o.text + ");" : "") + (o.track ? "s=s.setTracking(" + o.track + ");" : "") + "s;";
+      } else {
+        // Greta, letter by letter: every character gets its own wght / wdth / OPTI instance
+        var seed = (seedN++ * 1.37).toFixed(2);
+        st.expression = H0 + FONT_FN + "var BASE=" + (o.wExpr || (o.w == null ? 50 : o.w)) + ",s=text.sourceText.style,n=text.sourceText.toString().length;" +
+          "for(var i=0;i<n;i++){var A=sLetter(T,i,BASE," + (o.amp == null ? 22 : o.amp) + "," + seed + ");s=s.setFont(F(A[0],A[1],A[2]),i,1);}s;";
+      }
+      if (o.reveal) {   // a typewriter: an opacity animator whose range starts at the last letter written so far
+        var an = L.property("ADBE Text Properties").property("ADBE Text Animators").addProperty("ADBE Text Animator");
+        an.name = "write in";
+        an.property("ADBE Text Animator Properties").addProperty("ADBE Text Opacity").setValue(0);
+        var sel = an.property("ADBE Text Selectors").addProperty("ADBE Text Selector");
+        sel.property("ADBE Text Percent Start").expression = H0 + "var n=Math.max(1,text.sourceText.toString().length);" +
+          "Math.min(100,Math.max(0,(T-(" + o.reveal + "))/(.05*S_PACE))/n*100);";
+      }
       // centred on its own measured box: AE's centre justification drifts for some RTL/number runs
       if (o.align === "center" && !o.box) L.property("ADBE Transform Group").property("ADBE Anchor Point").expression =
         "var r=sourceRectAtTime(time,false);[r.left+r.width/2,value[1]];";
       if (o.fit) L.property("ADBE Transform Group").property("ADBE Scale").expression =
         "var r=sourceRectAtTime(time,false),s=Math.min(1," + o.fit + "/Math.max(1,r.width))*100;[s,s];";
       fill(L, o.colour || "fg");
-      if (o.scene != null) inScene(L, o.scene, o.extra);
+      if (o.scene != null) inScene(L, o.scene, o.extra, o.d, o.rise);
       return L;
     }
     // shape layer: groups [{path | rect (expr \u2192 [x, y, w, h]), colour | hex}]
-    function shapes(name, groups, scene, extra) {
+    function shapes(name, groups, scene, extra, d, rise) {
       var L = comp.layers.addShape(); L.name = name;
       L.property("ADBE Transform Group").property("ADBE Anchor Point").setValue([0, 0]);
       L.property("ADBE Transform Group").property("ADBE Position").setValue([0, 0]);
@@ -124,10 +139,11 @@ function main() {
         if (groups[i].hex) f.property("ADBE Vector Fill Color").setValue(hex(groups[i].hex)); else f.property("ADBE Vector Fill Color").expression = colExpr(groups[i].colour || "fg");
         if (groups[i].opacity != null) f.property("ADBE Vector Fill Opacity").setValue(groups[i].opacity);
       }
-      if (scene != null) inScene(L, scene, extra);
+      if (scene != null) inScene(L, scene, extra, d, rise);
       return L;
     }
     function R(x, y, w, h) { return "[" + x + "," + y + "," + w + "," + h + "]"; }
+    function fillIn(str, vals) { for (var k in vals) str = str.split("{" + k + "}").join(vals[k]); return str; }
 
     // ground: ink, then the feeling opens from the shape and closes at the end
     var g = comp.layers.addSolid([0, 0, 0], "ground", W, H, 1, DUR); fill(g, "ink");
@@ -145,103 +161,104 @@ function main() {
     shapes("band \u00b7 inner", [{ colour: "light", path: "var h=sHero(T-S_TRAIL[0],KO,KI);shp(N,h[3],h[2]*1.16*sBreath(T),h[0],h[1],-sSpin(T-S_TRAIL[0],N));" }]);
     shapes("shape", [{ colour: "fg", path: "shp(N,HERO[3],HERO[2]*sBreath(T),HERO[0],HERO[1],sSpin(T,N));" }]);
 
-    // 0 \u00b7 intro
-    txt(d.name, 540, 930, 140, { rtl: true, align: "center", wExpr: "sGreta(T,10+80*sOut((T-.2)/1.2),10,0)", fit: 900, scene: 0 }).name = "0 \u00b7 name";
-    txt("\u05d6\u05d4 \u05d4\u05d9\u05d5\u05dd \u05e9\u05dc\u05da.", 540, 1010, 54, { rtl: true, align: "center", w: 40, scene: 0 }).name = "0 \u00b7 this is your day";
-    txt(d.day + " \u00b7 " + d.date, 540, 1072, 34, { rtl: true, align: "center", w: 60, amp: 15, scene: 0 }).name = "0 \u00b7 date";
+    // 0 \u00b7 intro: the name writes itself in, then the line, then the date
+    var nm0 = txt(d.name, 540, 930, 140, { rtl: true, align: "center", w: 90, amp: 14, wExpr: "10+80*sOut((T-sAt(0,.2))/(1.2*S_PACE))", fit: 900, scene: 0, reveal: "sAt(0,.25)" });
+    nm0.name = "0 \u00b7 name";
+    txt(U.intro, 540, 1010, 54, { rtl: true, align: "center", w: 40, scene: 0, d: 1.0 }).name = "0 \u00b7 this is your day";
+    txt(d.day + " \u00b7 " + d.date, 540, 1072, 34, { rtl: true, align: "center", w: 60, amp: 15, scene: 0, d: 1.3 }).name = "0 \u00b7 date";
 
     // 1 \u00b7 the feeling (once); letter spacing pulls it together (tracking is in 1/1000 em)
-    txt("\u05d4\u05e8\u05d2\u05e9 \u05e9\u05d4\u05d5\u05d1\u05d9\u05dc \u05d0\u05ea \u05d4\u05d9\u05d5\u05dd", 540, 220, 38, { rtl: true, align: "center", w: 80, amp: 18, scene: 1 }).name = "1 \u00b7 label";
-    txt(d.he, 540, 1090, 230, { rtl: true, align: "center", face: "secolo", track: "(4+70*(1-sOut((T-2.3)/1.1)))/230*1000", scene: 1 }).name = "1 \u00b7 feeling";
-    txt(d.shares[0].pct + "% \u05de\u05d4\u05e9\u05e2\u05d5\u05ea \u05e9\u05d1\u05d4\u05df \u05d4\u05d9\u05d9\u05ea \u05e2\u05e8", 540, 1176, 40, { rtl: true, align: "center", scene: 1 }).name = "1 \u00b7 share";
+    txt(U.led, 540, 220, 38, { rtl: true, align: "center", w: 80, amp: 26, scene: 1, d: .1 }).name = "1 \u00b7 label";
+    txt(d.he, 540, 1090, 230, { rtl: true, align: "center", face: "secolo", track: "(4+90*(1-sOut((T-sAt(1,.35))/(1.4*S_PACE))))/230*1000", scene: 1, d: .35, rise: 60 }).name = "1 \u00b7 feeling";
+    txt(fillIn(U.share, { pct: d.shares[0].pct }), 540, 1176, 40, { rtl: true, align: "center", scene: 1, d: 1.2 }).name = "1 \u00b7 share";
 
-    // 2 \u00b7 the figure and when it happened
-    txt("\u05de\u05d4 \u05e0\u05de\u05d3\u05d3", 1020, 240, 38, { rtl: true, align: "right", w: 85, amp: 12, scene: 2 }).name = "2 \u00b7 label";
+    // 2 \u00b7 the figure counts up, then when it happened: the axis draws, hours arrive, bars wipe in, marks pop
+    txt(U.measured, 1020, 240, 38, { rtl: true, align: "right", w: 85, amp: 26, scene: 2 }).name = "2 \u00b7 label";
     var isInt = /^\d+$/.test(d.num);
-    txt(d.num, 60, 690, 320, { align: "left", face: "secolo", beat: 1, text: isInt ? "String(Math.round(" + d.num + "*sOut((T-5.2)/1.6)))" : null, scene: 2 }).name = "2 \u00b7 figure";
-    txt(d.unit, 60, 766, 48, { rtl: true, align: "left", w: 60, fit: 520, scene: 2 }).name = "2 \u00b7 unit";
+    txt(d.num, 60, 690, 320, { align: "left", face: "secolo", beat: 1, text: isInt ? "String(Math.round(" + d.num + "*sOut((T-sAt(2,.3))/(1.8*S_PACE))))" : null, scene: 2, d: .2, rise: 50 }).name = "2 \u00b7 figure";
+    txt(d.unit, 60, 766, 48, { rtl: true, align: "left", w: 60, fit: 520, scene: 2, d: .7 }).name = "2 \u00b7 unit";
     var TL = { x0: 60, x1: 1020, y: 1068 }, hx = function (h) { return TL.x0 + h / 24 * (TL.x1 - TL.x0); };
-    txt("\u05de\u05ea\u05d9", 1020, 940, 34, { rtl: true, align: "right", w: 85, amp: 12, scene: 2 }).name = "2 \u00b7 when";
-    txt(d.label, 60, 940, 34, { rtl: true, align: "left", fit: 660, scene: 2 }).name = "2 \u00b7 caption";
-    var tl = [{ rect: R(TL.x0, TL.y - 1.5, TL.x1 - TL.x0, 3) }], hrs = [0, 6, 12, 18, 24];
+    txt(U.when, 1020, 940, 34, { rtl: true, align: "right", w: 85, amp: 26, scene: 2, d: 1.0 }).name = "2 \u00b7 when";
+    txt(d.label, 60, 940, 34, { rtl: true, align: "left", fit: 660, scene: 2, d: 1.15 }).name = "2 \u00b7 caption";
+    var tl = [{ rect: "[" + TL.x0 + "," + (TL.y - 1.5) + "," + (TL.x1 - TL.x0) + "*sOut((T-sAt(2,1.25))/(.8*S_PACE)),3]" }], hrs = [0, 6, 12, 18, 24];
     for (var h = 0; h < hrs.length; h++) {
-      tl.push({ rect: R(hx(hrs[h]) - 1, TL.y, 2, 14) });
-      txt((hrs[h] < 10 ? "0" : "") + hrs[h] + ":00", hx(hrs[h]) + (h === 0 ? 36 : (h === 4 ? -36 : 0))   /* ExtendScript groups unparenthesised nested ternaries wrongly */, TL.y + 46, 26, { rtl: true, align: "center", w: 40, amp: 10, scene: 2 }).name = "2 \u00b7 " + hrs[h];
+      shapes("2 \u00b7 tick " + hrs[h], [{ rect: R(hx(hrs[h]) - 1, TL.y, 2, 14) }], 2, null, 1.4 + h * .08, 10);
+      txt((hrs[h] < 10 ? "0" : "") + hrs[h] + ":00", hx(hrs[h]) + (h === 0 ? 36 : (h === 4 ? -36 : 0))   /* ExtendScript groups unparenthesised nested ternaries wrongly */,
+        TL.y + 46, 26, { rtl: true, align: "center", w: 40, amp: 18, scene: 2, d: 1.4 + h * .08, rise: 10 }).name = "2 \u00b7 " + hrs[h];
     }
     for (var s = 0; s < d.spans.length; s++) {
       var a = hx(d.spans[s][0]), w = hx(d.spans[s][1]) - a;
-      tl.push({ rect: "(function(){var f=sOut((T-5.8)/.8);return [" + a + "," + (TL.y - 13) + ",f>0?Math.max(6," + w + "*f):0,24];})()" });
+      tl.push({ rect: "(function(){var f=sOut((T-sAt(2,1.7))/(.8*S_PACE));return [" + a + "," + (TL.y - 13) + ",f>0?Math.max(6," + w + "*f):0,24];})()" });
     }
     var nm = d.marks.length;
     for (var m = 0; m < nm; m++) {
       var mk = d.marks[m][1] === null ? "KO" : d.marks[m][1];
-      tl.push({ path: "var pop=sOut((T-(5.6+" + m + "*Math.min(.3,1.4/" + nm + ")))/.3);shp(N," + mk + ",Math.max(.01,26*pop)," + hx(d.marks[m][0]).toFixed(1) + "," + (TL.y - 40) + ",0);" });
+      tl.push({ path: "var pop=sBack((T-sAt(2," + (1.7 + m * Math.min(.25, 1.2 / nm)).toFixed(3) + "))/(.35*S_PACE));shp(N," + mk + ",Math.max(.01,26*pop)," + hx(d.marks[m][0]).toFixed(1) + "," + (TL.y - 40) + ",0);" });
     }
-    shapes("2 \u00b7 24h line", tl, 2);
+    shapes("2 \u00b7 24h line", tl, 2, null, 0, 0);
 
-    // 3 \u00b7 outside vs inside
+    // 3 \u00b7 outside vs inside: the legend pops in, the scale draws, the gap fills, the markers arrive, one sentence
     var c0 = 60, c1 = 450, k2x = function (k) { return c0 + k * (c1 - c0); };
-    txt("\u05d1\u05d7\u05d5\u05e5 \u05de\u05d5\u05dc \u05d1\u05e4\u05e0\u05d9\u05dd", c1, 560, 44, { rtl: true, align: "right", w: 85, amp: 12, scene: 3 }).name = "3 \u00b7 title";
-    txt("\u05e4\u05e2\u05e8 \u05e9\u05dc " + Math.round(Math.abs(d.kIn - d.kOut) * 100) + "%", c1, 618, 36, { rtl: true, align: "right", w: 55, scene: 3 }).name = "3 \u00b7 gap";
+    txt(U.outIn, c1, 560, 44, { rtl: true, align: "right", w: 85, amp: 26, scene: 3 }).name = "3 \u00b7 title";
+    txt(fillIn(U.gap, { gap: Math.round(Math.abs(d.kIn - d.kOut) * 100) }), c1, 618, 36, { rtl: true, align: "right", w: 55, scene: 3, d: .3 }).name = "3 \u00b7 gap";
     var lg = [];
-    for (var q = 0; q < 4; q++) lg.push({ colour: "dark", path: "shp(N," + M_KEYS[q] + ",18," + k2x(M_KEYS[q]) + ",730,0);" });
+    for (var q = 0; q < 4; q++) lg.push({ colour: "dark", path: "var pop=sBack((T-sAt(3," + (.5 + q * .12) + "))/(.35*S_PACE));shp(N," + M_KEYS[q] + ",Math.max(.01,18*pop)," + k2x(M_KEYS[q]) + ",730,0);" });
     var ka = Math.min(d.kOut, d.kIn), kb = Math.max(d.kOut, d.kIn), close = Math.abs(k2x(d.kIn) - k2x(d.kOut)) < 120;
-    lg.push({ rect: R(c0, 779, c1 - c0, 2) });
-    lg.push({ rect: "[" + k2x(ka) + ",774,Math.max(4," + (k2x(kb) - k2x(ka)) + "*sOut((T-8.1)/.8)),12]" });
-    lg.push({ rect: R(k2x(d.kOut) - 1, 780, 2, 50) });
-    lg.push({ rect: R(k2x(d.kIn) - 1, 780, 2, 50 + (close ? 40 : 0)) });
+    lg.push({ rect: "[" + c0 + ",779," + (c1 - c0) + "*sOut((T-sAt(3,.9))/(.6*S_PACE)),2]" });
+    lg.push({ rect: "[" + k2x(ka) + ",774,Math.max(4," + (k2x(kb) - k2x(ka)) + "*sOut((T-sAt(3,1.1))/(.8*S_PACE))),12]" });
     lg.push({ path: "shp(N,HERO[3],17," + c0 + "+sClamp(HERO[3])*" + (c1 - c0) + ",780,sSpin(T,N));" });   // "now": ink, not white (white vanished on light feelings)
-    shapes("3 \u00b7 scale", lg, 3);
-    txt("\u05e8\u05da", k2x(0), 692, 28, { rtl: true, align: "center", w: 50, amp: 12, scene: 3 }).name = "3 \u00b7 soft";
-    txt("\u05d7\u05d3", k2x(1), 692, 28, { rtl: true, align: "center", w: 50, amp: 12, scene: 3 }).name = "3 \u00b7 sharp";
-    txt("\u05d1\u05d7\u05d5\u05e5", k2x(d.kOut), 862, 32, { rtl: true, align: "center", w: 80, amp: 14, scene: 3 }).name = "3 \u00b7 outside";
-    txt("\u05d1\u05e4\u05e0\u05d9\u05dd", k2x(d.kIn), 862 + (close ? 40 : 0), 32, { rtl: true, align: "center", w: 80, amp: 14, scene: 3 }).name = "3 \u00b7 inside";
-    var meaning = d.kIn > d.kOut ? "\u05d1\u05d7\u05d5\u05e5 \u05e0\u05e8\u05d0\u05d9\u05ea \u05e8\u05d2\u05d5\u05e2 \u05d9\u05d5\u05ea\u05e8 \u05de\u05de\u05d4 \u05e9\u05d4\u05d9\u05d4 \u05d1\u05e4\u05e0\u05d9\u05dd."
-      : "\u05d1\u05e4\u05e0\u05d9\u05dd \u05d4\u05d9\u05d4 \u05e8\u05da \u05d9\u05d5\u05ea\u05e8 \u05de\u05de\u05d4 \u05e9\u05d4\u05e8\u05d0\u05d9\u05ea \u05d1\u05d7\u05d5\u05e5.";
-    txt(meaning, c0, 960, 40, { rtl: true, align: "right", box: [c1 - c0, 200], scene: 3 }).name = "3 \u00b7 meaning";
+    shapes("3 \u00b7 scale", lg, 3, null, 0, 0);
+    shapes("3 \u00b7 outside mark", [{ rect: R(k2x(d.kOut) - 1, 780, 2, 50) }], 3, null, 1.3, 16);
+    shapes("3 \u00b7 inside mark", [{ rect: R(k2x(d.kIn) - 1, 780, 2, 50 + (close ? 40 : 0)) }], 3, null, 1.5, 16);
+    txt(U.soft, k2x(0), 692, 28, { rtl: true, align: "center", w: 50, amp: 20, scene: 3, d: .5 }).name = "3 \u00b7 soft";
+    txt(U.sharp, k2x(1), 692, 28, { rtl: true, align: "center", w: 50, amp: 20, scene: 3, d: .85 }).name = "3 \u00b7 sharp";
+    txt(U.outside, k2x(d.kOut), 862, 32, { rtl: true, align: "center", w: 80, amp: 24, scene: 3, d: 1.3, rise: 16 }).name = "3 \u00b7 outside";
+    txt(U.inside, k2x(d.kIn), 862 + (close ? 40 : 0), 32, { rtl: true, align: "center", w: 80, amp: 24, scene: 3, d: 1.5, rise: 16 }).name = "3 \u00b7 inside";
+    txt(d.kIn > d.kOut ? U.meaningUp : U.meaningDown, c0, 960, 40, { rtl: true, align: "right", box: [c1 - c0, 200], scene: 3, d: 1.8 }).name = "3 \u00b7 meaning";
 
-    // 4 \u00b7 the day in feelings: an ink band, the waking hours as coloured stretches opening left to right, the top three
-    var sx = function (h) { return 60 + (h - 7) / 16.5 * 960; }, band = [{ colour: "ink", rect: R(0, 520, W, 700) }];
+    // 4 \u00b7 the day in feelings: the ink band rises, the waking hours open left to right, the top three arrive
+    var sx = function (h) { return 60 + (h - 7) / 16.5 * 960; }, band = [{ colour: "ink", rect: R(0, 520, W, 760) }];
     for (var s = 0; s < d.segs.length; s++) {
       var g0 = sx(d.segs[s].from), gw = Math.max(1, sx(d.segs[s].to) - g0 - 3), E = EMOS[d.segs[s].emo];
-      band.push({ hex: E.c, rect: "(function(){var x=60+960*sOut((T-10.9)/1.3);return [" + g0 + ",650,Math.min(" + gw + ",x-" + g0 + "),90];})()" });
-      if (gw > 44) band.push({ colour: "ink", path: "var x=60+960*sOut((T-10.9)/1.3);shp(" + E.n + ",.5,x>" + (g0 + gw / 2) + "?18:.01," + (g0 + gw / 2) + ",695,0);" });
+      band.push({ hex: E.c, rect: "(function(){var x=60+960*sOut((T-sAt(4,.45))/(1.4*S_PACE));return [" + g0 + ",650,Math.min(" + gw + ",x-" + g0 + "),90];})()" });
+      if (gw > 44) band.push({ colour: "ink", path: "var x=60+960*sOut((T-sAt(4,.45))/(1.4*S_PACE));shp(" + E.n + ",.5,x>" + (g0 + gw / 2) + "?18:.01," + (g0 + gw / 2) + ",695,0);" });
     }
-    shapes("4 \u00b7 the day in feelings", band, 4);
-    txt("\u05d4\u05d9\u05d5\u05dd \u05e9\u05dc\u05da \u05d1\u05e8\u05d2\u05e9\u05d5\u05ea", 1020, 610, 44, { rtl: true, align: "right", w: 85, amp: 12, colour: "white", scene: 4 }).name = "4 \u00b7 title";
+    shapes("4 \u00b7 the day in feelings", band, 4, null, 0, 160);
+    txt(U.feelings, 1020, 610, 44, { rtl: true, align: "right", w: 85, amp: 26, colour: "white", scene: 4, d: .25 }).name = "4 \u00b7 title";
     var hh = [[7, "07:00"], [12, "12:00"], [18, "18:00"], [23.5, "23:30"]];
-    for (var q = 0; q < hh.length; q++) txt(hh[q][1], sx(hh[q][0]) + (q === 0 ? 36 : (q === 3 ? -36 : 0)), 790, 26, { rtl: true, align: "center", w: 40, amp: 10, colour: "white", scene: 4 }).name = "4 \u00b7 " + hh[q][1];
+    for (var q = 0; q < hh.length; q++) txt(hh[q][1], sx(hh[q][0]) + (q === 0 ? 36 : (q === 3 ? -36 : 0)), 790, 26, { rtl: true, align: "center", w: 40, amp: 18, colour: "white", scene: 4, d: 1.1 + q * .1 }).name = "4 \u00b7 " + hh[q][1];
     for (var j = 0; j < Math.min(3, d.shares.length); j++) {
-      var sh = d.shares[j], E2 = EMOS[sh.emo], y = 900 + j * 100, v = "sOut((T-" + (11.6 + j * .25) + ")/.5)";
+      var sh = d.shares[j], E2 = EMOS[sh.emo], y = 900 + j * 100, rd = 1.3 + j * .3;
       shapes("4 \u00b7 row " + (j + 1), [{ hex: E2.c, path: "shp(" + E2.n + ",.5,26,990," + (y - 14) + ",0);" },
-        { hex: E2.c, rect: "[230," + (y - 26) + "," + (sh.pct / 100 * 500) + "*" + v + ",22]" }], 4, v);
-      txt(E2.he, 950, y, 44, { rtl: true, align: "right", w: j ? 45 : 90, colour: "white", scene: 4, extra: v }).name = "4 \u00b7 row " + (j + 1) + " name";
-      txt(sh.pct + "%", 60, y, 54, { align: "left", face: "secolo", beat: 2, colour: "white", scene: 4, extra: v }).name = "4 \u00b7 row " + (j + 1) + " share";
+        { hex: E2.c, rect: "[230," + (y - 26) + "," + (sh.pct / 100 * 500) + "*sOut((T-sAt(4," + (rd + .15) + "))/(.6*S_PACE)),22]" }], 4, null, rd, 24);
+      txt(E2.he, 950, y, 44, { rtl: true, align: "right", w: j ? 45 : 90, amp: 24, colour: "white", scene: 4, d: rd, rise: 24 }).name = "4 \u00b7 row " + (j + 1) + " name";
+      txt(sh.pct + "%", 60, y, 54, { align: "left", face: "secolo", beat: 2, colour: "white", scene: 4, d: rd, rise: 24 }).name = "4 \u00b7 row " + (j + 1) + " share";
     }
 
-    // 5 \u00b7 the two lines (they swap weight at 14.4 s), signed; each block stacks under the one above
-    var l1 = txt(d.b, 60, 892, 64, { rtl: true, align: "right", box: [960, 240], wExpr: "sGreta(T,100-65*sOut((T-14.4)/.4),8,0)", scene: 5 });
+    // 5 \u00b7 the two lines write themselves in (the shown one thins as the hidden one lands), signed
+    var turn = "sOut((T-sAt(5,1.6))/(.4*S_PACE))";
+    var l1 = txt(d.b, 60, 892, 64, { rtl: true, align: "right", box: [960, 240], amp: 12, wExpr: "95-65*" + turn, scene: 5, reveal: "sAt(5,.15)" });
     l1.name = "5 \u00b7 line 1";
-    var l2 = txt(d.s, 60, 980, 64, { rtl: true, align: "right", box: [960, 240], wExpr: "sGreta(T,30+65*sOut((T-14.4)/.4),8,1.5)", scene: 5 });
+    var l2 = txt(d.s, 60, 980, 64, { rtl: true, align: "right", box: [960, 240], amp: 12, wExpr: "30+65*" + turn, scene: 5, reveal: "sAt(5,1.0)" });
     l2.name = "5 \u00b7 line 2";
     l2.property("ADBE Transform Group").property("ADBE Position").expression = H0 +
       "var a=thisComp.layer(\"5 \u00b7 line 1\"),ra=a.sourceRectAtTime(time,false);[value[0],a.transform.position[1]+ra.top+ra.height+18-sourceRectAtTime(time,false).top];";
-    var sg = txt(d.name + " \u00b7 " + d.day + " " + d.date, 1020, 1180, 34, { rtl: true, align: "right", w: 60, amp: 15, scene: 5 });
+    var sg = txt(d.name + " \u00b7 " + d.day + " " + d.date, 1020, 1180, 34, { rtl: true, align: "right", w: 60, amp: 15, scene: 5, d: 1.9 });
     sg.name = "5 \u00b7 signature";
     sg.property("ADBE Transform Group").property("ADBE Position").expression = H0 +
-      "var a=thisComp.layer(\"5 \u00b7 line 2\"),ra=a.sourceRectAtTime(time,false);[value[0],a.transform.position[1]+ra.top+ra.height+64];";
+      "var a=thisComp.layer(\"5 \u00b7 line 2\"),ra=a.sourceRectAtTime(time,false);[value[0],a.transform.position[1]+ra.top+ra.height+64-(1-sBuild(T,5,1.9))*28];";
 
     // header: progress like a story, the mark, the wordmark, the name
-    var pr = [], SC = [0, 2.2, 5.0, 7.8, 10.6, 13.6, 16];
+    var pr = [];
     for (var p = 0; p < 6; p++) {
       var px = 60 + p * (970 / 6), pw = 970 / 6 - 10;
       pr.push({ rect: R(px, 34, pw, 5), opacity: 25 });
-      pr.push({ rect: "[" + px + ",34," + pw + "*sClamp((T-" + SC[p] + ")/" + (SC[p + 1] - SC[p]) + "),5]" });
+      pr.push({ rect: "[" + px + ",34," + pw + "*sClamp((T-SCENES[" + p + "])/(SCENES[" + (p + 1) + "]-SCENES[" + p + "])),5]" });
     }
     shapes("header \u00b7 progress", pr);
     shapes("header \u00b7 mark", [{ path: "shp(N,HERO[3],20,72,92,sSpin(T,N));" }]);
-    txt("wheep", 104, 104, 38, { align: "left", wExpr: "100*(1-HERO[3])" }).name = "header \u00b7 wheep";
-    txt(d.name, 1020, 104, 36, { rtl: true, align: "right", w: 70, amp: 15, fit: 520 }).name = "header \u00b7 name";
+    txt("wheep", 104, 104, 38, { align: "left", wExpr: "100*(1-HERO[3])", amp: 0 }).name = "header \u00b7 wheep";
+    txt(d.name, 1020, 104, 36, { rtl: true, align: "right", w: 70, amp: 18, fit: 520 }).name = "header \u00b7 name";
 
     ctl.moveToBeginning();
     comps.push(comp);
@@ -257,5 +274,5 @@ function main() {
   proj.save(new File(OUT));
 
   var FR = "/private/tmp/claude-501/-Users-YehonatanShapira-Documents-HIT-University-Y2-S1----------------------------------2-------/656dfa3d-b07f-49f3-905c-8441b8aa1939/scratchpad/sframes";
-  if (FR) for (var q = 0; q < comps.length; q++) for (var t = 0; t < 6; t++) comps[q].saveFrameToPng([1.5, 4.0, 6.8, 9.9, 12.8, 15.0][t], new File(FR + "/s" + (q + 1) + "_" + t + ".png"));
+  if (FR) for (var q = 0; q < comps.length; q++) for (var t = 0; t < 6; t++) comps[q].saveFrameToPng([2.2, 6.0, 10.2, 14.8, 19.2, 22.5][t], new File(FR + "/s" + (q + 1) + "_" + t + ".png"));
 }

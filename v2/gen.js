@@ -28,28 +28,27 @@ function genMix(seed, top) {
   return { segs, shares };
 }
 
-// six curated (fake) people. A visitor's name syncs to one of them; the day in feelings still varies per name.
-// marks: [hour, k] (k: 0 round, 1 spiky, null = the day's k) · spans: [from, to] · b/s: the fact, then what the data adds
+// six curated (fake) people: the data. Their words (unit, label, the two lines) are in copy.js → COPY.profiles.
+// A visitor's name syncs to one of them; the day in feelings still varies per name.
+// marks: [hour, k] (k: 0 round, 1 spiky, null = the day's k) · spans: [from, to]
 const PROFILES = [
-  { emo: 'anger', kOut: .28, kIn: .94, num: '4', count: true, unit: 'פעמים הרמת את הקול',
-    marks: [[7.9, null], [8.3, null], [13.1, null], [19.6, 1]], spans: [], label: 'שלוש בדרך, אחת בארוחת ערב',
-    b: 'בבוקר זה היה על הכביש.', s: 'בערב זה היה על מי שישב מולך.' },
-  { emo: 'press', kOut: .18, kIn: .9, num: '5:40', count: false, unit: 'שעות של דופק גבוה במנוחה',
-    marks: [], spans: [[8.5, 11.5], [15, 17.7]], label: 'בישיבות, ובדרך הביתה',
-    b: 'אמרת "אין בעיה" ארבע פעמים.', s: 'הדופק ספר אחרת.' },
-  { emo: 'fear', kOut: .3, kIn: .85, num: '131', count: false, unit: 'דופק שיא',
-    marks: [[22.4, 1]], spans: [], label: '22:24, הודעה מהבנק',
-    b: 'פתחת הודעה מהבנק בלילה.', s: 'לקח לך 40 דקות להירדם.' },
-  { emo: 'cry', kOut: .6, kIn: .06, num: '3', count: false, unit: 'דקות של בכי',
-    marks: [[21.2, 0]], spans: [[21.2, 21.25]], label: '21:10, בסוף סרט',
-    b: 'בכית בסוף הסרט.', s: 'אמרת שזה מהעייפות.' },
-  { emo: 'joy', kOut: .45, kIn: .05, num: '14', count: true, unit: 'צחוקים',
+  { emo: 'anger', kOut: .28, kIn: .94, num: '4', count: true,
+    marks: [[7.9, null], [8.3, null], [13.1, null], [19.6, 1]], spans: [] },
+  { emo: 'press', kOut: .18, kIn: .9, num: '5:40', count: false,
+    marks: [], spans: [[8.5, 11.5], [15, 17.7]] },
+  { emo: 'fear', kOut: .3, kIn: .85, num: '131', count: false,
+    marks: [[22.4, 1]], spans: [] },
+  { emo: 'cry', kOut: .6, kIn: .06, num: '3', count: false,
+    marks: [[21.2, 0]], spans: [[21.2, 21.25]] },
+  { emo: 'joy', kOut: .45, kIn: .05, num: '14', count: true,
     marks: [[7.6, 0], [9.2, 1], [10.4, 0], [11.9, 0], [12.6, 0], [13.3, 1], [15.1, 0], [16.4, 0], [17.8, 0], [18.9, 0], [19.7, 0], [20.5, 1], [21.4, 0], [22.6, 0]],
-    spans: [], label: '11 אמיתיים · 3 מנומסים', b: 'רוב היום צחקת באמת.', s: 'שלושה צחוקים היו בשביל אחרים.' },
-  { emo: 'shame', kOut: .35, kIn: .78, num: '2', count: false, unit: 'פעמים שתקת כשרצית לדבר',
-    marks: [[11.5, 1], [20.3, 1]], spans: [], label: 'בישיבה, ובשיחה עם אבא',
-    b: 'היה לך מה להגיד, פעמיים.', s: 'בשתי הפעמים בלעת את זה.' },
+    spans: [] },
+  { emo: 'shame', kOut: .35, kIn: .78, num: '2', count: false,
+    marks: [[11.5, 1], [20.3, 1]], spans: [] },
 ];
+
+// the six men on the exhibition screen keep the same profile on every device (anyone else is synced by name)
+const MOCK_NAMES = { 'איתי': 'anger', 'יובל': 'press', 'עידו': 'fear', 'יהונתן': 'cry', 'אבי': 'joy', 'ליאור': 'shame' };
 
 const WEEKDAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 
@@ -58,12 +57,14 @@ function makeDay(opts) {
   const date = opts.date || new Date();
   const dstr = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}`;
   const seed = nameSeed(opts.name, dstr);
-  const profile = opts.top ? PROFILES.find(p => p.emo === opts.top) : PROFILES[Math.floor(mHash(seed, 1, 1) * PROFILES.length)];
+  const top = opts.top || MOCK_NAMES[opts.name.trim()];
+  const profile = top ? PROFILES.find(p => p.emo === top) : PROFILES[Math.floor(mHash(seed, 1, 1) * PROFILES.length)];
   const { segs, shares } = genMix(seed, profile.emo);
-  return { name: opts.name.trim(), day: WEEKDAYS[date.getDay()], date: dstr, seed, segs, shares, ...profile };
+  const words = (typeof COPY !== 'undefined' && COPY.profiles[profile.emo]) || {};
+  return { name: opts.name.trim(), day: WEEKDAYS[date.getDay()], date: dstr, seed, segs, shares, ...profile, ...words };
 }
 
 // sensor id shown while "detecting": stable per name
 function sensorId(name) { return 'WHEEP-' + Math.floor(nameSeed(name, 'id') * 997 % 65535).toString(16).toUpperCase().padStart(4, '0'); }
 
-if (typeof module !== 'undefined') module.exports = { makeDay, genMix, sensorId, nameSeed, GEN_KEYS, PROFILES };
+if (typeof module !== 'undefined') module.exports = { makeDay, genMix, sensorId, nameSeed, GEN_KEYS, PROFILES, MOCK_NAMES };
