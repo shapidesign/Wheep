@@ -72,7 +72,7 @@ This is a wrapped for an app: it reveals the day step by step, so a person can t
 
 | Scene | Time | What it tells |
 |---|---|---|
-| 0 · intro | 0–4.4 s | the name, "זה היום שלך.", the date. Ink ground, the shape small and white |
+| 0 · intro | 0–4.4 s | the name, "ככה עבר עליך היום.", the date. Ink ground, the shape small and white |
 | 1 · the feeling | 4.4–10 | the ground opens into the feeling's colour from the shape. "הרגש שהוביל את היום", then the feeling word (once, as the header) pulled together by letter spacing, and its share of waking hours |
 | 2 · what was measured | 10–15.6 | the figure (counts up) and its unit, then a 24h line with the events and durations, and a plain caption |
 | 3 · outside vs inside (מוחצן או מופנם) | 15.6–21.2 | the scale on the shape's four drawings, the gap, a "now" shape riding with the big shape as it turns inside, one sentence that says what the gap means |
