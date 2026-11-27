@@ -35,11 +35,17 @@
   body.only .exit { display: block; }
   body:not(.only) .exit { display: none; }
   body.only .exit:hover, body.only .exit:focus-visible { opacity: 1; }
+  .stage svg { cursor: pointer; }
+  .stage svg:focus-visible { outline: 3px solid #FFD23F; outline-offset: -6px; }
+  .paused { position: absolute; top: 3vh; inset-inline: 0; margin-inline: auto; width: max-content; padding: 1vh 1.6vh; z-index: 1;
+    background: rgba(22, 19, 15, .86); color: #fff; font-size: 2vh; font-variation-settings: 'wght' 70; pointer-events: none;
+    opacity: 0; transform: translateY(-6px); transition: opacity .2s ease-out, transform .2s ease-out; }
+  .paused.on { opacity: 1; transform: none; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 </style>
 </head>
 <body>
-  <section class="stage"><svg id="stage"></svg></section>
+  <section class="stage"><svg id="stage" tabindex="0" aria-pressed="false"></svg><p class="paused" id="pausedBadge" aria-live="polite"></p></section>
   <footer class="strip">
     <a class="qr" id="qr" aria-label="לעמוד האישי שלך: הקלד את השם שלך וסנכרן את החיישן"></a>
     <div class="call">
@@ -111,6 +117,7 @@
   function show(name, top, t, isVisitor) {
     story = createStory(stage, makeDay({ name, date: new Date(), top }), { bleed: true });
     start = t; visitor = isVisitor ? name : null;
+    if (held) hold(false);   // a new person always plays
     caption();
   }
   function next(t) {
@@ -125,7 +132,11 @@
     else if (!queue.includes(name)) queue.push(name);
     caption();
   }
+  // a click (or Space) on the story pauses it, like TikTok: its clock stops, then plays on from the same frame
+  let held = false, lastT = null;
   function tick(t) {
+    if (held && lastT !== null) start += t - lastT;
+    lastT = t;
     if (!story || t - start > STORY_DUR * 1000) next(t);   // one whole wrapped, then the next person
     const T = (t - start) / 1000;
     // reduced motion still plays every story in turn; each one appears fully built instead of moving
@@ -145,6 +156,12 @@
     typing = setTimeout(() => { const name = ev.target.value.trim().replace(/\s+/g, ' '); if (name) arrive(name); }, 450);
   });
   syncListen(name => { document.getElementById('here').value = ''; arrive(name); });
+  function hold(on) {
+    held = on; stage.setAttribute('aria-pressed', String(on));
+    const b = document.getElementById('pausedBadge'); b.textContent = on ? 'מושהה · לחיצה ממשיכה' : ''; b.classList.toggle('on', on);
+  }
+  stage.addEventListener('click', () => hold(!held));
+  stage.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); hold(!held); } });
   document.fonts.ready.then(() => requestAnimationFrame(tick));
 </script>
 </body>

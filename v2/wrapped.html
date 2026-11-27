@@ -12,7 +12,17 @@
   header p { font-size: 19px; margin-top: 12px; max-width: 600px; line-height: 1.4; }
   header a { color: inherit; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; margin-top: 40px; }
-  .grid a { display: block; }
+  /* a click (or Space/Enter) on a poster pauses it, like TikTok; again to play on */
+  .card { position: relative; margin: 0; display: grid; gap: 10px; }
+  .card .poster { cursor: pointer; }
+  .card .poster:focus-visible { outline: 3px solid #FFD23F; outline-offset: 4px; }
+  .card::after { content: 'מושהה · לחיצה ממשיכה'; position: absolute; top: 18px; inset-inline: 0; margin-inline: auto; width: max-content;
+    padding: 8px 14px; background: rgba(22, 19, 15, .86); color: #fff; font-size: 15px; font-variation-settings: 'wght' 70;
+    opacity: 0; transform: translateY(-6px); transition: opacity .2s ease-out, transform .2s ease-out; pointer-events: none; }
+  .card.paused::after { opacity: 1; transform: none; }
+  .card a { color: inherit; font-size: 15px; opacity: .75; justify-self: start; }
+  .card a:hover { opacity: 1; }
+  body.solo .card a { display: none; }
   .poster { display: block; width: 100%; height: auto; }
   body.solo { display: grid; place-items: center; min-height: 100vh; background: #000; }
   body.solo main { padding: 0; }
@@ -29,7 +39,7 @@
 <main>
   <header>
     <h1>מה עבר עליך היום.</h1>
-    <p>שבוע של אדם אחד, שבעה סיכומים יומיים. כל אחד הוא סיפור קצר של פחות מדקה: השם, הרגש שהוביל, מה נמדד ומתי, הפער בין בחוץ לבפנים, והיום כולו ברגשות. לחיצה פותחת סיפור לבד. <a href="live.html">לגרסה החיה</a>.</p>
+    <p>שבוע של אדם אחד, שבעה סיכומים יומיים. כל אחד הוא סיפור קצר של פחות מדקה: השם, הרגש שהוביל, מה נמדד ומתי, הפער בין בחוץ לבפנים, והיום כולו ברגשות. לחיצה על פוסטר עוצרת אותו, ולחיצה נוספת ממשיכה. <a href="live.html">לגרסה החיה</a>.</p>
   </header>
   <div class="grid" id="grid"></div>
 </main>
@@ -44,19 +54,29 @@
   const q = new URLSearchParams(location.search), one = q.get('day');
   const fixedT = q.has('t') ? +q.get('t') : null;      // ?t=12 freezes the story at that second
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const grid = document.getElementById('grid');
+  const grid = document.getElementById('grid'), t0 = performance.now();
 
   const stories = DAYS.map((d, i) => {
     if (one !== null && +one !== i + 1) return null;
     const seed = nameSeed(DEMO_NAME, d.date);
     const day = { ...d, name: DEMO_NAME, seed, ...genMix(seed, d.emo) };
-    const a = document.createElement('a');
-    a.href = one === null ? `?day=${i + 1}` : '?';
+    const card = document.createElement('figure'); card.className = 'card';
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class', 'poster');
-    a.append(svg); grid.append(a);
+    svg.setAttribute('tabindex', '0');
+    const open = document.createElement('a'); open.href = `?day=${i + 1}`; open.textContent = `יום ${d.day} לבד`;
+    card.append(svg, open); grid.append(card);
     const st = createStory(svg, day);
-    st.svg = svg; st.seen = false;
+    svg.setAttribute('aria-pressed', 'false');   // after createStory, which sets role=img; the click target is a toggle
+    svg.setAttribute('role', 'button');
+    st.svg = svg; st.card = card; st.seen = false; st.off = 0; st.held = null;
+    const toggle = () => {
+      const T = (performance.now() - t0) / 1000;
+      if (st.held === null) st.held = T - st.off; else { st.off = T - st.held; st.held = null; }
+      card.classList.toggle('paused', st.held !== null); svg.setAttribute('aria-pressed', String(st.held !== null));
+    };
+    svg.addEventListener('click', toggle);
+    svg.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); } });
     return st;
   }).filter(Boolean);
   // only the stories on screen are drawn: seven at once is what made the page stutter
@@ -65,8 +85,8 @@
   if (one !== null) document.body.classList.add('solo');
 
   // each story starts where it is when the page opens; reduced motion holds on the day in feelings
-  const t0 = performance.now();
-  function frame(t) { stories.forEach(s => { if (s.seen) s.draw((t - t0) / 1000); }); requestAnimationFrame(frame); }
+  // each story keeps its own clock, so pausing one doesn't stop the others
+  function frame(t) { stories.forEach(s => { if (s.seen) s.draw(s.held ?? (t - t0) / 1000 - s.off); }); requestAnimationFrame(frame); }
   document.fonts.ready.then(() => fixedT !== null || reduce ? stories.forEach(s => s.draw(fixedT ?? sAt(4, 1.5))) : requestAnimationFrame(frame));
 </script>
 </body>

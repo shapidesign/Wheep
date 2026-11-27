@@ -23,10 +23,25 @@ const WHEEP_TYPES = {
 let GRAIN_URL = null;
 function grainTile() {
   if (GRAIN_URL) return GRAIN_URL;
-  const c = document.createElement('canvas'); c.width = c.height = 256;
-  const x = c.getContext('2d'), im = x.createImageData(256, 256);
-  for (let i = 0; i < im.data.length; i += 4) { const v = 128 + (Math.random() - .5) * 110; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; }
+  const N = 512, c = document.createElement('canvas'); c.width = c.height = N;
+  const x = c.getContext('2d');
+  // soft mottling: a coarse random grid drawn up with smoothing, tiled 3×3 so the edges meet
+  const m = document.createElement('canvas'); m.width = m.height = 24;
+  const mx = m.getContext('2d'), mi = mx.createImageData(24, 24);
+  for (let i = 0; i < mi.data.length; i += 4) { const v = 128 + (Math.random() - .5) * 46; mi.data[i] = mi.data[i + 1] = mi.data[i + 2] = v; mi.data[i + 3] = 255; }
+  mx.putImageData(mi, 0, 0);
+  x.imageSmoothingEnabled = true;
+  for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) x.drawImage(m, dx * N, dy * N, N, N);
+  // fine grain on top
+  const im = x.getImageData(0, 0, N, N);
+  for (let i = 0; i < im.data.length; i += 4) { const g = (Math.random() - .5) * 70; im.data[i] += g; im.data[i + 1] += g; im.data[i + 2] += g; }
   x.putImageData(im, 0, 0);
+  // fibres: short soft strokes, light and dark
+  for (let f = 0; f < 140; f++) {
+    const px = Math.random() * N, py = Math.random() * N, a = Math.random() * Math.PI, l = 6 + Math.random() * 22;
+    x.strokeStyle = Math.random() < .5 ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.3)'; x.lineWidth = .6 + Math.random() * .8;
+    x.beginPath(); x.moveTo(px, py); x.quadraticCurveTo(px + Math.cos(a) * l * .5 + (Math.random() - .5) * 6, py + Math.sin(a) * l * .5 + (Math.random() - .5) * 6, px + Math.cos(a) * l, py + Math.sin(a) * l); x.stroke();
+  }
   return (GRAIN_URL = c.toDataURL('image/png'));
 }
 const typeKey = d => (d.kOut >= .55 ? 'h' : 's') + (d.kIn >= .55 ? 'h' : 's');
@@ -39,6 +54,7 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
   const TOP = M + 52, BOT = H - M - 44, NSC = SCENES.length - 1;
   const B = opts.bleed ? 3000 : 0;
   const CUT = .4, IN = .65, STAG = .05, INK = '#16130F';
+  const FPS = 15;   // a little under full motion, like Vox explainers: the eases stay smooth, the frames step
   const TRACK = -.02;   // Secolo tracking, in em
   const ease = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 4);
   const outQ5 = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 5);
@@ -119,11 +135,14 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
   const rule = (y, c, i = 0, x1 = M, x2 = W - M, hgt = 2) => add(el('rect', { x: x1, y, width: x2 - x1, height: hgt, fill: c }), i);
   // a shape: no bands, just the form. It morphs (kf), turns, breathes; o.at pops it in (overshoot), otherwise it grows in.
   const shape = (nn, kf, r, cx, cy, fill, o = {}) => {
-    const q = add(el('path', { fill }));
+    const q = add(el('path', { fill })); q._id = Math.random() * 97;
     live((u, TT) => {
       const v = u - (o.at ?? 0), s = o.at != null ? (v < 0 ? 0 : sBack(v / .45)) : (o.grow ?? .7) + (1 - (o.grow ?? .7)) * sFlow(v / .9);
       const br = o.still ? 1 : 1 + .025 * Math.sin(2 * Math.PI * TT / 3.2 + (o.ph || 0));   // o.still: no breath, no turn
-      q.setAttribute('d', s > .01 ? shapePath(nn, ck(kf(v, TT)), r * s * br, cx, cy, (o.dir || 1) * v * (o.spin ?? .12), o.steps || 220) : '');
+      const j = o.still ? 0 : sHash(Math.round(TT * FPS), q._id) - .5;   // boil: a faint new tremble on every drawn frame
+      // flow: the edge is never quite rigid; it ripples softly, and more while the shape is changing (follow-through)
+      const k1 = ck(kf(v, TT)), k0 = ck(kf(v - .15, TT - .15)), fl = o.still ? null : { a: .012 + Math.min(.05, Math.abs(k1 - k0) * .5), p: TT * 1.7 + q._id };
+      q.setAttribute('d', s > .01 ? shapePath(nn, k1, r * s * br * (1 + j * .004), cx + j, cy - j * .6, (o.dir || 1) * v * (o.spin ?? .12) + j * .005, o.steps || 220, fl) : '');
     });
     return q;
   };
@@ -419,7 +438,7 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
   //   push     the new poster slides in from the left (forward, in Hebrew) and pushes the old one out, with parallax
   // Inside each poster the elements build in: lines of type rise out of a mask, rules draw from the reading side,
   // everything else lifts and fades. Enter = ease-out, exit is the cut itself; 50 ms stagger, most important first.
-  let scenes = null, grain, shadow, clipEl, clipRect, clipPath, clipCols;
+  let scenes = null, grain, grainPat, shadow, clipEl, clipRect, clipPath, clipCols, lastStep = null;
   const uid = 'w' + Math.random().toString(36).slice(2, 8);
   // the cut INTO story i (0 = the loop back). An iris needs a change of ground to be seen, so it goes where colour meets ink.
   const TRANS = ['deal', 'iris', 'columns', 'deal', 'push', 'columns', 'deal', 'iris', 'push', 'deal', 'iris'];
@@ -445,8 +464,8 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
       S.g.style.display = 'none'; return S;
     });
     const defs = el('defs');
-    const pat = el('pattern', { id: uid + 'g', width: 256, height: 256, patternUnits: 'userSpaceOnUse' });
-    const img = el('image', { width: 256, height: 256, href: grainTile() }); img.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', grainTile());
+    const pat = el('pattern', { id: uid + 'g', width: 512, height: 512, patternUnits: 'userSpaceOnUse' }); grainPat = pat;
+    const img = el('image', { width: 512, height: 512, href: grainTile() }); img.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', grainTile());
     pat.append(img); defs.append(pat);
     const blur = el('filter', { id: uid + 's', x: '-20%', y: '-20%', width: '140%', height: '140%' }); blur.append(el('feGaussianBlur', { stdDeviation: 22 })); defs.append(blur);
     clipEl = el('clipPath', { id: uid + 'c' });
@@ -454,14 +473,18 @@ function createStory(svg, day, opts = {}) {   // opts.bleed: the ground runs pas
     defs.append(clipEl); svg.prepend(defs);
     shadow = el('rect', { x: 0, y: 24, width: W, height: H, fill: INK, opacity: 0, filter: `url(#${uid}s)` }); svg.append(shadow);
     grain = el('rect', { x: -B, y: -B, width: W + 2 * B, height: H + 2 * B, fill: `url(#${uid}g)`, 'pointer-events': 'none' });
-    grain.style.mixBlendMode = 'overlay'; grain.setAttribute('opacity', .22); svg.append(grain);
+    grain.style.mixBlendMode = 'overlay'; grain.setAttribute('opacity', .2); svg.append(grain);
   }
   const useClip = (...nodes) => { if (clipEl.firstChild !== nodes[0] || clipEl.childNodes.length !== nodes.length) clipEl.replaceChildren(...nodes); };
   const reset = g => { g.removeAttribute('transform'); g.removeAttribute('clip-path'); };
   let shown = -1, under = -1;
   function draw(TT) {
     if (!scenes) build();
-    TT = sWrap(TT);
+    const step = Math.floor(sWrap(TT) * FPS);
+    if (step === lastStep) return;   // same frame: nothing to redraw
+    lastStep = step;
+    TT = step / FPS;
+    grainPat.setAttribute('patternTransform', `translate(${Math.round(sHash(step, 1.7) * 512)} ${Math.round(sHash(step, 3.1) * 512)}) scale(.5)`);   // the paper boils; half scale so it stays fine on a big screen
     let i = 0; while (i < NSC - 1 && TT >= SCENES[i + 1]) i++;
     const sc = scenes[i], u = Math.max(0, TT - SCENES[i]);
     if (i !== shown) {   // the new poster goes on top; the one it covers stays visible under it until the cut is done
