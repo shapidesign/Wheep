@@ -227,25 +227,33 @@
     $('pausedBadge').textContent = on ? 'מושהה · הקש באמצע להמשך' : '';
     $('pausedBadge').classList.toggle('on', on);
   }
-  let down = null, holding = false, holdT = null;
+  let down = null, holding = false, holdT = null, handled = 0;
+  // a tap on the story: left edge = next, right edge = back (the story moves right to left), the middle pauses
+  const tapAt = clientX => {
+    handled = performance.now();
+    const x = clientX / innerWidth;
+    if (x < .3) scene(1); else if (x > .7) scene(-1); else setPaused(!tapPaused);
+  };
   $('taps').addEventListener('pointerdown', ev => {
-    down = { x: ev.clientX, y: ev.clientY };
-    // hold-to-pause is a touch gesture; with a mouse every click is a click, however long the button stays down
-    if (ev.pointerType !== 'mouse') holdT = setTimeout(() => { holding = true; paused = true; }, 220);
+    down = { x: ev.clientX, y: ev.clientY, t: performance.now() };
+    // hold-to-pause is a touch gesture, and only a real hold (0.45 s): a relaxed finger tap lasts 0.2–0.3 s
+    if (ev.pointerType !== 'mouse') holdT = setTimeout(() => { holding = true; paused = true; }, 450);
   });
   const release = ev => {
     if (!down) return;
     clearTimeout(holdT);
-    const dx = ev.clientX - down.x, dy = ev.clientY - down.y; down = null;
-    if (holding) { holding = false; if (tapPaused) setPaused(false); else paused = false; return; }   // a hold pauses while held; on a paused story it plays on
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) go(d + (dx > 0 ? 1 : -1));   // the story moves right to left: swipe right = the next day
-    else if (Math.abs(dx) < 28 && Math.abs(dy) < 28) {   // a finger always moves a little: up to 28 px is still a tap
-      const x = ev.clientX / innerWidth;
-      if (x < .3) scene(1); else if (x > .7) scene(-1); else setPaused(!tapPaused);   // the story moves right to left: left edge = next, right edge = back; the middle pauses
+    const dx = ev.clientX - down.x, dy = ev.clientY - down.y, long = performance.now() - down.t; down = null;
+    if (holding) {
+      holding = false; paused = tapPaused;
+      if (long > 600 || Math.abs(dx) > 28 || Math.abs(dy) > 28) { if (tapPaused) setPaused(false); return; }   // a real hold: it only paused while held
     }
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) { handled = performance.now(); go(d + (dx > 0 ? 1 : -1)); }   // swipe right = the next day
+    else if (Math.abs(dx) < 28 && Math.abs(dy) < 28) tapAt(ev.clientX);   // a finger always moves a little: up to 28 px is still a tap
   };
   $('taps').addEventListener('pointerup', release);
   $('taps').addEventListener('pointercancel', () => { clearTimeout(holdT); down = null; holding = false; paused = tapPaused; });
+  // fallback: if a browser ever drops the pointer events of a tap, its click still arrives
+  $('taps').addEventListener('click', ev => { if (performance.now() - handled > 500) tapAt(ev.clientX); });
   $('taps').addEventListener('contextmenu', ev => ev.preventDefault());
   $('taps').addEventListener('keydown', ev => {
     if (ev.key === 'ArrowLeft') scene(1); else if (ev.key === 'ArrowRight') scene(-1);
