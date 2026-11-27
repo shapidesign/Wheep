@@ -95,7 +95,7 @@
     }
     return d + 'Z';
   };
-  $$('[data-logo]').forEach((el) => { el.innerHTML = `<svg viewBox="-52 -52 104 104" aria-hidden="true"><path/></svg><span class="lk-word">${[...'wheep'].map((c) => `<span>${c}</span>`).join('')}</span>`; });
+  $$('[data-logo]').forEach((el) => { el.innerHTML = `<svg viewBox="-52 -52 104 104" aria-hidden="true"><path/></svg><span class="lk-word">${[...'wheep'].map((c, j) => `<span style="--i:${j}">${c}</span>`).join('')}</span>`; });
   // every lockup shares the font and the letters, so one visible word gives the width (in em) for all of them
   document.fonts.ready.then(() => {
     const words = $$('[data-logo] .lk-word'), w = words.find((x) => x.offsetParent);
@@ -108,8 +108,14 @@
     const s = logoState(t), d = logoPath(s, 50, t / 12000);
     $$('[data-logo] path, [data-mark] path').forEach((p) => { p.setAttribute('d', d); p.setAttribute('fill', s.c); });
     $$('[data-logo] .lk-word').forEach((w) => [...w.children].forEach((sp, j) => { sp.style.fontVariationSettings = `'wght' ${(100 * (.5 - .5 * Math.sin(t / 1700 - j * .55))).toFixed(1)}`; }));
+    if (introT0 != null) {
+      const p = Math.min(1, Math.max(0, (t - introT0 - 150) / 1500)), e = 1 - (1 - p) ** 4;
+      $('#su-splash path').setAttribute('d', logoPath({ ...s, k: 1 - e * (1 - s.k) }, 50 * e, t / 12000 - (1 - e) * Math.PI));
+      if (p === 1) introT0 = null;
+    }
     if (!reduced) requestAnimationFrame(paintLogo);
   };
+  let introT0 = null;
   requestAnimationFrame(paintLogo);
   const SECOLO_SEL = '.page-title, .dnav-day > span, .su-h, .panel-h, .ab-title, .call-name, .metric b, .gain-bal b, .post-stats dd, .emo-det .panel-val b, .dial-read b, .rings-mid b, .emo-h, .talk-h, .ts-h, .more > summary span';
   let secTick = 0;
@@ -1125,11 +1131,26 @@
   const suBegin = () => { setup.classList.remove('is-pre'); $$('.su-pre', setup).forEach((s) => { s.hidden = true; }); suGo(0); };
   $('#su-new').addEventListener('click', () => suPre('su-intro'));
   $('#su-start').addEventListener('click', suBegin);
+  let introTs = [];
   const openSetup = () => {
     setup.hidden = false; suPre('su-welcome');
-    const sp = $('#su-splash'); sp.hidden = false; sp.classList.remove('is-out');
-    setTimeout(() => sp.classList.add('is-out'), reduced ? 600 : 2600);
-    setTimeout(() => { sp.hidden = true; }, reduced ? 900 : 3100);
+    const sp = $('#su-splash'), lk = $('.lockup', sp), to = $('#su-welcome .su-mark');
+    introTs.forEach(clearTimeout); lk.style.transform = '';
+    sp.hidden = false; sp.classList.remove('is-out', 'is-hand', 'is-play'); setup.classList.remove('su-enter'); void sp.offsetWidth;   // restart the entrance
+    if (reduced) {
+      setTimeout(() => sp.classList.add('is-out'), 600);
+      setTimeout(() => { sp.hidden = true; }, 900);
+      return;
+    }
+    // 1. the mark grows out of a point, sharp to soft; 2. the letters rise one by one;
+    // 3. the whole lockup glides into its place on the welcome screen and the screen comes up around it
+    setup.classList.add('is-intro'); sp.classList.add('is-play'); introT0 = performance.now();
+    introTs = [setTimeout(() => {
+      const a = lk.getBoundingClientRect(), b = to.getBoundingClientRect(), z = sp.getBoundingClientRect().width / sp.offsetWidth;   // z: the device frame's scale
+      lk.style.transform = `translate(${(b.left + b.width / 2 - a.left - a.width / 2) / z}px, ${(b.top + b.height / 2 - a.top - a.height / 2) / z}px) scale(${b.width / a.width})`;
+      sp.classList.add('is-hand'); setup.classList.add('su-enter');
+    }, 2600),
+    setTimeout(() => { sp.hidden = true; lk.style.transform = ''; sp.classList.remove('is-play', 'is-hand'); setup.classList.remove('is-intro'); }, 3500)];
   };
   const closeSetup = () => {
     setup.hidden = true;

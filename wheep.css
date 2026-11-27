@@ -1693,3 +1693,15 @@ html.track .emo-h, html.track .talk-h, html.track .ts-h, html.track .more > summ
 @media (prefers-reduced-motion: reduce) { .ghost { animation: none; } }
 /* the logo's word holds its widest box, so the mark stays put while the letters breathe */
 .lk-word { justify-content: flex-start; }
+
+/* ── the opening: point → mark → word → welcome ── */
+.su-splash { transition: opacity .5s var(--ease), background-color .7s var(--ease); }
+.su-splash .lockup { transition: transform .85s cubic-bezier(.65, 0, .25, 1); }
+.su-splash.is-play .lk-word > span { animation: lk-in 1s var(--ease) both; animation-delay: calc(.85s + var(--i) * .09s); }
+@keyframes lk-in { from { opacity: 0; translate: 0 .32em; filter: blur(8px); } }
+.su-splash.is-hand { background-color: transparent; }
+.setup.is-intro #su-welcome .su-mark { visibility: hidden; }
+.setup.is-intro:not(.su-enter) #su-welcome > :not(.su-mark) { opacity: 0; }
+.setup.su-enter #su-welcome > :not(.su-mark) { animation: lk-rise .8s var(--ease) both .45s; }
+.setup.su-enter #su-welcome > .su-pre-acts { animation-delay: .6s; }
+@keyframes lk-rise { from { opacity: 0; translate: 0 18px; } }
