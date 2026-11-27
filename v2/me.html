@@ -231,7 +231,7 @@
   // a tap on the story: left edge = next, right edge = back (the story moves right to left), the middle pauses
   const tapAt = clientX => {
     handled = performance.now();
-    const x = clientX / innerWidth;
+    const r = $('storySvg').getBoundingClientRect(), x = (clientX - r.left) / r.width;   // on the poster, not the window
     if (x < .3) scene(1); else if (x > .7) scene(-1); else setPaused(!tapPaused);
   };
   $('taps').addEventListener('pointerdown', ev => {

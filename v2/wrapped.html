@@ -39,7 +39,7 @@
 <main>
   <header>
     <h1>מה עבר עליך היום.</h1>
-    <p>שבוע של אדם אחד, שבעה סיכומים יומיים. כל אחד הוא סיפור קצר של פחות מדקה: השם, הרגש שהוביל, מה נמדד ומתי, הפער בין בחוץ לבפנים, והיום כולו ברגשות. לחיצה על פוסטר עוצרת אותו, ולחיצה נוספת ממשיכה. <a href="live.html">לגרסה החיה</a>.</p>
+    <p>שבוע של אדם אחד, שבעה סיכומים יומיים. כל אחד הוא סיפור קצר של פחות מדקה: השם, הרגש שהוביל, מה נמדד ומתי, הפער בין בחוץ לבפנים, והיום כולו ברגשות. כמו סטורי: לחיצה בצד שמאל של פוסטר עוברת לבא, בצד ימין לקודם, ובאמצע עוצרת. <a href="live.html">לגרסה החיה</a>.</p>
   </header>
   <div class="grid" id="grid"></div>
 </main>
@@ -75,8 +75,21 @@
       if (st.held === null) st.held = T - st.off; else { st.off = T - st.held; st.held = null; }
       card.classList.toggle('paused', st.held !== null); svg.setAttribute('aria-pressed', String(st.held !== null));
     };
-    svg.addEventListener('click', toggle);
-    svg.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); } });
+    // like a story: the left side of the poster is the next story, the right side the one before (it moves right to left), the middle pauses
+    const jump = step => {
+      const now = (performance.now() - t0) / 1000, T = sWrap(st.held ?? now - st.off);
+      let j = 0; while (j < SCENES.length - 2 && T >= SCENES[j + 1]) j++;
+      const to = step > 0 ? (j >= SCENES.length - 2 ? 0 : SCENES[j + 1]) : (T - SCENES[j] > 1.2 ? SCENES[j] : SCENES[Math.max(0, j - 1)]);
+      if (st.held !== null) st.held = to; else st.off = now - to;
+    };
+    svg.addEventListener('click', ev => {
+      const r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width;
+      if (x < .3) jump(1); else if (x > .7) jump(-1); else toggle();
+    });
+    svg.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') jump(1); else if (e.key === 'ArrowRight') jump(-1);
+      else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
+    });
     return st;
   }).filter(Boolean);
   // only the stories on screen are drawn: seven at once is what made the page stutter

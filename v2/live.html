@@ -160,8 +160,22 @@
     held = on; stage.setAttribute('aria-pressed', String(on));
     const b = document.getElementById('pausedBadge'); b.textContent = on ? 'מושהה · לחיצה ממשיכה' : ''; b.classList.toggle('on', on);
   }
-  stage.addEventListener('click', () => hold(!held));
-  stage.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); hold(!held); } });
+  // like a story: the left side of the poster is the next story, the right side the one before (it moves right to left),
+  // the middle pauses. Measured on the poster itself, so it works on any screen.
+  function jump(step) {
+    const t = performance.now(), T = (t - start) / 1000;
+    let i = 0; while (i < SCENES.length - 2 && T >= SCENES[i + 1]) i++;
+    if (step > 0) { if (i >= SCENES.length - 2) next(t); else start = t - SCENES[i + 1] * 1000; }
+    else start = t - (T - SCENES[i] > 1.2 ? SCENES[i] : SCENES[Math.max(0, i - 1)]) * 1000;   // back: first to the start of this one
+  }
+  stage.addEventListener('click', ev => {
+    const r = stage.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width;
+    if (x < .3) jump(1); else if (x > .7) jump(-1); else hold(!held);
+  });
+  stage.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') jump(1); else if (e.key === 'ArrowRight') jump(-1);
+    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); hold(!held); }
+  });
   document.fonts.ready.then(() => requestAnimationFrame(tick));
 </script>
 </body>
